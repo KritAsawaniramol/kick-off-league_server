@@ -68,7 +68,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	//Routers
 	authRouter := s.app.Group("/auth")
 	{
-		authRouter.POST("/register", userHttpHandler.RegisterNormaluser)
+		authRouter.POST("/register/normal", userHttpHandler.RegisterNormaluser)
 		authRouter.POST("/register/organizer", userHttpHandler.RegisterOrganizer)
 		authRouter.POST("/login", userHttpHandler.LoginUser)
 	}
