@@ -8,6 +8,13 @@ const (
 	TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
 )
 
+type Role int
+
+const (
+	Normal = iota + 1
+	Organizer
+)
+
 type FieldSurfaces string
 
 const (

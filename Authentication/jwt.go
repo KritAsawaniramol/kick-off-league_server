@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -11,6 +12,27 @@ import (
 type jwtAuthentication struct {
 	secretKey string
 }
+
+// fetch user details from the token
+// func (j *jwtAuthentication) CurrentUser(c *gin.Context) (*model.User, error) {
+// 	err := j.validateJWT(c)
+// 	if err != nil {
+// 		return &model.User{}, err
+// 	}
+
+// 	token, err := j.getToken(c)
+// 	if err != nil {
+// 		return &model.User{}, err
+// 	}
+
+// 	claims, err := token.Claims(jwt.MapClaims)
+// 	if err != nil {
+// 		return &model.User{}, err
+// 	}
+
+// 	userId := uint(claims["user_id"].(float64))
+
+// }
 
 func (j *jwtAuthentication) getToken(c *gin.Context) (*jwt.Token, error) {
 	cookie, err := c.Cookie("jwt")
@@ -37,6 +59,21 @@ func (j *jwtAuthentication) Auth() gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+func (j *jwtAuthentication) validateJWT(c *gin.Context) error {
+
+	token, err := j.getToken(c)
+	if err != nil {
+		return err
+	}
+
+	_, ok := token.Claims.(jwt.MapClaims)
+
+	if !token.Valid || !ok {
+		return errors.New("invalid token provide")
+	}
+	return nil
 }
 
 // AuthAdmin implements Authentication.
@@ -78,8 +115,6 @@ func (j *jwtAuthentication) AuthNormalUser() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("token", token)
-
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			log.Print("token can't claims")
@@ -107,7 +142,15 @@ func (j *jwtAuthentication) AuthNormalUser() gin.HandlerFunc {
 			return
 		}
 
+		normalUserID, ok := claims["normalUser_id"]
+		if !ok {
+			log.Print("normalUser_id not found in token", claims)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			return
+		}
+
 		c.Set("user_id", uint(userID.(float64)))
+		c.Set("normalUser_id", uint(normalUserID.(float64)))
 		c.Next()
 	}
 }

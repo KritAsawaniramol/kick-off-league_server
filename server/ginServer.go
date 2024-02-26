@@ -49,14 +49,27 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	userHttpHandler := handlers.NewUserHttpHandler(userUsercase)
 
 	s.app.Use(gin.Logger())
+	s.app.Use(gin.Recovery())
+	// Add CORS middleware
+	s.app.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+			return
+		}
+		c.Next()
+	})
 
 	// s.app.GET("/user/phone/:phone", userHttpHandler.GetUserByPhone)
-	s.app.PUT("/user/phone/:userID/:phone", userHttpHandler.UpdateNormalUserPhone)
+	// s.app.PUT("/user/phone/:userID/:phone", userHttpHandler.UpdateNormalUserPhone)
 
 	//Routers
 	authRouter := s.app.Group("/auth")
 	{
-		authRouter.POST("/register", userHttpHandler.RegisterUser)
+		authRouter.POST("/register", userHttpHandler.RegisterNormaluser)
+		authRouter.POST("/register/organizer", userHttpHandler.RegisterOrganizer)
 		authRouter.POST("/login", userHttpHandler.LoginUser)
 	}
 
@@ -76,11 +89,14 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	normalRouter := s.app.Group("/user")
 	normalRouter.Use(auth.AuthNormalUser())
 	{
-		normalRouter.PUT("/normalUser/:id", userHttpHandler.UpdateNormalUser)
-		normalRouter.GET("/:id", userHttpHandler.GetUser)
-		normalRouter.POST("/team/:id", userHttpHandler.CreateTeam)
-		// normalRouter.POST("/team")
+		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)
+		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
+		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
+		normalRouter.POST("/team", userHttpHandler.CreateTeam)
+		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
 
+		normalRouter.GET("/:id", userHttpHandler.GetUser)
+		// normalRouter.POST("/team")
 	}
 
 	// publicRouter := s.app.Group("/api/view")

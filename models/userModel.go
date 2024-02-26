@@ -6,8 +6,12 @@ import (
 
 type RegisterUser struct {
 	Email    string `json:"email" binding:"required"`
-	Role     string `json:"role" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type RegisterNormaluser struct {
+	RegisterUser
+	Username string `json:"username" binding:"required"`
 }
 
 type RegisterOrganizer struct {
@@ -31,27 +35,9 @@ type User struct {
 	Datail    map[string]interface{}
 }
 
-type NormalUser_2 struct {
-	UserID uint
-	Email  string `json:"email"`
-
-	FirstNameThai string
-	LastNameThai  string
-	FirstNameEng  string
-	LastNameEng   string
-	Born          time.Time
-	Height        uint
-	Weight        uint
-	Sex           string
-	Position      string
-	Nationality   string
-	Phone         string
-	AddressID     uint
-	Address       Address
-	Team          []Team
-	TeamCreated   []Team
-	GoalRecord    GoalRecord
-	// imageProfile string
+type AddMemberRequest struct {
+	TeamID           uint   `json:"teamID" binding:"required"`
+	ReceiverUsername string `json:"receiverUsername" binding:"required"`
 }
 
 type NormalUser struct {

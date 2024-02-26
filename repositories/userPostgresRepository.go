@@ -5,16 +5,109 @@ import (
 
 	"gorm.io/gorm"
 	"kickoff-league.com/entities"
+	"kickoff-league.com/util"
 )
 
 type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// SoftDeleteAddMemberRequestByID implements Userrepository.
+func (*userPostgresRepository) SoftDeleteAddMemberRequestByID(in uint) error {
+	panic("unimplemented")
+}
+
+// update status and soft delete by ID within a transaction
+func (u *userPostgresRepository) UpdateAddMemberRequestStatusAndSoftDelete(inReq *entities.AddMemberRequest, inStatus string) error {
+	if err := u.db.Transaction(func(tx *gorm.DB) error {
+		inReq.Status = inStatus
+
+		//Update Req status
+		if err := tx.Save(inReq).Error; err != nil {
+			return err
+		}
+
+		// Soft delete by ID
+		if err := tx.Delete(inReq).Error; err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// InsertTeamsMember implements Userrepository.
+func (u *userPostgresRepository) InsertTeamsMember(in *entities.TeamsMember) error {
+	result := u.db.Create(in)
+
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+// GetTeam implements Userrepository.
+func (u *userPostgresRepository) GetTeamByID(in uint) (*entities.Teams, error) {
+	team := new(entities.Teams)
+	if err := u.db.Model(&entities.Teams{}).Where("id = ?", in).First(team).Error; err != nil {
+		return nil, err
+	}
+	return team, nil
+}
+
+// GetTeamWithMemberAndRequestSendByID implements Userrepository.
+func (u *userPostgresRepository) GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error) {
+	team := new(entities.Teams)
+	if err := u.db.Model(&entities.Teams{}).Preload("Member").Preload("Compatition").Preload("RequestSend").Where("id = ?", in).First(team).Error; err != nil {
+		return nil, err
+	}
+	return team, nil
+}
+
+// GetAddMemberRequestByID implements Userrepository.
+func (u *userPostgresRepository) GetAddMemberRequestByID(in uint) (*entities.AddMemberRequest, error) {
+	addMemberReuest := new(entities.AddMemberRequest)
+	if err := u.db.Where("id = ?", in).First(addMemberReuest).Error; err != nil {
+		return nil, err
+	}
+	return addMemberReuest, nil
+}
+
+// UpdateAddMemberRequestStatusByID implements Userrepository.
+func (u *userPostgresRepository) UpdateAddMemberRequestStatusByID(inID uint, inStatus string) error {
+	result := u.db.Model(&entities.AddMemberRequest{}).Where("id = ?", inID).Update("status", inStatus)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+// GetNormalUserByUsername implements Userrepository.
+func (u *userPostgresRepository) GetNormalUserByUsername(in string) (*entities.NormalUser, error) {
+	normalUser := &entities.NormalUser{}
+	err := u.db.Model(&entities.NormalUser{}).Where("username = ?", in).First(&normalUser).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return &entities.NormalUser{}, err
+	}
+	return normalUser, nil
+}
+
+// InsertAddMemberRequest implements Userrepository.
+func (u *userPostgresRepository) InsertAddMemberRequest(in *entities.AddMemberRequest) error {
+	util.PrintObjInJson(in)
+	result := u.db.Create(in)
+
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 // UpdateNormalUser implements Userrepository.
-func (u *userPostgresRepository) UpdateNormalUser(inNormalUser *entities.NormalUser, inUserID uint) error {
-	log.Print(*inNormalUser)
-	result := u.db.Model(&entities.NormalUser{}).Where("user_id = ?", inUserID).Updates(inNormalUser)
+func (u *userPostgresRepository) UpdateNormalUser(inNormalUser *entities.NormalUser) error {
+	result := u.db.Model(&inNormalUser).Updates(inNormalUser)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -34,7 +127,7 @@ func (u *userPostgresRepository) GetOrganizerByUserID(in uint) (*entities.Organi
 // GetNormalUserByUserID implements Userrepository.
 func (u *userPostgresRepository) GetNormalUserByUserID(in uint) (*entities.NormalUser, error) {
 	normalUser := &entities.NormalUser{}
-	err := u.db.Model(&entities.NormalUser{}).Where("user_id = ?", in).First(&normalUser).Error
+	err := u.db.Model(&entities.NormalUser{}).Preload("Address").Preload("Teams").Preload("TeamsCreated").Preload("GoalRecord").Preload("RequestReceive").Where("user_id = ?", in).First(&normalUser).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return &entities.NormalUser{}, err
 	}
@@ -42,7 +135,7 @@ func (u *userPostgresRepository) GetNormalUserByUserID(in uint) (*entities.Norma
 }
 
 // InsertTeam implements Userrepository.
-func (u *userPostgresRepository) InsertTeam(in *entities.Team) error {
+func (u *userPostgresRepository) InsertTeam(in *entities.Teams) error {
 	result := u.db.Create(in)
 
 	if result.Error != nil {

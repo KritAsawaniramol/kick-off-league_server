@@ -11,14 +11,15 @@ func Migration(db database.Database) {
 	err := db.GetDb().AutoMigrate(
 		&entities.User{},
 		&entities.Address{},
-		&entities.Team{},
+		&entities.Teams{},
 		&entities.NormalUser{},
 		&entities.Organizer{},
-		&entities.TeamMember{},
-		&entities.CompatitionTeam{},
+		// &entities.TeamMember{},
+		&entities.CompatitionTeams{},
 		&entities.Compatition{},
 		&entities.Matches{},
-		&entities.GoalRecord{},
+		&entities.GoalRecords{},
+		&entities.AddMemberRequest{},
 	)
 	if err != nil {
 		panic("Database migration failed!")
