@@ -31,19 +31,20 @@ func (*userHttpHandler) UploadImage(c *gin.Context) {
 		return
 	}
 
-	if !isImage(in) {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "File is not an image"})
+	// extract image extension from original file filename
+	isImage, fileExt := isImage(in)
+	if !isImage {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "File is not an image(png, jpeg)"})
 		return
 	}
+
+	util.PrintObjInJson(in)
 
 	// generate new uuid for image name
 	uniqueID := uuid.New()
 
 	// remove "- from imageName"
 	filename := strings.Replace(uniqueID.String(), "-", "", -1)
-
-	// extract image extension from original file filename
-	fileExt := strings.Split(in.Filename, ".")[1]
 
 	// generate image from filename and extension
 	image := fmt.Sprintf("%s.%s", filename, fileExt)
@@ -55,23 +56,25 @@ func (*userHttpHandler) UploadImage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "File upload complete!"})
 }
 
-func isImage(fileHeader *multipart.FileHeader) bool {
+func isImage(fileHeader *multipart.FileHeader) (bool, string) {
 	file, err := fileHeader.Open()
 	if err != nil {
-		return false
+		return false, ""
 	}
 	defer file.Close()
 	_, format, err := image.Decode(file)
 	fmt.Println("format", format)
 	if err != nil {
 		log.Error(err)
-		return false
+		return false, ""
 	}
 	switch format {
-	case "jpeg", "png":
-		return true
+	case "jpeg":
+		return true, "jpeg"
+	case "png":
+		return true, "png"
 	default:
-		return false
+		return false, ""
 	}
 }
 
