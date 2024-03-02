@@ -20,6 +20,11 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// UploadImageProfile implements UserUsecase.
+func (*userUsecaseImpl) UploadImageProfile(imageURL string) {
+	panic("unimplemented")
+}
+
 // GetCompatitions implements UserUsecase.
 func (*userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.Compatition, error) {
 	panic("unimplemented")

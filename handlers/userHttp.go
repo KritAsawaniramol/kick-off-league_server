@@ -2,10 +2,17 @@ package handlers
 
 import (
 	"fmt"
+	"image"
+	"mime/multipart"
 	"net/http"
 	"strconv"
+	"strings"
+
+	_ "image/jpeg"
+	_ "image/png"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	model "kickoff-league.com/models"
 	"kickoff-league.com/usecases"
@@ -14,6 +21,58 @@ import (
 
 type userHttpHandler struct {
 	userUsercase usecases.UserUsecase
+}
+
+// UploadFile implements UserHandler.
+func (*userHttpHandler) UploadImage(c *gin.Context) {
+	in, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if !isImage(in) {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "File is not an image"})
+		return
+	}
+
+	// generate new uuid for image name
+	uniqueID := uuid.New()
+
+	// remove "- from imageName"
+	filename := strings.Replace(uniqueID.String(), "-", "", -1)
+
+	// extract image extension from original file filename
+	fileExt := strings.Split(in.Filename, ".")[1]
+
+	// generate image from filename and extension
+	image := fmt.Sprintf("%s.%s", filename, fileExt)
+
+	if err := c.SaveUploadedFile(in, "./images/"+image); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "File upload complete!"})
+}
+
+func isImage(fileHeader *multipart.FileHeader) bool {
+	file, err := fileHeader.Open()
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+	_, format, err := image.Decode(file)
+	fmt.Println("format", format)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	switch format {
+	case "jpeg", "png":
+		return true
+	default:
+		return false
+	}
 }
 
 // // uploadImage implements UserHandler.

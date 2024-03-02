@@ -50,6 +50,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 	s.app.Use(gin.Logger())
 	s.app.Use(gin.Recovery())
+	s.app.Static("/images", "./images")
+
 	// Add CORS middleware
 	s.app.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -61,6 +63,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		}
 		c.Next()
 	})
+
+	s.app.POST("/upload", userHttpHandler.UploadImage)
 
 	// s.app.GET("/user/phone/:phone", userHttpHandler.GetUserByPhone)
 	// s.app.PUT("/user/phone/:userID/:phone", userHttpHandler.UpdateNormalUserPhone)
@@ -96,7 +100,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	normalRouter := s.app.Group("/user")
 	normalRouter.Use(auth.AuthNormalUser())
 	{
-
 		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)

@@ -2,3 +2,4 @@
 config.yaml
 .json
 migrations/userMigrate.go
+/images

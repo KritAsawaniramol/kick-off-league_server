@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"net/textproto"
 	"time"
 
 	"gorm.io/gorm"
@@ -70,6 +71,13 @@ type (
 		GoalRecords     []GoalRecords       `gorm:"foreignKey:PlayerID"`
 		RequestReceives []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
 		// imageProfile  string
+	}
+
+	Image struct {
+		Name   string
+		URL    string
+		header textproto.MIMEHeader
+		size   int64
 	}
 
 	Teams struct {
