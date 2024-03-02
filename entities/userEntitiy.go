@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"net/textproto"
 	"time"
 
 	"gorm.io/gorm"
@@ -45,7 +44,7 @@ type (
 		AddressesID  uint `gorm:"unique"`
 		Addresses    Addresses
 		Compatitions []Compatitions
-		// imageProfile string
+		ImageURL     string
 	}
 
 	NormalUsers struct {
@@ -70,14 +69,7 @@ type (
 		TeamsCreated    []Teams             `gorm:"foreignKey:OwnerID;references:users_id"`
 		GoalRecords     []GoalRecords       `gorm:"foreignKey:PlayerID"`
 		RequestReceives []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
-		// imageProfile  string
-	}
-
-	Image struct {
-		Name   string
-		URL    string
-		header textproto.MIMEHeader
-		size   int64
+		ImagePath       string
 	}
 
 	Teams struct {

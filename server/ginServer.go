@@ -27,7 +27,6 @@ func NewGinServer(cfg *config.Config, db *gorm.DB) Server {
 }
 
 func (s *ginServer) Start() {
-
 	// Initialzie routers here
 	s.initialzieUserHttpHandler()
 
@@ -102,6 +101,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	{
 		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
+		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
 		normalRouter.GET("/:id", userHttpHandler.GetUser)
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)

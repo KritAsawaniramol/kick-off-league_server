@@ -21,8 +21,15 @@ type userUsecaseImpl struct {
 }
 
 // UploadImageProfile implements UserUsecase.
-func (*userUsecaseImpl) UploadImageProfile(imageURL string) {
-	panic("unimplemented")
+func (u *userUsecaseImpl) UpdateImageProfile(imagePath string, normalUserID uint) error {
+	normalUser := &entities.NormalUsers{
+		ImagePath: imagePath,
+	}
+	normalUser.ID = normalUserID
+	if err := u.userrepository.UpdateNormalUser(normalUser); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetCompatitions implements UserUsecase.
@@ -289,10 +296,6 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 // UpdateNormalUser implements UserUsecase.
 func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error {
 
-	// normalUser, err := u.userrepository.GetNormalUserByUserID(inUserID)
-	// if err != nil {
-	// 	return err
-	// }
 	normalUser := &entities.NormalUsers{
 		FirstNameThai: inUpdateModel.FirstNameThai,
 		LastNameThai:  inUpdateModel.LastNameThai,
@@ -306,9 +309,12 @@ func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser
 		Nationality:   inUpdateModel.Nationality,
 		Description:   inUpdateModel.Description,
 		Phone:         inUpdateModel.Phone,
+		ImagePath:     inUpdateModel.ImagePath,
 	}
 
 	normalUser.ID = inNormalUserID
+
+	util.PrintObjInJson(normalUser)
 
 	if err := u.userrepository.UpdateNormalUser(normalUser); err != nil {
 		return err
@@ -407,19 +413,20 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 		}
 		userModel.Datail = map[string]interface{}{
 			"normal_user_info": model.NormalUserInfo{
-				ID:            normalUser.ID,
-				FirstNameThai: normalUser.FirstNameThai,
-				LastNameThai:  normalUser.LastNameThai,
-				FirstNameEng:  normalUser.FirstNameEng,
-				LastNameEng:   normalUser.LastNameEng,
-				Born:          normalUser.Born,
-				Phone:         normalUser.Phone,
-				Height:        normalUser.Height,
-				Weight:        normalUser.Weight,
-				Sex:           normalUser.Sex,
-				Position:      normalUser.Position,
-				Nationality:   normalUser.Nationality,
-				Description:   normalUser.Description,
+				ID:               normalUser.ID,
+				FirstNameThai:    normalUser.FirstNameThai,
+				LastNameThai:     normalUser.LastNameThai,
+				FirstNameEng:     normalUser.FirstNameEng,
+				LastNameEng:      normalUser.LastNameEng,
+				Born:             normalUser.Born,
+				Phone:            normalUser.Phone,
+				Height:           normalUser.Height,
+				Weight:           normalUser.Weight,
+				Sex:              normalUser.Sex,
+				Position:         normalUser.Position,
+				Nationality:      normalUser.Nationality,
+				Description:      normalUser.Description,
+				ImageProfilePath: normalUser.ImagePath[1:],
 				Address: model.Address{
 					HouseNumber: normalUser.Addresses.HouseNumber,
 					Village:     normalUser.Addresses.Village,

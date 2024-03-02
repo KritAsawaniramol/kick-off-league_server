@@ -1,6 +1,8 @@
 package usecases
 
-import model "kickoff-league.com/models"
+import (
+	model "kickoff-league.com/models"
+)
 
 type UserUsecase interface {
 	Login(in *model.LoginUser) (string, model.User, error)
@@ -11,7 +13,8 @@ type UserUsecase interface {
 	GetUser(in uint) (model.User, error)
 	// GetNormalUser(in uint) (model.NormalUser, error)
 	// GetTeam(in uint) (model.NormalUser, error)
-	UploadImageProfile(imageURL string)
+
+	UpdateImageProfile(imagePath string, normaluserUserID uint) error
 	GetMyPenddingAddMemberRequest(userID uint) ([]model.AddMemberRequest, error)
 	GetTeamMembers(id uint) (*model.Team, error)
 	GetTeamWithMemberAndCompatitionByID(id uint) (*model.Team, error)
@@ -22,10 +25,7 @@ type UserUsecase interface {
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error
 	AcceptAddMemberRequest(inReqID uint, userID uint) error
 	IgnoreAddMemberRequest(inReqID uint, userID uint) error
-
-	UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error
-
-	// OrganizerRegister(in *model.)
+	UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error // OrganizerRegister(in *model.)
 
 	// GetUserByPhone(in string) (model.NormalUser, error)
 	UpdateNormalUserPhone(inUserID uint, newPhone string) error

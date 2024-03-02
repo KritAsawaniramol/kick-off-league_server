@@ -60,20 +60,21 @@ type NormalUser struct {
 }
 
 type NormalUserInfo struct {
-	ID            uint      `json:"id"`
-	FirstNameThai string    `json:"first_name_thai"`
-	LastNameThai  string    `json:"last_name_thai"`
-	FirstNameEng  string    `json:"first_name_eng"`
-	LastNameEng   string    `json:"last_name_eng"`
-	Born          time.Time `json:"born"`
-	Phone         string    `json:"phone"`
-	Height        uint      `json:"height"`
-	Weight        uint      `json:"weight"`
-	Sex           string    `json:"sex"`
-	Position      string    `json:"position"`
-	Nationality   string    `json:"nationality"`
-	Description   string    `json:"description"`
-	Address       `json:"address"`
+	ID               uint      `json:"id"`
+	FirstNameThai    string    `json:"first_name_thai"`
+	LastNameThai     string    `json:"last_name_thai"`
+	FirstNameEng     string    `json:"first_name_eng"`
+	LastNameEng      string    `json:"last_name_eng"`
+	Born             time.Time `json:"born"`
+	Phone            string    `json:"phone"`
+	Height           uint      `json:"height"`
+	Weight           uint      `json:"weight"`
+	Sex              string    `json:"sex"`
+	Position         string    `json:"position"`
+	Nationality      string    `json:"nationality"`
+	Description      string    `json:"description"`
+	ImageProfilePath string    `json:"image_profile_path"`
+	Address          `json:"address"`
 }
 
 type UpdateNormalUser struct {
@@ -89,6 +90,7 @@ type UpdateNormalUser struct {
 	Position      string    `json:"position"`
 	Nationality   string    `json:"nationality"`
 	Description   string    `json:"description"`
+	ImagePath     string    `json:"ImagePath"`
 }
 
 type GoalRecord struct {

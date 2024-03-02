@@ -150,7 +150,7 @@ func (j *jwtAuthentication) AuthNormalUser() gin.HandlerFunc {
 		}
 
 		c.Set("user_id", uint(userID.(float64)))
-		c.Set("normalUser_id", uint(normalUserID.(float64)))
+		c.Set("normal_user_id", uint(normalUserID.(float64)))
 		c.Next()
 	}
 }
