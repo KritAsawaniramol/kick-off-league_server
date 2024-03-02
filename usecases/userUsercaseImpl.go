@@ -398,7 +398,15 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 		if err != nil {
 			return "", model.User{}, err
 		}
+		if normalUser.ImageProfilePath != "" {
+			normalUser.ImageProfilePath = normalUser.ImageProfilePath[1:]
+		}
+		if normalUser.ImageCoverPath != "" {
+			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
+		}
+
 		userModel.Datail = map[string]interface{}{
+
 			"normal_user_info": model.NormalUserInfo{
 				ID:               normalUser.ID,
 				FirstNameThai:    normalUser.FirstNameThai,

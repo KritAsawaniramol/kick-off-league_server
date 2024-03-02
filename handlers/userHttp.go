@@ -407,7 +407,7 @@ func (h *userHttpHandler) RegisterNormaluser(c *gin.Context) {
 	}
 	fmt.Printf("%v\n", reqBody)
 	if err := h.userUsercase.RegisterNormaluser(reqBody); err != nil {
-		response(c, http.StatusInternalServerError, "Register failed")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 	response(c, http.StatusOK, "Register success")
