@@ -20,21 +20,9 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
-// UploadImageProfile implements UserUsecase.
-func (u *userUsecaseImpl) UpdateImageProfile(imagePath string, normalUserID uint) error {
-	normalUser := &entities.NormalUsers{
-		ImagePath: imagePath,
-	}
-	normalUser.ID = normalUserID
-	if err := u.userrepository.UpdateNormalUser(normalUser); err != nil {
-		return err
-	}
-	return nil
-}
-
 // GetCompatitions implements UserUsecase.
 func (*userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.Compatition, error) {
-	panic("unimplemented")
+	return nil, nil
 }
 
 // CreateCompatition implements UserUsecase.
@@ -309,7 +297,6 @@ func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser
 		Nationality:   inUpdateModel.Nationality,
 		Description:   inUpdateModel.Description,
 		Phone:         inUpdateModel.Phone,
-		ImagePath:     inUpdateModel.ImagePath,
 	}
 
 	normalUser.ID = inNormalUserID
@@ -426,7 +413,8 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 				Position:         normalUser.Position,
 				Nationality:      normalUser.Nationality,
 				Description:      normalUser.Description,
-				ImageProfilePath: normalUser.ImagePath[1:],
+				ImageProfilePath: normalUser.ImageProfilePath[1:],
+				ImageCoverPath:   normalUser.ImageCoverPath[1:],
 				Address: model.Address{
 					HouseNumber: normalUser.Addresses.HouseNumber,
 					Village:     normalUser.Addresses.Village,

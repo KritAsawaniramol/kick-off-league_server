@@ -102,6 +102,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
 		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
+		normalRouter.PUT("/image/cover", userHttpHandler.UpdateImageCover)
+
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
 		normalRouter.GET("/:id", userHttpHandler.GetUser)
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)

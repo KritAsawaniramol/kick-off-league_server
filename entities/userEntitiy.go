@@ -49,27 +49,28 @@ type (
 
 	NormalUsers struct {
 		gorm.Model
-		UsersID         uint   `gorm:"unique;not null"`
-		Username        string `gorm:"unique;not null"`
-		FirstNameThai   string
-		LastNameThai    string
-		FirstNameEng    string
-		LastNameEng     string
-		Born            time.Time
-		Height          uint
-		Weight          uint
-		Sex             string
-		Position        string
-		Nationality     string
-		Description     string
-		Phone           string
-		AddressesID     uint `gorm:"unique"`
-		Addresses       Addresses
-		Teams           []TeamsMembers
-		TeamsCreated    []Teams             `gorm:"foreignKey:OwnerID;references:users_id"`
-		GoalRecords     []GoalRecords       `gorm:"foreignKey:PlayerID"`
-		RequestReceives []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
-		ImagePath       string
+		UsersID          uint   `gorm:"unique;not null"`
+		Username         string `gorm:"unique;not null"`
+		FirstNameThai    string
+		LastNameThai     string
+		FirstNameEng     string
+		LastNameEng      string
+		Born             time.Time
+		Height           uint
+		Weight           uint
+		Sex              string
+		Position         string
+		Nationality      string
+		Description      string
+		Phone            string
+		AddressesID      uint `gorm:"unique"`
+		Addresses        Addresses
+		Teams            []TeamsMembers
+		TeamsCreated     []Teams             `gorm:"foreignKey:OwnerID;references:users_id"`
+		GoalRecords      []GoalRecords       `gorm:"foreignKey:PlayerID"`
+		RequestReceives  []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
+		ImageProfilePath string
+		ImageCoverPath   string
 	}
 
 	Teams struct {

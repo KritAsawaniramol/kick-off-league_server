@@ -74,23 +74,25 @@ type NormalUserInfo struct {
 	Nationality      string    `json:"nationality"`
 	Description      string    `json:"description"`
 	ImageProfilePath string    `json:"image_profile_path"`
+	ImageCoverPath   string    `json:"image_cover_path"`
 	Address          `json:"address"`
 }
 
 type UpdateNormalUser struct {
-	FirstNameThai string    `json:"first_name_thai"`
-	LastNameThai  string    `json:"last_name_thai"`
-	FirstNameEng  string    `json:"first_name_eng"`
-	LastNameEng   string    `json:"last_name_eng"`
-	Born          time.Time `json:"born"`
-	Phone         string    `json:"phone"`
-	Height        uint      `json:"height"`
-	Weight        uint      `json:"weight"`
-	Sex           string    `json:"sex"`
-	Position      string    `json:"position"`
-	Nationality   string    `json:"nationality"`
-	Description   string    `json:"description"`
-	ImagePath     string    `json:"ImagePath"`
+	FirstNameThai    string    `json:"first_name_thai"`
+	LastNameThai     string    `json:"last_name_thai"`
+	FirstNameEng     string    `json:"first_name_eng"`
+	LastNameEng      string    `json:"last_name_eng"`
+	Born             time.Time `json:"born"`
+	Phone            string    `json:"phone"`
+	Height           uint      `json:"height"`
+	Weight           uint      `json:"weight"`
+	Sex              string    `json:"sex"`
+	Position         string    `json:"position"`
+	Nationality      string    `json:"nationality"`
+	Description      string    `json:"description"`
+	ImageProfilePath string    `json:"image_profile_path"`
+	ImageCoverPath   string    `json:"image_cover_path"`
 }
 
 type GoalRecord struct {

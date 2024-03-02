@@ -24,6 +24,57 @@ type userHttpHandler struct {
 	userUsercase usecases.UserUsecase
 }
 
+func createImagePath(fileExt string, dst string) string {
+	// generate new uuid for image name
+	uniqueID := uuid.New()
+
+	// remove "- from imageName"
+	filename := strings.Replace(uniqueID.String(), "-", "", -1)
+
+	// generate image from filename and extension
+	image := fmt.Sprintf("%s.%s", filename, fileExt)
+
+	imagePath := fmt.Sprintf("%s/%s", dst, image)
+	return imagePath
+}
+
+// UpdateImageCover implements UserHandler.
+func (h *userHttpHandler) UpdateImageCover(c *gin.Context) {
+	normalUserID := c.GetUint("normal_user_id")
+
+	in, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	// extract image extension from original file filename
+	isImage, fileExt := isImage(in)
+	if !isImage {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "File is not an image(png, jpeg)"})
+		return
+	}
+
+	imagePath := createImagePath(fileExt, "./images/cover")
+
+	if err := c.SaveUploadedFile(in, imagePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+	}
+
+	reqBody := new(model.UpdateNormalUser)
+	reqBody.ImageCoverPath = imagePath
+
+	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
+		log.Errorf(err.Error())
+		if err := os.Remove(imagePath); err != nil {
+			fmt.Printf("Error removing file: %s\n", err)
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
+}
+
 func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 	normalUserID := c.GetUint("normal_user_id")
 
@@ -40,23 +91,14 @@ func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 		return
 	}
 
-	// generate new uuid for image name
-	uniqueID := uuid.New()
-
-	// remove "- from imageName"
-	filename := strings.Replace(uniqueID.String(), "-", "", -1)
-
-	// generate image from filename and extension
-	image := fmt.Sprintf("%s.%s", filename, fileExt)
-
-	imagePath := fmt.Sprintf("./images/%s", image)
+	imagePath := createImagePath(fileExt, "./images/profile")
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
 	}
 
 	reqBody := new(model.UpdateNormalUser)
-	reqBody.ImagePath = imagePath
+	reqBody.ImageProfilePath = imagePath
 
 	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
 		log.Errorf(err.Error())

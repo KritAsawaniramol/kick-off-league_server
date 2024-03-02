@@ -14,7 +14,6 @@ type UserUsecase interface {
 	// GetNormalUser(in uint) (model.NormalUser, error)
 	// GetTeam(in uint) (model.NormalUser, error)
 
-	UpdateImageProfile(imagePath string, normaluserUserID uint) error
 	GetMyPenddingAddMemberRequest(userID uint) ([]model.AddMemberRequest, error)
 	GetTeamMembers(id uint) (*model.Team, error)
 	GetTeamWithMemberAndCompatitionByID(id uint) (*model.Team, error)
