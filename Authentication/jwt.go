@@ -142,7 +142,7 @@ func (j *jwtAuthentication) AuthNormalUser() gin.HandlerFunc {
 			return
 		}
 
-		normalUserID, ok := claims["normalUser_id"]
+		normalUserID, ok := claims["normal_user_id"]
 		if !ok {
 			log.Print("normalUser_id not found in token", claims)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
@@ -165,13 +165,11 @@ func (j *jwtAuthentication) AuthOrganizer() gin.HandlerFunc {
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
-		// if !ok {
-		// 	log.Println("token claims not ok")
-		// 	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
-		// 	return
-		// }
-
-		log.Println(claims)
+		if !ok {
+			log.Println("token claims not ok")
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
+			return
+		}
 
 		userRole, ok := claims["role"].(string)
 		if !ok {
@@ -183,6 +181,22 @@ func (j *jwtAuthentication) AuthOrganizer() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
+
+		userID, ok := claims["user_id"]
+		if !ok {
+			log.Print("user_id not found in token", claims)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			return
+		}
+
+		normalUserID, ok := claims["organizer_id"]
+		if !ok {
+			log.Print("normalUser_id not found in token", claims)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			return
+		}
+		c.Set("user_id", uint(userID.(float64)))
+		c.Set("organizer_id", uint(normalUserID.(float64)))
 		c.Next()
 	}
 }

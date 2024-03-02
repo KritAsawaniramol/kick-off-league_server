@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	Address struct {
+	Addresses struct {
 		gorm.Model
 		HouseNumber string
 		Village     string
@@ -17,79 +17,94 @@ type (
 		Country     string
 	}
 
-	User struct {
+	CompatitionAddresses struct {
+		gorm.Model
+		CompatitionsID uint
+		HouseNumber    string
+		Village        string
+		Subdistrict    string
+		District       string
+		PostalCode     string
+		Country        string
+	}
+
+	Users struct {
 		gorm.Model
 		Email    string `gorm:"unique;not null;type:varchar(100)"`
 		Role     string
 		Password string
 	}
 
-	Organizer struct {
+	Organizers struct {
 		gorm.Model
-		UserID      uint `gorm:"unique;not null"`
-		User        User
-		Name        string
-		Phone       string
-		Description string
-		AddressID   uint `gorm:"unique"`
-		Address     Address
-		Compatition []Compatition
+		UsersID      uint `gorm:"unique;not null"`
+		Name         string
+		Phone        string `gorm:"unique;not null"`
+		Description  string
+		AddressesID  uint `gorm:"unique"`
+		Addresses    Addresses
+		Compatitions []Compatitions
 		// imageProfile string
 	}
 
-	TeamsMember struct {
-		TeamID       uint
-		Teams        Teams
-		NormalUserID uint
-		NormalUser   NormalUser
-	}
-
-	NormalUser struct {
+	NormalUsers struct {
 		gorm.Model
-		UserID         uint   `gorm:"unique;not null"`
-		Username       string `gorm:"unique;not null"`
-		FirstNameThai  string
-		LastNameThai   string
-		FirstNameEng   string
-		LastNameEng    string
-		Born           time.Time
-		Height         uint
-		Weight         uint
-		Sex            string
-		Position       string
-		Nationality    string
-		Description    string
-		Phone          string
-		AddressID      uint `gorm:"unique"`
-		Address        Address
-		Teams          []Teams            `gorm:"many2many:teams_member;"`
-		TeamsCreated   []Teams            `gorm:"foreignKey:OwnerID;references:user_id"`
-		GoalRecord     []GoalRecords      `gorm:"foreignKey:PlayerID"`
-		RequestReceive []AddMemberRequest `gorm:"foreignKey:receiver_id;references:user_id"`
+		UsersID         uint   `gorm:"unique;not null"`
+		Username        string `gorm:"unique;not null"`
+		FirstNameThai   string
+		LastNameThai    string
+		FirstNameEng    string
+		LastNameEng     string
+		Born            time.Time
+		Height          uint
+		Weight          uint
+		Sex             string
+		Position        string
+		Nationality     string
+		Description     string
+		Phone           string
+		AddressesID     uint `gorm:"unique"`
+		Addresses       Addresses
+		Teams           []TeamsMembers
+		TeamsCreated    []Teams             `gorm:"foreignKey:OwnerID;references:users_id"`
+		GoalRecords     []GoalRecords       `gorm:"foreignKey:PlayerID"`
+		RequestReceives []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
 		// imageProfile  string
 	}
+
 	Teams struct {
 		gorm.Model
-		Name        string
-		Member      []NormalUser `gorm:"many2many:teams_member;"`
-		OwnerID     uint
-		Compatition []Compatition      `gorm:"many2many:compatition_teams;"`
-		RequestSend []AddMemberRequest `gorm:"foreignKey:teams_id;"`
+		Name         string
+		OwnerID      uint
+		Description  string
+		TeamsMembers []TeamsMembers
+		Compatitions []Compatitions      `gorm:"many2many:compatition_teams;"`
+		RequestSends []AddMemberRequests `gorm:"foreignKey:teams_id;"`
 	}
 
-	CompatitionTeams struct {
+	TeamsMembers struct {
 		gorm.Model
 		TeamsID       uint
-		Teams         Teams
-		CompatitionID uint
-		Compatition   Compatition
+		Teams         Teams `gorm:"foreignKey:TeamsID;references:ID"`
+		NormalUsersID uint
+		NormalUsers   NormalUsers `gorm:"foreignKey:NormalUsersID;references:ID"`
+		Role          string
 	}
 
-	Compatition struct {
+	CompatitionsTeams struct {
+		gorm.Model
+		TeamsID        uint
+		Teams          Teams
+		CompatitionsID uint
+		Compatitions   Compatitions
+	}
+
+	Compatitions struct {
 		gorm.Model
 		Name              string
 		Format            CompetitionFormat
-		OrganizerID       uint
+		OrganizersID      uint
+		Organizers        Organizers
 		StartDate         time.Time
 		EndDate           time.Time
 		RegisterStartDate time.Time
@@ -101,14 +116,15 @@ type (
 		FieldSurface      FieldSurfaces
 		Description       string
 		Status            CompetitionStatus
-		AddressID         uint
+		AddressesID       uint `gorm:"unique"`
+		Addresses         Addresses
 		NumberOfTeam      uint
 		Teams             []Teams `gorm:"many2many:compatition_teams;"`
 		NumOfPlayerMin    uint
 		NumOfPlayerMax    uint
 	}
 
-	Event struct {
+	Events struct {
 		gorm.Model
 		MatchesID   uint
 		Time        string
@@ -125,8 +141,8 @@ type (
 		Team2ID       uint `gorm:"foreignKey:TeamsID"`
 		Team1Goals    int
 		Team2Goals    int
-		Events        []Event     `gorm:"foreignKey:MatchesID"`
-		GoalRecord    GoalRecords `gorm:"foreignKey:MatchesID"`
+		Events        []Events    `gorm:"foreignKey:MatchesID"`
+		GoalRecords   GoalRecords `gorm:"foreignKey:MatchesID"`
 		Result        MatchesResult
 	}
 
@@ -138,12 +154,13 @@ type (
 		TimeScored uint
 	}
 
-	AddMemberRequest struct {
+	AddMemberRequests struct {
 		gorm.Model
 		TeamsID    uint
+		Teams      Teams
 		ReceiverID uint
-
-		Status string
+		Role       string
+		Status     string
 	}
 )
 

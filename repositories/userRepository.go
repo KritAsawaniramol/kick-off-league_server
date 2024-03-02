@@ -3,32 +3,34 @@ package repositories
 import "kickoff-league.com/entities"
 
 type Userrepository interface {
-	InsertUserData(in *entities.User) error
-	GetUserByEmail(in string) (*entities.User, error)
-	GetUsers() ([]entities.User, error)
-	GetUserByID(in uint) (*entities.User, error)
+	GetUserByEmail(email string) (*entities.Users, error)
+	GetUsers() ([]entities.Users, error)
+	GetUserByID(in uint) (*entities.Users, error)
 
-	InsertTeam(in *entities.Teams) error
-	InsertNormalUser(in *entities.NormalUser) error
-	InsertOrganizer(in *entities.Organizer) error
-	InsertUserWihtNormalUserAndAddress(in_normalUser *entities.NormalUser, in_user *entities.User) error
-	InsertUserWihtOrganizerAndAddress(in_organizer *entities.Organizer, in_user *entities.User) error
-	InsertAddMemberRequest(in *entities.AddMemberRequest) error
-	UpdateAddMemberRequestStatusByID(inID uint, inStatus string) error
-	UpdateNormalUser(inNormalUser *entities.NormalUser) error
-	GetAddMemberRequestByID(in uint) (*entities.AddMemberRequest, error)
-	InsertTeamsMember(in *entities.TeamsMember) error
-	UpdateNormalUserPhone(in_userID uint, newPhone string) error
-	// GetNormalUserByUserID(in uint) (*entities.NormalUser, error)
-	GetNormalUserWithUserByUserID(in uint) (*entities.NormalUser, error)
-	UpdateAddMemberRequestStatusAndSoftDelete(inReq *entities.AddMemberRequest, inStatus string) error
+	GetNormalUser(*entities.NormalUsers) (*entities.NormalUsers, error)
+	GetNormalUserWithAddressByUserID(in uint) (*entities.NormalUsers, error)
+	GetNumberOfTeamsMember(in uint) int64
 
 	GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error)
-	GetTeamByID(in uint) (*entities.Teams, error)
-	GetNormalUserByUsername(in string) (*entities.NormalUser, error)
-	GetNormalUserByPhone(in string) (*entities.NormalUser, error)
-	GetNormalUserByUserID(in uint) (*entities.NormalUser, error)
-	GetOrganizerByUserID(in uint) (*entities.Organizer, error)
-	SoftDeleteAddMemberRequestByID(in uint) error
-	// GetNormalUser
+	GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error)
+	GetTeams(in *entities.Teams, orderString string, decs bool, limit int, offset int) ([]entities.Teams, error)
+	GetTeamWithMemberAndCompatitionByID(in uint) (*entities.Teams, error)
+	GetTeam(in uint) (*entities.Teams, error)
+	GetTeamMembersByTeamID(in uint, orderString string, decs bool, limit int, offset int) ([]entities.TeamsMembers, error)
+	GetOrganizerWithAddressByUserID(in uint) (*entities.Organizers, error)
+	GetOrganizer(*entities.Organizers) (*entities.Organizers, error)
+	GetAddMemberRequestByID(in *entities.AddMemberRequests) ([]entities.AddMemberRequests, error)
+	GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error)
+
+	InsertCompatition(in *entities.Compatitions) error
+	InsertTeamsMembers(in *entities.TeamsMembers) error
+	InsertTeam(in *entities.Teams) error
+	InsertUserWihtNormalUserAndAddress(in_normalUser *entities.NormalUsers, in_user *entities.Users) error
+	InsertUserWihtOrganizerAndAddress(in_organizer *entities.Organizers, in_user *entities.Users) error
+	InsertAddMemberRequest(in *entities.AddMemberRequests) error
+
+	UpdateAddMemberRequestStatusByID(inID uint, inStatus string) error
+	UpdateNormalUser(inNormalUser *entities.NormalUsers) error
+	UpdateNormalUserPhone(in_userID uint, newPhone string) error
+	UpdateAddMemberRequestStatusAndSoftDelete(inReq *entities.AddMemberRequests, inStatus string) error
 }

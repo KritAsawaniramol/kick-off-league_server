@@ -9,10 +9,98 @@ import (
 	"github.com/labstack/gommon/log"
 	model "kickoff-league.com/models"
 	"kickoff-league.com/usecases"
+	"kickoff-league.com/util"
 )
 
 type userHttpHandler struct {
 	userUsercase usecases.UserUsecase
+}
+
+// // uploadImage implements UserHandler.
+// func (*userHttpHandler) uploadImage(c *gin.Context) {
+// 	file, err := c.FormFile("image") {
+
+// 	}
+// }
+
+// CreateTeam implements UserHandler.
+func (h *userHttpHandler) CreateTeam(c *gin.Context) {
+	reqBody := new(model.CreaetTeam)
+	if err := c.BindJSON(reqBody); err != nil {
+		log.Errorf("Error binding request body: %v", err)
+		response(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+	reqBody.OwnerID = c.GetUint("user_id")
+	if err := h.userUsercase.CreateTeam(reqBody); err != nil {
+		log.Errorf(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "CreateTeam success"})
+
+}
+
+// CreateCompatition implements UserHandler.
+func (h *userHttpHandler) CreateCompatition(c *gin.Context) {
+
+	organizerID := c.GetUint("organizer_id")
+
+	reqBody := new(model.CreateCompatition)
+	if err := c.BindJSON(reqBody); err != nil {
+		response(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	reqBody.OrganizerID = organizerID
+
+	if err := h.userUsercase.CreateCompatition(reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
+}
+
+// GetMyPenddingAddMemberRequest implements UserHandler.
+func (h *userHttpHandler) GetMyPenddingAddMemberRequest(c *gin.Context) {
+	addMemberRequests, err := h.userUsercase.GetMyPenddingAddMemberRequest(c.GetUint("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+	}
+	c.JSON(http.StatusOK, gin.H{"add_member_requests": addMemberRequests})
+}
+
+// GetTeam implements UserHandler.
+func (h *userHttpHandler) GetTeam(c *gin.Context) {
+	TeamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+	}
+	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(TeamID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"teams": teams})
+}
+
+// GetTeamList implements UserHandler.
+func (h *userHttpHandler) GetTeams(c *gin.Context) {
+	reqBody := new(model.GetTeamsReq)
+	if err := c.BindJSON(reqBody); err != nil {
+		log.Errorf("Error binding request body: %v", err)
+		response(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	util.PrintObjInJson(reqBody)
+	teams, err := h.userUsercase.GetTeams(reqBody)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	c.JSON(http.StatusBadRequest, gin.H{"teams": teams})
 }
 
 // AcceptAddMemberRequest implements UserHandler.
@@ -71,12 +159,10 @@ func (h *userHttpHandler) SendAddMemberRequest(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Create AddMemberRequest success"})
-
 }
 
 // UpdateNormalUser implements UserHandler.
 func (h *userHttpHandler) UpdateNormalUser(c *gin.Context) {
-
 	//Get userID
 	normalUserID, ok := c.Get("normalUser_id")
 	if !ok {
@@ -98,35 +184,6 @@ func (h *userHttpHandler) UpdateNormalUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Update normalUser success"})
-}
-
-// CreateTeam implements UserHandler.
-func (h *userHttpHandler) CreateTeam(c *gin.Context) {
-
-	//Get Current userID
-	userID, ok := c.Get("user_id")
-	if !ok {
-		log.Print("user_id not found in context")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-		return
-	}
-
-	userID_uint := uint(userID.(float64))
-
-	reqBody := new(model.CreaetTeam)
-	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-	reqBody.OwnerID = userID_uint
-
-	if err := h.userUsercase.CreateTeam(reqBody); err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	return
 }
 
 // UpdateNormalUserPhone implements UserHandler.
@@ -179,7 +236,7 @@ func NewUserHttpHandler(userUsercase usecases.UserUsecase) UserHandler {
 
 // RegisterUser implements UserHandler.
 func (h *userHttpHandler) RegisterOrganizer(c *gin.Context) {
-	reqBody := new(model.RegisterUser)
+	reqBody := new(model.RegisterOrganizer)
 	if err := c.Bind(reqBody); err != nil {
 		log.Errorf("Error binding request body: %v", err)
 		response(c, http.StatusBadRequest, "Bad request")

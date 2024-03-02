@@ -9,18 +9,21 @@ import (
 
 func Migration(db database.Database) {
 	err := db.GetDb().AutoMigrate(
-		&entities.User{},
-		&entities.Address{},
+		&entities.Users{},
+		&entities.TeamsMembers{},
 		&entities.Teams{},
-		&entities.NormalUser{},
-		&entities.Organizer{},
-		// &entities.TeamMember{},
-		&entities.CompatitionTeams{},
-		&entities.Compatition{},
+		&entities.NormalUsers{},
+		&entities.Organizers{},
+		&entities.Compatitions{},
+		&entities.CompatitionsTeams{},
+		&entities.Addresses{},
 		&entities.Matches{},
 		&entities.GoalRecords{},
-		&entities.AddMemberRequest{},
+		&entities.AddMemberRequests{},
+		&entities.CompatitionAddresses{},
 	)
+
+	db.GetDb().Migrator().AddColumn(&entities.TeamsMembers{}, "Status")
 	if err != nil {
 		panic("Database migration failed!")
 	}
