@@ -325,12 +325,7 @@ func (h *userHttpHandler) SendAddMemberRequest(c *gin.Context) {
 // UpdateNormalUser implements UserHandler.
 func (h *userHttpHandler) UpdateNormalUser(c *gin.Context) {
 	//Get userID
-	normalUserID, ok := c.Get("normal_user_id")
-	if !ok {
-		log.Print("normalUser_id not found in context")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-		return
-	}
+	normalUserID := c.GetUint("normal_user_id")
 
 	reqBody := new(model.UpdateNormalUser)
 	if err := c.BindJSON(reqBody); err != nil {
@@ -339,7 +334,7 @@ func (h *userHttpHandler) UpdateNormalUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.userUsercase.UpdateNormalUser(reqBody, uint(normalUserID.(float64))); err != nil {
+	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
 		log.Errorf(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Update normalUser failed"})
 		return
