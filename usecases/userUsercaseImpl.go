@@ -430,7 +430,7 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
 
-		userModel.Datail = model.NormalUserInfo{
+		userModel.Detail = model.NormalUserInfo{
 			ID:               normalUser.ID,
 			FirstNameThai:    normalUser.FirstNameThai,
 			LastNameThai:     normalUser.LastNameThai,
@@ -462,7 +462,7 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 		if err != nil {
 			return "", model.User{}, err
 		}
-		userModel.Datail = model.OrganizersInfo{
+		userModel.Detail = model.OrganizersInfo{
 			ID:          organizer.ID,
 			Name:        organizer.Name,
 			Phone:       organizer.Phone,
@@ -516,7 +516,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
 
-		userModel.Datail = model.NormalUserInfo{
+		userModel.Detail = model.NormalUserInfo{
 			ID:               normalUser.ID,
 			FirstNameThai:    normalUser.FirstNameThai,
 			LastNameThai:     normalUser.LastNameThai,
@@ -546,7 +546,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 		if err != nil {
 			return model.User{}, err
 		}
-		userModel.Datail = model.OrganizersInfo{
+		userModel.Detail = model.OrganizersInfo{
 			ID:          organizer.ID,
 			Name:        organizer.Name,
 			Phone:       organizer.Phone,

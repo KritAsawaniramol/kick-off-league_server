@@ -39,7 +39,7 @@ type User struct {
 	Email     string `json:"email"`
 	Role      string `json:"role"`
 	CreatedAt time.Time
-	Datail    interface{}
+	Detail    interface{}
 }
 
 type AddMemberRequest struct {
