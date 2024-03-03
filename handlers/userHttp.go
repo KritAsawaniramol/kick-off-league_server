@@ -325,7 +325,7 @@ func (h *userHttpHandler) SendAddMemberRequest(c *gin.Context) {
 // UpdateNormalUser implements UserHandler.
 func (h *userHttpHandler) UpdateNormalUser(c *gin.Context) {
 	//Get userID
-	normalUserID, ok := c.Get("normalUser_id")
+	normalUserID, ok := c.Get("normal_user_id")
 	if !ok {
 		log.Print("normalUser_id not found in context")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
