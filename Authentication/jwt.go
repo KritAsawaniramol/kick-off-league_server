@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -111,6 +112,7 @@ func (j *jwtAuthentication) AuthNormalUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := j.getToken(c)
 		if err != nil {
+			fmt.Println(token, err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}

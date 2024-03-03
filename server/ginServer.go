@@ -76,12 +76,17 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		authRouter.POST("/register/normal", userHttpHandler.RegisterNormaluser)
 		authRouter.POST("/register/organizer", userHttpHandler.RegisterOrganizer)
 		authRouter.POST("/login", userHttpHandler.LoginUser)
+
+		authRouter.POST("/logout", auth.Auth(), userHttpHandler.LogoutUser)
+
 	}
 
 	viewRouter := s.app.Group("/view")
 	{
 		viewRouter.GET("/teams", userHttpHandler.GetTeams)
 		viewRouter.GET("/teams/:id", userHttpHandler.GetTeam)
+		viewRouter.GET("/users", userHttpHandler.GetUsers)
+		viewRouter.GET("/users/:id", userHttpHandler.GetUser)
 	}
 
 	adminRouter := s.app.Group("/admin")
@@ -93,7 +98,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	organizerRouter := s.app.Group("/organizer")
 	organizerRouter.Use(auth.AuthOrganizer())
 	{
-		organizerRouter.GET("/users", userHttpHandler.GetUsers)
 		organizerRouter.POST("/compatition", userHttpHandler.CreateCompatition)
 
 	}
@@ -108,21 +112,17 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
 
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
-		normalRouter.GET("/:id", userHttpHandler.GetUser)
+
+		normalRouter.GET("/normalUser/:id")
+
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)
 		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
 		normalRouter.POST("/team", userHttpHandler.CreateTeam)
 		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
-
 		// normalRouter.POST("/team")
 	}
 
 	// publicRouter := s.app.Group("/api/view")
 
-	protectedRoutes := s.app.Group("/api")
-	protectedRoutes.Use(auth.Auth())
-	{
-
-	}
 }

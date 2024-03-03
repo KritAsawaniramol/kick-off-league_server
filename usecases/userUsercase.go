@@ -6,6 +6,7 @@ import (
 
 type UserUsecase interface {
 	Login(in *model.LoginUser) (string, model.User, error)
+	Logout() error
 	RegisterNormaluser(in *model.RegisterNormaluser) error
 	RegisterOrganizer(in *model.RegisterOrganizer) error
 

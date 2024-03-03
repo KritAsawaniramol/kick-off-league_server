@@ -20,6 +20,11 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// Logout implements UserUsecase.
+func (*userUsecaseImpl) Logout() error {
+	panic("unimplemented")
+}
+
 // RemoveImageProfile implements UserUsecase.
 func (u *userUsecaseImpl) RemoveImageProfile(normalUserID uint) error {
 	normalUser := entities.NormalUsers{}
@@ -418,7 +423,6 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 		}
 
 		userModel.Datail = map[string]interface{}{
-
 			"normal_user_info": model.NormalUserInfo{
 				ID:               normalUser.ID,
 				FirstNameThai:    normalUser.FirstNameThai,
@@ -478,6 +482,85 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 		return "", model.User{}, err
 	}
 	return t, userModel, nil
+}
+
+// GetUser implements UserUsecase.
+func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
+	// get user from email
+	user, err := u.userrepository.GetUserByID(in)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	userModel := model.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
+	}
+
+	if user.Role == "normal" {
+		normalUser, err := u.userrepository.GetNormalUserWithAddressByUserID(user.ID)
+		if err != nil {
+			return model.User{}, err
+		}
+		if normalUser.ImageProfilePath != "" {
+			normalUser.ImageProfilePath = normalUser.ImageProfilePath[1:]
+		}
+		if normalUser.ImageCoverPath != "" {
+			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
+		}
+
+		userModel.Datail = map[string]interface{}{
+			"normal_user_info": model.NormalUserInfo{
+				ID:               normalUser.ID,
+				FirstNameThai:    normalUser.FirstNameThai,
+				LastNameThai:     normalUser.LastNameThai,
+				FirstNameEng:     normalUser.FirstNameEng,
+				LastNameEng:      normalUser.LastNameEng,
+				Born:             normalUser.Born,
+				Phone:            normalUser.Phone,
+				Height:           normalUser.Height,
+				Weight:           normalUser.Weight,
+				Sex:              normalUser.Sex,
+				Position:         normalUser.Position,
+				Nationality:      normalUser.Nationality,
+				Description:      normalUser.Description,
+				ImageProfilePath: normalUser.ImageProfilePath,
+				ImageCoverPath:   normalUser.ImageCoverPath,
+				Address: model.Address{
+					HouseNumber: normalUser.Addresses.HouseNumber,
+					Village:     normalUser.Addresses.Village,
+					Subdistrict: normalUser.Addresses.Subdistrict,
+					District:    normalUser.Addresses.District,
+					PostalCode:  normalUser.Addresses.PostalCode,
+					Country:     normalUser.Addresses.Country,
+				},
+			},
+		}
+	} else if user.Role == "organizer" {
+		organizer, err := u.userrepository.GetOrganizerWithAddressByUserID(user.ID)
+		if err != nil {
+			return model.User{}, err
+		}
+		userModel.Datail = map[string]interface{}{
+			"organizer": model.OrganizersInfo{
+				ID:          organizer.ID,
+				Name:        organizer.Name,
+				Phone:       organizer.Phone,
+				Description: organizer.Description,
+				Address: model.Address{
+					HouseNumber: organizer.Addresses.HouseNumber,
+					Village:     organizer.Addresses.Village,
+					Subdistrict: organizer.Addresses.Subdistrict,
+					District:    organizer.Addresses.District,
+					PostalCode:  organizer.Addresses.PostalCode,
+					Country:     organizer.Addresses.Country,
+				},
+			},
+		}
+	}
+	return userModel, nil
 }
 func (u *userUsecaseImpl) RegisterNormaluser(in *model.RegisterNormaluser) error {
 
@@ -592,21 +675,4 @@ func (u *userUsecaseImpl) GetUsers() ([]model.User, error) {
 	}
 
 	return users_model, nil
-}
-
-// GetUser implements UserUsecase.
-func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
-	user_entities, err := u.userrepository.GetUserByID(in)
-	if err != nil {
-		return model.User{}, err
-	}
-
-	user_model := model.User{
-		ID:        user_entities.ID,
-		Email:     user_entities.Email,
-		Role:      user_entities.Role,
-		CreatedAt: user_entities.CreatedAt,
-	}
-
-	return user_model, nil
 }

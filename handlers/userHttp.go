@@ -31,7 +31,6 @@ func (h *userHttpHandler) DeleteImageProfile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveImageProfile fail"})
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
-
 }
 
 func createImagePath(fileExt string, dst string) string {
@@ -90,6 +89,7 @@ func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 
 	in, err := c.FormFile("image")
 	if err != nil {
+		fmt.Println("error: ", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
@@ -97,6 +97,8 @@ func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 	// extract image extension from original file filename
 	isImage, fileExt := isImage(in)
 	if !isImage {
+		fmt.Println("error: is not image")
+
 		c.JSON(http.StatusBadRequest, gin.H{"message": "File is not an image(png, jpeg)"})
 		return
 	}
@@ -423,6 +425,15 @@ func (h *userHttpHandler) RegisterNormaluser(c *gin.Context) {
 	response(c, http.StatusOK, "Register success")
 }
 
+// LogoutUser implements UserHandler.
+func (u *userHttpHandler) LogoutUser(c *gin.Context) {
+	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	c.Redirect(http.StatusTemporaryRedirect, "/home")
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+	})
+}
+
 func (h *userHttpHandler) LoginUser(c *gin.Context) {
 	reqBody := new(model.LoginUser)
 	if err := c.BindJSON(reqBody); err != nil {
@@ -462,5 +473,4 @@ func (h *userHttpHandler) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
 	})
-
 }
