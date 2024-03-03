@@ -52,10 +52,12 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	s.app.Static("/images", "./images")
 
 	// Add CORS middleware
+
 	s.app.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(200)
 			return
@@ -103,6 +105,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
 		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
 		normalRouter.PUT("/image/cover", userHttpHandler.UpdateImageCover)
+		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
 
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
 		normalRouter.GET("/:id", userHttpHandler.GetUser)

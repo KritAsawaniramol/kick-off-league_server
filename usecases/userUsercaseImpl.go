@@ -20,6 +20,16 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// RemoveImageProfile implements UserUsecase.
+func (u *userUsecaseImpl) RemoveImageProfile(normalUserID uint) error {
+	normalUser := entities.NormalUsers{}
+	normalUser.ID = normalUserID
+	if err := u.userrepository.UpdateSelectedFields(normalUser, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: ""}); err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetCompatitions implements UserUsecase.
 func (*userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.Compatition, error) {
 	return nil, nil
@@ -285,18 +295,20 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error {
 
 	normalUser := &entities.NormalUsers{
-		FirstNameThai: inUpdateModel.FirstNameThai,
-		LastNameThai:  inUpdateModel.LastNameThai,
-		FirstNameEng:  inUpdateModel.FirstNameEng,
-		LastNameEng:   inUpdateModel.LastNameEng,
-		Born:          inUpdateModel.Born,
-		Height:        inUpdateModel.Height,
-		Weight:        inUpdateModel.Weight,
-		Sex:           inUpdateModel.Sex,
-		Position:      inUpdateModel.Position,
-		Nationality:   inUpdateModel.Nationality,
-		Description:   inUpdateModel.Description,
-		Phone:         inUpdateModel.Phone,
+		FirstNameThai:    inUpdateModel.FirstNameThai,
+		LastNameThai:     inUpdateModel.LastNameThai,
+		FirstNameEng:     inUpdateModel.FirstNameEng,
+		LastNameEng:      inUpdateModel.LastNameEng,
+		Born:             inUpdateModel.Born,
+		Height:           inUpdateModel.Height,
+		Weight:           inUpdateModel.Weight,
+		Sex:              inUpdateModel.Sex,
+		Position:         inUpdateModel.Position,
+		Nationality:      inUpdateModel.Nationality,
+		Description:      inUpdateModel.Description,
+		Phone:            inUpdateModel.Phone,
+		ImageProfilePath: inUpdateModel.ImageProfilePath,
+		ImageCoverPath:   inUpdateModel.ImageCoverPath,
 	}
 
 	normalUser.ID = inNormalUserID
@@ -421,8 +433,8 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 				Position:         normalUser.Position,
 				Nationality:      normalUser.Nationality,
 				Description:      normalUser.Description,
-				ImageProfilePath: normalUser.ImageProfilePath[1:],
-				ImageCoverPath:   normalUser.ImageCoverPath[1:],
+				ImageProfilePath: normalUser.ImageProfilePath,
+				ImageCoverPath:   normalUser.ImageCoverPath,
 				Address: model.Address{
 					HouseNumber: normalUser.Addresses.HouseNumber,
 					Village:     normalUser.Addresses.Village,

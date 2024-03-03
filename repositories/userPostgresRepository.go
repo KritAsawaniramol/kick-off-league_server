@@ -15,6 +15,16 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// UpdateSelectedFields implements Userrepository.
+func (u *userPostgresRepository) UpdateSelectedFields(model interface{}, fieldname string, value interface{}) error {
+
+	//model.ID is required
+	if err := u.db.Model(model).Select(fieldname).Updates(value).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetCompatitions implements Userrepository.
 func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error) {
 	compatitions := []entities.Compatitions{}

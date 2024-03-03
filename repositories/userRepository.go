@@ -29,6 +29,7 @@ type Userrepository interface {
 	InsertUserWihtOrganizerAndAddress(in_organizer *entities.Organizers, in_user *entities.Users) error
 	InsertAddMemberRequest(in *entities.AddMemberRequests) error
 
+	UpdateSelectedFields(model interface{}, fieldname string, value interface{}) error
 	UpdateAddMemberRequestStatusByID(inID uint, inStatus string) error
 	UpdateNormalUser(inNormalUser *entities.NormalUsers) error
 	UpdateNormalUserPhone(in_userID uint, newPhone string) error

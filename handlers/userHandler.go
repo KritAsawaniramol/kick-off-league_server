@@ -13,6 +13,7 @@ type UserHandler interface {
 	GetMyPenddingAddMemberRequest(c *gin.Context)
 	// uploadImage(c *gin.Context)
 	// UpdateNormalUserPhone(c *gin.Context)
+	DeleteImageProfile(c *gin.Context)
 	UpdateImageCover(c *gin.Context)
 	UpdateImageProfile(c *gin.Context)
 	UploadImage(c *gin.Context)

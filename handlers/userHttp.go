@@ -24,6 +24,16 @@ type userHttpHandler struct {
 	userUsercase usecases.UserUsecase
 }
 
+// DeleteImageProfile implements UserHandler.
+func (h *userHttpHandler) DeleteImageProfile(c *gin.Context) {
+	normalUserID := c.GetUint("normal_user_id")
+	if err := h.userUsercase.RemoveImageProfile(normalUserID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveImageProfile fail"})
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
+
+}
+
 func createImagePath(fileExt string, dst string) string {
 	// generate new uuid for image name
 	uniqueID := uuid.New()
@@ -428,7 +438,8 @@ func (h *userHttpHandler) LoginUser(c *gin.Context) {
 	}
 
 	// Set cookie
-	c.SetCookie("jwt", jwt, 3600, "/", "localhost", false, true)
+	fmt.Println("jwt", jwt)
+	c.SetCookie("token", jwt, 3600, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login success",
 		"user":    user,
