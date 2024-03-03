@@ -261,7 +261,7 @@ func (h *userHttpHandler) GetTeams(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusBadRequest, gin.H{"teams": teams})
+	c.JSON(http.StatusOK, gin.H{"teams": teams})
 }
 
 // AcceptAddMemberRequest implements UserHandler.
