@@ -248,11 +248,11 @@ func (h *userHttpHandler) GetTeam(c *gin.Context) {
 // GetTeamList implements UserHandler.
 func (h *userHttpHandler) GetTeams(c *gin.Context) {
 	reqBody := new(model.GetTeamsReq)
-	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
+	// if err := c.BindJSON(reqBody); err != nil {
+	// 	log.Errorf("Error binding request body: %v", err)
+	// 	response(c, http.StatusBadRequest, "Bad request")
+	// 	return
+	// }
 
 	util.PrintObjInJson(reqBody)
 	teams, err := h.userUsercase.GetTeams(reqBody)
