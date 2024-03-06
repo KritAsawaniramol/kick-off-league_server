@@ -9,6 +9,7 @@ type Userrepository interface {
 
 	GetNormalUser(*entities.NormalUsers) (*entities.NormalUsers, error)
 	GetNormalUserWithAddressByUserID(in uint) (*entities.NormalUsers, error)
+	GetNormalUserByUsername(username string) (*entities.NormalUsers, error)
 	GetNumberOfTeamsMember(in uint) int64
 
 	GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error)

@@ -161,7 +161,7 @@ func mockupData(u usecases.UserUsecase) {
 	r := 'a'
 	for i := 1; i <= n; i++ {
 		teamName := fmt.Sprintf("Team%d", i)
-		if err := u.CreateTeam(&model.CreaetTeam{
+		if err := u.CreateTeam(&model.CreateTeam{
 			Name:        fmt.Sprintf("%c", r) + teamName,
 			OwnerID:     uint(i),
 			Description: "Description" + fmt.Sprintf("%d", i),

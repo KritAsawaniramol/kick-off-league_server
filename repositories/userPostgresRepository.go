@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/labstack/gommon/log"
@@ -29,6 +30,9 @@ func (u *userPostgresRepository) UpdateSelectedFields(model interface{}, fieldna
 func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error) {
 	compatitions := []entities.Compatitions{}
 	if err := u.db.Where(&in).Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return compatitions, nil
@@ -38,7 +42,10 @@ func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orde
 func (u *userPostgresRepository) GetTeams(in *entities.Teams, orderString string, decs bool, limit int, offset int) ([]entities.Teams, error) {
 	teams := []entities.Teams{}
 	if err := u.db.Where(&in).Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&teams).Error; err != nil {
-		return []entities.Teams{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return teams, nil
 }
@@ -47,7 +54,10 @@ func (u *userPostgresRepository) GetTeams(in *entities.Teams, orderString string
 func (u *userPostgresRepository) GetOrganizer(in *entities.Organizers) (*entities.Organizers, error) {
 	org := new(entities.Organizers)
 	if err := u.db.Where(in).First(org).Error; err != nil {
-		return new(entities.Organizers), nil
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return org, nil
 }
@@ -57,7 +67,10 @@ func (u *userPostgresRepository) GetOrganizerWithAddressByUserID(in uint) (*enti
 	organizer := &entities.Organizers{}
 	err := u.db.Model(&entities.Organizers{}).Preload("Addresses").Where("users_id = ?", in).First(&organizer).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return &entities.Organizers{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return organizer, nil
 }
@@ -66,7 +79,10 @@ func (u *userPostgresRepository) GetOrganizerWithAddressByUserID(in uint) (*enti
 func (u *userPostgresRepository) GetNormalUser(in *entities.NormalUsers) (*entities.NormalUsers, error) {
 	normalUser := new(entities.NormalUsers)
 	if err := u.db.Where(&in).First(normalUser).Error; err != nil {
-		return &entities.NormalUsers{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return normalUser, nil
 }
@@ -74,9 +90,11 @@ func (u *userPostgresRepository) GetNormalUser(in *entities.NormalUsers) (*entit
 // GetNormalUserWithAddressByUserID implements Userrepository.
 func (u *userPostgresRepository) GetNormalUserWithAddressByUserID(in uint) (*entities.NormalUsers, error) {
 	normalUser := &entities.NormalUsers{}
-	err := u.db.Model(&entities.NormalUsers{}).Preload("Addresses").Where("users_id = ?", in).First(&normalUser).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return &entities.NormalUsers{}, err
+	if err := u.db.Model(&entities.NormalUsers{}).Preload("Addresses").Where("users_id = ?", in).First(&normalUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return normalUser, nil
 }
@@ -87,7 +105,10 @@ func (u *userPostgresRepository) GetTeamMembersByTeamID(in uint, orderString str
 	teamMember.TeamsID = in
 	teamMembers := []entities.TeamsMembers{}
 	if err := u.db.Where(&teamMember).Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&teamMember).Error; err != nil {
-		return []entities.TeamsMembers{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return teamMembers, nil
 }
@@ -121,7 +142,10 @@ func (u *userPostgresRepository) GetTeam(in uint) (*entities.Teams, error) {
 	team := &entities.Teams{}
 	team.ID = in
 	if err := u.db.Where("id = ?", in).First(team).Error; err != nil {
-		return &entities.Teams{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return team, nil
 }
@@ -137,7 +161,10 @@ func (u *userPostgresRepository) GetAddMemberRequestByID(in *entities.AddMemberR
 	addMemberRequests := []entities.AddMemberRequests{}
 	log.Print(in)
 	if err := u.db.Where(in).Preload("Teams").Find(&addMemberRequests).Error; err != nil {
-		return []entities.AddMemberRequests{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return addMemberRequests, nil
 }
@@ -166,6 +193,9 @@ func (u *userPostgresRepository) UpdateAddMemberRequestStatusAndSoftDelete(inReq
 func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*entities.Teams, error) {
 	team := entities.Teams{}
 	if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions").First(&team, in).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	util.PrintObjInJson(team)
@@ -176,6 +206,9 @@ func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*
 func (u *userPostgresRepository) GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error) {
 	team := new(entities.Teams)
 	if err := u.db.Model(in).Preload(clause.Associations).First(team).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return team, nil
@@ -185,6 +218,9 @@ func (u *userPostgresRepository) GetTeamWithAllAssociationsByID(in *entities.Tea
 func (u *userPostgresRepository) GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error) {
 	team := new(entities.Teams)
 	if err := u.db.Model(&entities.Teams{}).Preload("TeamsMembers").Preload("Compatitions").Preload("RequestSends").Where("id = ?", in).First(team).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return team, nil
@@ -231,20 +267,6 @@ func (u *userPostgresRepository) InsertTeam(in *entities.Teams) error {
 
 // InserrtCompatition implements Userrepository.
 func (u *userPostgresRepository) InsertCompatition(in *entities.Compatitions) error {
-	// err := u.db.Transaction(func(tx *gorm.DB) error {
-	// 	if err := tx.Create(address).Error; err != nil {
-	// 		return err
-	// 	}
-	// 	return nil
-	// })
-	// if err != nil {
-	// 	return nil
-	// }
-
-	// if err := u.db.Create(in).Error; err != nil {
-	// 	return err
-	// }
-	// return nil
 	util.PrintObjInJson(in)
 	if err := u.db.Create(in).Error; err != nil {
 		return err
@@ -314,11 +336,10 @@ func (u *userPostgresRepository) UpdateNormalUserPhone(in_userID uint, newPhone 
 	existingUser := &entities.NormalUsers{}
 	err := u.db.Model(&entities.NormalUsers{}).Where("phone = ?", newPhone).First(&existingUser).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
+
 		log.Errorf(err.Error())
 		return err
 	}
-
-	// If email doesn't exist, update
 
 	if existingUser.ID == 0 {
 		if err := u.db.Model(&entities.NormalUsers{}).Where("user_id = ?", in_userID).Update("phone", newPhone).Error; err != nil {
@@ -327,21 +348,7 @@ func (u *userPostgresRepository) UpdateNormalUserPhone(in_userID uint, newPhone 
 	}
 
 	return nil
-	// // Check if new email already exists
-	// existingUser := User{}
-	// err := db.Model(&User{}).Where("email = ?", newEmail).First(&existingUser).Error
-	// if err != nil && err != gorm.ErrRecordNotFound {
-	// 	return err
-	// }
 
-	// // If email doesn't exist, update
-	// if existingUser.ID == 0 {
-	// 	result := db.Model(&User{ID: userID}).Update("email", newEmail)
-	// 	return result.Error
-	// }
-
-	// // Email already exists, handle accordingly (e.g., error or ignore)
-	// return nil
 }
 
 func NewUserPostgresRepository(db *gorm.DB) Userrepository {
@@ -351,9 +358,11 @@ func NewUserPostgresRepository(db *gorm.DB) Userrepository {
 // GetUsers implements Userrepository.
 func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 	users := []entities.Users{}
-	result := u.db.Find(&users).Order("id DESC")
-	if result.Error != nil {
-		return []entities.Users{}, result.Error
+	if err := u.db.Find(&users).Order("id DESC").Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return users, nil
 }
@@ -361,9 +370,23 @@ func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 // GetUserByEmail implements Userrepository.
 func (u *userPostgresRepository) GetUserByEmail(email string) (*entities.Users, error) {
 	selectedUser := &entities.Users{}
-	result := u.db.Where("email = ?", email).First(selectedUser)
-	if result.Error != nil {
-		return nil, result.Error
+	if err := u.db.Where("email = ?", email).First(selectedUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return selectedUser, nil
+}
+
+// GetNormalUserByUsername implements Userrepository.
+func (u *userPostgresRepository) GetNormalUserByUsername(username string) (*entities.NormalUsers, error) {
+	selectedUser := &entities.NormalUsers{}
+	if err := u.db.Where("username = ?", username).First(selectedUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
 	}
 	return selectedUser, nil
 }
@@ -371,9 +394,11 @@ func (u *userPostgresRepository) GetUserByEmail(email string) (*entities.Users, 
 // GetUserByID implements Userrepository.
 func (u *userPostgresRepository) GetUserByID(in uint) (*entities.Users, error) {
 	selectedUser := &entities.Users{}
-	result := u.db.Where("id = ?", in).First(selectedUser)
-	if result.Error != nil {
-		return nil, result.Error
+	if err := u.db.Where("id = ?", in).First(selectedUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	return selectedUser, nil
 }

@@ -80,6 +80,9 @@ func (u *userUsecaseImpl) GetMyPenddingAddMemberRequest(userID uint) ([]model.Ad
 	}
 	addMemberRequestList, err := u.userrepository.GetAddMemberRequestByID(addMemberRequestSearch)
 	if err != nil {
+		if err.Error() == "record not found" {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -113,12 +116,16 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 	t.ID = id
 	selectedTeams, err := u.userrepository.GetTeamWithMemberAndCompatitionByID(id)
 	if err != nil {
+		if err.Error() == "record not found" {
+			return &model.Team{}, nil
+		}
 		return &model.Team{}, err
 	}
-	util.PrintObjInJson(selectedTeams)
 	memberList := []model.Member{}
 	for _, member := range selectedTeams.TeamsMembers {
 		memberList = append(memberList, model.Member{
+			ID:            member.NormalUsers.ID,
+			UsersID:       member.NormalUsers.UsersID,
 			FirstNameThai: member.NormalUsers.FirstNameThai,
 			LastNameThai:  member.NormalUsers.LastNameThai,
 			FirstNameEng:  member.NormalUsers.FirstNameEng,
@@ -335,7 +342,7 @@ func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser
 }
 
 // CreateTeam implements UserUsecase.
-func (u *userUsecaseImpl) CreateTeam(in *model.CreaetTeam) error {
+func (u *userUsecaseImpl) CreateTeam(in *model.CreateTeam) error {
 
 	normalUser, err := u.userrepository.GetNormalUser(&entities.NormalUsers{
 		UsersID: in.OwnerID,
@@ -345,14 +352,35 @@ func (u *userUsecaseImpl) CreateTeam(in *model.CreaetTeam) error {
 	}
 
 	//check required data
-	if normalUser.FirstNameThai == "" ||
-		normalUser.LastNameThai == "" ||
-		normalUser.FirstNameEng == "" ||
-		normalUser.Born.IsZero() ||
-		normalUser.Sex == "" ||
-		normalUser.Nationality == "" ||
-		normalUser.Phone == "" {
-		return errors.New("no required normaluser data")
+	requiredData := []string{}
+	if normalUser.FirstNameThai == "" {
+		requiredData = append(requiredData, "first_name_thai")
+	}
+	if normalUser.LastNameThai == "" {
+		requiredData = append(requiredData, "last_name_thai")
+	}
+	if normalUser.FirstNameEng == "" {
+		requiredData = append(requiredData, "first_name_eng")
+	}
+	if normalUser.LastNameEng == "" {
+		requiredData = append(requiredData, "last_name_eng")
+	}
+	if normalUser.Born.IsZero() {
+		requiredData = append(requiredData, "born")
+	}
+	if normalUser.Sex == "" {
+		requiredData = append(requiredData, "sex")
+	}
+	if normalUser.Nationality == "" {
+		requiredData = append(requiredData, "nationality")
+	}
+	if normalUser.Phone == "" {
+		requiredData = append(requiredData, "phone")
+	}
+	if len(requiredData) != 0 {
+		return &util.CreateTeamError{
+			RequiredData: requiredData,
+		}
 	}
 
 	team := entities.Teams{
@@ -389,26 +417,25 @@ func NewUserUsercaseImpl(
 func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error) {
 
 	if !isEmail(in.Email) {
-		return "", model.User{}, errors.New("email is invalid")
+		return "", model.User{}, errors.New("invalid email format")
 	}
 
 	//get user from email
 	user, err := u.userrepository.GetUserByEmail(in.Email)
 	if err != nil {
-		return "", model.User{}, err
+		return "", model.User{}, errors.New("incorrect email or password")
 	}
 	//compare password
 	if err := bcrypt.CompareHashAndPassword(
 		[]byte(user.Password),
 		[]byte(in.Password)); err != nil {
-		return "", model.User{}, err
+		return "", model.User{}, errors.New("incorrect email or password")
 	}
 
 	userModel := model.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
+		ID:    user.ID,
+		Email: user.Email,
+		Role:  user.Role,
 	}
 
 	// pass = return jwt
@@ -430,58 +457,18 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
 
-		userModel.Detail = model.NormalUserInfo{
-			ID:               normalUser.ID,
-			FirstNameThai:    normalUser.FirstNameThai,
-			LastNameThai:     normalUser.LastNameThai,
-			FirstNameEng:     normalUser.FirstNameEng,
-			LastNameEng:      normalUser.LastNameEng,
-			Born:             normalUser.Born,
-			Phone:            normalUser.Phone,
-			Height:           normalUser.Height,
-			Weight:           normalUser.Weight,
-			Sex:              normalUser.Sex,
-			Position:         normalUser.Position,
-			Nationality:      normalUser.Nationality,
-			Description:      normalUser.Description,
-			ImageProfilePath: normalUser.ImageProfilePath,
-			ImageCoverPath:   normalUser.ImageCoverPath,
-			Address: model.Address{
-				HouseNumber: normalUser.Addresses.HouseNumber,
-				Village:     normalUser.Addresses.Village,
-				Subdistrict: normalUser.Addresses.Subdistrict,
-				District:    normalUser.Addresses.District,
-				PostalCode:  normalUser.Addresses.PostalCode,
-				Country:     normalUser.Addresses.Country,
-			},
-		}
-
+		userModel.Detail["normal_user_id"] = normalUser.ID
 		claims["normal_user_id"] = normalUser.ID
 	} else if user.Role == "organizer" {
 		organizer, err := u.userrepository.GetOrganizerWithAddressByUserID(user.ID)
 		if err != nil {
 			return "", model.User{}, err
 		}
-		userModel.Detail = model.OrganizersInfo{
-			ID:          organizer.ID,
-			Name:        organizer.Name,
-			Phone:       organizer.Phone,
-			Description: organizer.Description,
-			Address: model.Address{
-				HouseNumber: organizer.Addresses.HouseNumber,
-				Village:     organizer.Addresses.Village,
-				Subdistrict: organizer.Addresses.Subdistrict,
-				District:    organizer.Addresses.District,
-				PostalCode:  organizer.Addresses.PostalCode,
-				Country:     organizer.Addresses.Country,
-			},
-		}
+		userModel.Detail["organizer_id"] = organizer.ID
 		claims["organizer_id"] = organizer.ID
 	}
-
 	//bypass
 	jwtSecretKey := config.GetConfig().JwtSecretKey
-
 	t, err := token.SignedString([]byte(jwtSecretKey))
 	if err != nil {
 		return "", model.User{}, err
@@ -498,10 +485,9 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 	}
 
 	userModel := model.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
+		ID:    user.ID,
+		Email: user.Email,
+		Role:  user.Role,
 	}
 
 	if user.Role == "normal" {
@@ -516,7 +502,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
 
-		userModel.Detail = model.NormalUserInfo{
+		userModel.Detail["normal_user_info"] = model.NormalUserInfo{
 			ID:               normalUser.ID,
 			FirstNameThai:    normalUser.FirstNameThai,
 			LastNameThai:     normalUser.LastNameThai,
@@ -546,7 +532,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 		if err != nil {
 			return model.User{}, err
 		}
-		userModel.Detail = model.OrganizersInfo{
+		userModel.Detail["organizer_info"] = model.OrganizersInfo{
 			ID:          organizer.ID,
 			Name:        organizer.Name,
 			Phone:       organizer.Phone,
@@ -566,29 +552,31 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 func (u *userUsecaseImpl) RegisterNormaluser(in *model.RegisterNormaluser) error {
 
 	if !isEmail(in.Email) {
-		return errors.New("email is invalid")
+		return errors.New("invalid email format")
 	}
 
 	if isEmailAlreadyInUse(in.Email, u.userrepository) {
 		return errors.New("this email is already in use")
 	}
-
+	if isUsernameAlreadyInUser(in.Username, u.userrepository) {
+		return errors.New("this username is already in use")
+	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	in.Password = string(hashedPassword)
 
 	user := &entities.Users{
 		Email:    in.Email,
 		Role:     "normal",
-		Password: in.Password,
+		Password: string(hashedPassword),
 	}
 
 	normalUser := &entities.NormalUsers{
 		UsersID:  user.ID,
 		Username: in.Username,
 	}
+
 	if err := u.userrepository.InsertUserWihtNormalUserAndAddress(normalUser, user); err != nil {
 		return err
 	}
@@ -598,6 +586,13 @@ func (u *userUsecaseImpl) RegisterNormaluser(in *model.RegisterNormaluser) error
 
 func isEmailAlreadyInUse(email string, u repositories.Userrepository) bool {
 	if _, err := u.GetUserByEmail(email); err != nil {
+		return false
+	}
+	return true
+}
+
+func isUsernameAlreadyInUser(username string, u repositories.Userrepository) bool {
+	if _, err := u.GetNormalUserByUsername(username); err != nil {
 		return false
 	}
 	return true
@@ -622,7 +617,7 @@ func isPhoneAlreadyInUse(phone string, u repositories.Userrepository) bool {
 func (u *userUsecaseImpl) RegisterOrganizer(in *model.RegisterOrganizer) error {
 
 	if !isEmail(in.Email) {
-		return errors.New("email is invalid")
+		return errors.New("invalid email format")
 	}
 
 	if isEmailAlreadyInUse(in.Email, u.userrepository) {
@@ -630,19 +625,18 @@ func (u *userUsecaseImpl) RegisterOrganizer(in *model.RegisterOrganizer) error {
 	}
 
 	if isPhoneAlreadyInUse(in.Phone, u.userrepository) {
-		return errors.New("this phone is already in us")
+		return errors.New("this phone is already in use")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	in.Password = string(hashedPassword)
 
 	user := &entities.Users{
 		Email:    in.Email,
 		Role:     "organizer",
-		Password: in.Password,
+		Password: string(hashedPassword),
 	}
 
 	organizer := &entities.Organizers{
@@ -667,10 +661,9 @@ func (u *userUsecaseImpl) GetUsers() ([]model.User, error) {
 	users_model := []model.User{}
 	for _, e := range users_entity {
 		m := model.User{
-			ID:        e.ID,
-			Email:     e.Email,
-			Role:      e.Role,
-			CreatedAt: e.CreatedAt,
+			ID:    e.ID,
+			Email: e.Email,
+			Role:  e.Role,
 		}
 		users_model = append(users_model, m)
 	}

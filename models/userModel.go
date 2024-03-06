@@ -34,12 +34,23 @@ type OrganizersInfo struct {
 	// imageProfile string
 }
 
+type MyNormalUser struct {
+	NormalUser
+	Username string `json:"username"`
+}
+
+type loginResponse struct {
+	ID     uint                   `json:"id"`
+	Email  string                 `json:"email"`
+	Role   string                 `json:"role"`
+	Detail map[string]interface{} `json:"detail"`
+}
+
 type User struct {
-	ID        uint
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	CreatedAt time.Time
-	Detail    interface{}
+	ID     uint                   `json:"id"`
+	Email  string                 `json:"email"`
+	Role   string                 `json:"role"`
+	Detail map[string]interface{} `json:"detail"`
 }
 
 type AddMemberRequest struct {
@@ -53,9 +64,9 @@ type AddMemberRequest struct {
 
 type NormalUser struct {
 	NormalUserInfo
-	Team        []Team
-	TeamCreated []Team
-	GoalRecord  GoalRecord
+	Team        []Team     `json:"team"`
+	TeamCreated []Team     `json:"team_created"`
+	GoalRecord  GoalRecord `json:"goal_record"`
 	// imageProfile string
 }
 
@@ -102,17 +113,7 @@ type GoalRecord struct {
 	TimeScored uint
 }
 
-type CreaetTeam struct {
-	Name        string        `json:"name" binding:"required"`
-	OwnerID     uint          `json:"owner_id"`
-	Member      []NormalUser  `json:"member"`
-	Compatition []Compatition `json:"compatition"`
-	Description string        `json:"description"`
-	Role        string        `json:"role"`
-}
-
 type CreateTeam struct {
-	ID          uint          `json:"id"`
 	Name        string        `json:"name" binding:"required"`
 	OwnerID     uint          `json:"owner_id" binding:"required"`
 	Member      []Member      `json:"member"`
@@ -179,6 +180,8 @@ type Address struct {
 }
 
 type Member struct {
+	ID            uint   `json:"id"`
+	UsersID       uint   `json:"user_id"`
 	FirstNameThai string `json:"first_name_thai"`
 	LastNameThai  string `json:"last_name_thai"`
 	FirstNameEng  string `json:"first_name_eng"`

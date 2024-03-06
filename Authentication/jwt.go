@@ -38,6 +38,7 @@ type jwtAuthentication struct {
 func (j *jwtAuthentication) getToken(c *gin.Context) (*jwt.Token, error) {
 	cookie, err := c.Cookie("token")
 	if err != nil {
+
 		return nil, err
 	}
 	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {

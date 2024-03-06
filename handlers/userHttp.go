@@ -28,7 +28,7 @@ type userHttpHandler struct {
 func (h *userHttpHandler) DeleteImageProfile(c *gin.Context) {
 	normalUserID := c.GetUint("normal_user_id")
 	if err := h.userUsercase.RemoveImageProfile(normalUserID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveImageProfile fail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
 }
@@ -53,7 +53,7 @@ func (h *userHttpHandler) UpdateImageCover(c *gin.Context) {
 
 	in, err := c.FormFile("image")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
 
@@ -67,18 +67,17 @@ func (h *userHttpHandler) UpdateImageCover(c *gin.Context) {
 	imagePath := createImagePath(fileExt, "./images/cover")
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
 
 	reqBody := new(model.UpdateNormalUser)
 	reqBody.ImageCoverPath = imagePath
 
 	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
-		log.Errorf(err.Error())
 		if err := os.Remove(imagePath); err != nil {
 			fmt.Printf("Error removing file: %s\n", err)
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
@@ -86,11 +85,9 @@ func (h *userHttpHandler) UpdateImageCover(c *gin.Context) {
 
 func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 	normalUserID := c.GetUint("normal_user_id")
-
 	in, err := c.FormFile("image")
 	if err != nil {
-		fmt.Println("error: ", err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
 
@@ -106,7 +103,7 @@ func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 	imagePath := createImagePath(fileExt, "./images/profile")
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
 
 	reqBody := new(model.UpdateNormalUser)
@@ -117,7 +114,7 @@ func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 		if err := os.Remove(imagePath); err != nil {
 			fmt.Printf("Error removing file: %s\n", err)
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
@@ -127,7 +124,7 @@ func (h *userHttpHandler) UpdateImageProfile(c *gin.Context) {
 func (*userHttpHandler) UploadImage(c *gin.Context) {
 	in, err := c.FormFile("image")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
 
@@ -150,9 +147,8 @@ func (*userHttpHandler) UploadImage(c *gin.Context) {
 	image := fmt.Sprintf("%s.%s", filename, fileExt)
 
 	if err := c.SaveUploadedFile(in, "./images/"+image); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "File upload complete!"})
 }
 
@@ -178,25 +174,20 @@ func isImage(fileHeader *multipart.FileHeader) (bool, string) {
 	}
 }
 
-// // uploadImage implements UserHandler.
-// func (*userHttpHandler) uploadImage(c *gin.Context) {
-// 	file, err := c.FormFile("image") {
-
-// 	}
-// }
-
-// CreateTeam implements UserHandler.
 func (h *userHttpHandler) CreateTeam(c *gin.Context) {
-	reqBody := new(model.CreaetTeam)
+	reqBody := new(model.CreateTeam)
 	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
 	reqBody.OwnerID = c.GetUint("user_id")
 	if err := h.userUsercase.CreateTeam(reqBody); err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		switch err.(type) {
+		case *util.CreateTeamError:
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "CreateTeam success"})
@@ -204,19 +195,17 @@ func (h *userHttpHandler) CreateTeam(c *gin.Context) {
 
 // CreateCompatition implements UserHandler.
 func (h *userHttpHandler) CreateCompatition(c *gin.Context) {
-
 	organizerID := c.GetUint("organizer_id")
-
 	reqBody := new(model.CreateCompatition)
 	if err := c.BindJSON(reqBody); err != nil {
-		response(c, http.StatusBadRequest, "Bad request")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
 
 	reqBody.OrganizerID = organizerID
 
 	if err := h.userUsercase.CreateCompatition(reqBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
@@ -226,7 +215,7 @@ func (h *userHttpHandler) CreateCompatition(c *gin.Context) {
 func (h *userHttpHandler) GetMyPenddingAddMemberRequest(c *gin.Context) {
 	addMemberRequests, err := h.userUsercase.GetMyPenddingAddMemberRequest(c.GetUint("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
 	c.JSON(http.StatusOK, gin.H{"add_member_requests": addMemberRequests})
 }
@@ -393,13 +382,22 @@ func NewUserHttpHandler(userUsercase usecases.UserUsecase) UserHandler {
 // RegisterUser implements UserHandler.
 func (h *userHttpHandler) RegisterOrganizer(c *gin.Context) {
 	reqBody := new(model.RegisterOrganizer)
-	if err := c.Bind(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
+	if err := c.BindJSON(reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
 	}
 	if err := h.userUsercase.RegisterOrganizer(reqBody); err != nil {
-		response(c, http.StatusInternalServerError, "Register failed")
+		if err.Error() == "invalid email format" ||
+			err.Error() == "incorrect email or password" ||
+			err.Error() == "this phone is already in use" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "InternalServerError",
+			})
+		}
 		return
 	}
 	response(c, http.StatusOK, "Register success")
@@ -407,14 +405,22 @@ func (h *userHttpHandler) RegisterOrganizer(c *gin.Context) {
 
 func (h *userHttpHandler) RegisterNormaluser(c *gin.Context) {
 	reqBody := new(model.RegisterNormaluser)
-	if err := c.Bind(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
+	if err := c.BindJSON(reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
 	}
-	fmt.Printf("%v\n", reqBody)
 	if err := h.userUsercase.RegisterNormaluser(reqBody); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		if err.Error() == "invalid email format" ||
+			err.Error() == "this email is already in use" ||
+			err.Error() == "this username is already in use" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "InternalServerError",
+			})
+		}
 		return
 	}
 	response(c, http.StatusOK, "Register success")
@@ -425,21 +431,29 @@ func (u *userHttpHandler) LogoutUser(c *gin.Context) {
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
 	c.Redirect(http.StatusTemporaryRedirect, "/home")
 	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
+		"message": "logout success",
 	})
 }
 
 func (h *userHttpHandler) LoginUser(c *gin.Context) {
 	reqBody := new(model.LoginUser)
 	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
 	}
 
 	jwt, user, err := h.userUsercase.Login(reqBody)
 	if err != nil {
-		response(c, http.StatusUnauthorized, "Login failed")
+		if err.Error() == "invalid email format" ||
+			err.Error() == "incorrect email or password" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "InternalServerError",
+			})
+		}
 		return
 	}
 

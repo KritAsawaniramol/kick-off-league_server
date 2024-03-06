@@ -76,7 +76,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		authRouter.POST("/register/normal", userHttpHandler.RegisterNormaluser)
 		authRouter.POST("/register/organizer", userHttpHandler.RegisterOrganizer)
 		authRouter.POST("/login", userHttpHandler.LoginUser)
-
 		authRouter.POST("/logout", auth.Auth(), userHttpHandler.LogoutUser)
 
 	}
@@ -107,19 +106,19 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	{
 		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
-		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
-		normalRouter.PUT("/image/cover", userHttpHandler.UpdateImageCover)
-		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
+		normalRouter.POST("/team", userHttpHandler.CreateTeam)
+		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
 
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
-
 		normalRouter.GET("/normalUser/:id")
 
+		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
+		normalRouter.PUT("/image/cover", userHttpHandler.UpdateImageCover)
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)
 		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
-		normalRouter.POST("/team", userHttpHandler.CreateTeam)
-		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
+
+		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
 		// normalRouter.POST("/team")
 	}
 
