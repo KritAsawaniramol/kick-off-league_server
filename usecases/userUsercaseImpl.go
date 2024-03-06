@@ -501,7 +501,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
 
-		userModel.Detail = model.NormalUserInfo{
+		userModel.NormalUserInfo = model.NormalUserInfo{
 			ID:               normalUser.ID,
 			FirstNameThai:    normalUser.FirstNameThai,
 			LastNameThai:     normalUser.LastNameThai,
@@ -531,7 +531,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 		if err != nil {
 			return model.User{}, err
 		}
-		userModel.Detail = model.OrganizersInfo{
+		userModel.OrganizersInfo = model.OrganizersInfo{
 			ID:          organizer.ID,
 			Name:        organizer.Name,
 			Phone:       organizer.Phone,
