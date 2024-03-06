@@ -501,7 +501,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
 
-		userModel.Detail["normal_user_info"] = model.NormalUserInfo{
+		userModel.Detail = model.NormalUserInfo{
 			ID:               normalUser.ID,
 			FirstNameThai:    normalUser.FirstNameThai,
 			LastNameThai:     normalUser.LastNameThai,
@@ -531,7 +531,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 		if err != nil {
 			return model.User{}, err
 		}
-		userModel.Detail["organizer_info"] = model.OrganizersInfo{
+		userModel.Detail = model.OrganizersInfo{
 			ID:          organizer.ID,
 			Name:        organizer.Name,
 			Phone:       organizer.Phone,
@@ -601,15 +601,12 @@ func isPhoneAlreadyInUse(phone string, u repositories.Userrepository) bool {
 	if _, err := u.GetNormalUser(&entities.NormalUsers{
 		Phone: phone,
 	}); err != nil {
-		return false
+		if _, err := u.GetOrganizer(&entities.Organizers{
+			Phone: phone,
+		}); err != nil {
+			return false
+		}
 	}
-
-	if _, err := u.GetOrganizer(&entities.Organizers{
-		Phone: phone,
-	}); err != nil {
-		return false
-	}
-
 	return true
 }
 
@@ -621,7 +618,6 @@ func (u *userUsecaseImpl) RegisterOrganizer(in *model.RegisterOrganizer) error {
 
 	if isEmailAlreadyInUse(in.Email, u.userrepository) {
 		return errors.New("this email is already in use")
-
 	}
 
 	if isPhoneAlreadyInUse(in.Phone, u.userrepository) {

@@ -48,10 +48,10 @@ type LoginResponse struct {
 }
 
 type User struct {
-	ID     uint                   `json:"id"`
-	Email  string                 `json:"email"`
-	Role   string                 `json:"role"`
-	Detail map[string]interface{} `json:"detail"`
+	ID     uint        `json:"id"`
+	Email  string      `json:"email"`
+	Role   string      `json:"role"`
+	Detail interface{} `json:"detail"`
 }
 
 type AddMemberRequest struct {

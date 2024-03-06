@@ -31,7 +31,7 @@ func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orde
 	compatitions := []entities.Compatitions{}
 	if err := u.db.Where(&in).Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (u *userPostgresRepository) GetTeams(in *entities.Teams, orderString string
 	teams := []entities.Teams{}
 	if err := u.db.Where(&in).Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&teams).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (u *userPostgresRepository) GetOrganizer(in *entities.Organizers) (*entitie
 	org := new(entities.Organizers)
 	if err := u.db.Where(in).First(org).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (u *userPostgresRepository) GetOrganizerWithAddressByUserID(in uint) (*enti
 	err := u.db.Model(&entities.Organizers{}).Preload("Addresses").Where("users_id = ?", in).First(&organizer).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (u *userPostgresRepository) GetNormalUser(in *entities.NormalUsers) (*entit
 	normalUser := new(entities.NormalUsers)
 	if err := u.db.Where(&in).First(normalUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (u *userPostgresRepository) GetNormalUserWithAddressByUserID(in uint) (*ent
 	normalUser := &entities.NormalUsers{}
 	if err := u.db.Model(&entities.NormalUsers{}).Preload("Addresses").Where("users_id = ?", in).First(&normalUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (u *userPostgresRepository) GetTeamMembersByTeamID(in uint, orderString str
 	teamMembers := []entities.TeamsMembers{}
 	if err := u.db.Where(&teamMember).Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&teamMember).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func (u *userPostgresRepository) GetTeam(in uint) (*entities.Teams, error) {
 	team.ID = in
 	if err := u.db.Where("id = ?", in).First(team).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (u *userPostgresRepository) GetAddMemberRequestByID(in *entities.AddMemberR
 	log.Print(in)
 	if err := u.db.Where(in).Preload("Teams").Find(&addMemberRequests).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*
 	team := entities.Teams{}
 	if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions").First(&team, in).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func (u *userPostgresRepository) GetTeamWithAllAssociationsByID(in *entities.Tea
 	team := new(entities.Teams)
 	if err := u.db.Model(in).Preload(clause.Associations).First(team).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func (u *userPostgresRepository) GetTeamWithMemberAndRequestSendByID(in uint) (*
 	team := new(entities.Teams)
 	if err := u.db.Model(&entities.Teams{}).Preload("TeamsMembers").Preload("Compatitions").Preload("RequestSends").Where("id = ?", in).First(team).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -360,7 +360,7 @@ func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 	users := []entities.Users{}
 	if err := u.db.Find(&users).Order("id DESC").Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
@@ -396,7 +396,7 @@ func (u *userPostgresRepository) GetUserByID(in uint) (*entities.Users, error) {
 	selectedUser := &entities.Users{}
 	if err := u.db.Where("id = ?", in).First(selectedUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, errors.New("record not found")
 		}
 		return nil, err
 	}
