@@ -621,6 +621,7 @@ func (u *userUsecaseImpl) RegisterOrganizer(in *model.RegisterOrganizer) error {
 
 	if isEmailAlreadyInUse(in.Email, u.userrepository) {
 		return errors.New("this email is already in use")
+
 	}
 
 	if isPhoneAlreadyInUse(in.Phone, u.userrepository) {

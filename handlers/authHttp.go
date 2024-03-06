@@ -17,7 +17,7 @@ func (h *httpHandler) RegisterOrganizer(c *gin.Context) {
 	}
 	if err := h.userUsercase.RegisterOrganizer(reqBody); err != nil {
 		if err.Error() == "invalid email format" ||
-			err.Error() == "incorrect email or password" ||
+			err.Error() == "this email is already in use" ||
 			err.Error() == "this phone is already in use" {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": err.Error(),
