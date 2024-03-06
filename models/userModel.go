@@ -39,11 +39,12 @@ type MyNormalUser struct {
 	Username string `json:"username"`
 }
 
-type loginResponse struct {
-	ID     uint                   `json:"id"`
-	Email  string                 `json:"email"`
-	Role   string                 `json:"role"`
-	Detail map[string]interface{} `json:"detail"`
+type LoginResponse struct {
+	ID           uint   `json:"id"`
+	Email        string `json:"email"`
+	Role         string `json:"role"`
+	NormalUserID uint   `json:"normal_user_id,omitempty"`
+	OrganizerID  uint   `json:"organizer_id,omitempty"`
 }
 
 type User struct {

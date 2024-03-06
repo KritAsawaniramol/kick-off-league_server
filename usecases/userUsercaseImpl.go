@@ -414,25 +414,25 @@ func NewUserUsercaseImpl(
 	}
 }
 
-func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error) {
+func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.LoginResponse, error) {
 
 	if !isEmail(in.Email) {
-		return "", model.User{}, errors.New("invalid email format")
+		return "", model.LoginResponse{}, errors.New("invalid email format")
 	}
 
 	//get user from email
 	user, err := u.userrepository.GetUserByEmail(in.Email)
 	if err != nil {
-		return "", model.User{}, errors.New("incorrect email or password")
+		return "", model.LoginResponse{}, errors.New("incorrect email or password")
 	}
 	//compare password
 	if err := bcrypt.CompareHashAndPassword(
 		[]byte(user.Password),
 		[]byte(in.Password)); err != nil {
-		return "", model.User{}, errors.New("incorrect email or password")
+		return "", model.LoginResponse{}, errors.New("incorrect email or password")
 	}
 
-	userModel := model.User{
+	loginResponse := model.LoginResponse{
 		ID:    user.ID,
 		Email: user.Email,
 		Role:  user.Role,
@@ -448,7 +448,7 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 	if user.Role == "normal" {
 		normalUser, err := u.userrepository.GetNormalUserWithAddressByUserID(user.ID)
 		if err != nil {
-			return "", model.User{}, err
+			return "", model.LoginResponse{}, err
 		}
 		if normalUser.ImageProfilePath != "" {
 			normalUser.ImageProfilePath = normalUser.ImageProfilePath[1:]
@@ -456,24 +456,23 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.User, error)
 		if normalUser.ImageCoverPath != "" {
 			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
 		}
-
-		userModel.Detail["normal_user_id"] = normalUser.ID
+		loginResponse.NormalUserID = normalUser.ID
 		claims["normal_user_id"] = normalUser.ID
 	} else if user.Role == "organizer" {
 		organizer, err := u.userrepository.GetOrganizerWithAddressByUserID(user.ID)
 		if err != nil {
-			return "", model.User{}, err
+			return "", model.LoginResponse{}, err
 		}
-		userModel.Detail["organizer_id"] = organizer.ID
+		loginResponse.OrganizerID = organizer.ID
 		claims["organizer_id"] = organizer.ID
 	}
 	//bypass
 	jwtSecretKey := config.GetConfig().JwtSecretKey
 	t, err := token.SignedString([]byte(jwtSecretKey))
 	if err != nil {
-		return "", model.User{}, err
+		return "", model.LoginResponse{}, err
 	}
-	return t, userModel, nil
+	return t, loginResponse, nil
 }
 
 // GetUser implements UserUsecase.

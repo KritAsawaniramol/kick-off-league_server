@@ -2,11 +2,14 @@ package handlers
 
 import "github.com/gin-gonic/gin"
 
-type UserHandler interface {
+type Handler interface {
+
+	//auth
 	RegisterOrganizer(c *gin.Context)
 	RegisterNormaluser(c *gin.Context)
 	LoginUser(c *gin.Context)
 	LogoutUser(c *gin.Context)
+
 	GetUsers(c *gin.Context)
 	GetUser(c *gin.Context)
 	GetTeams(c *gin.Context)

@@ -45,7 +45,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 	auth := authentication.NewJwtAuthentication(s.cfg.JwtSecretKey)
 
-	userHttpHandler := handlers.NewUserHttpHandler(userUsercase)
+	userHttpHandler := handlers.NewhttpHandler(userUsercase)
 
 	s.app.Use(gin.Logger())
 	s.app.Use(gin.Recovery())
