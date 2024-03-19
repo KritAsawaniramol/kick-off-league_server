@@ -243,7 +243,7 @@ func (h *httpHandler) GetTeamByOwnerID(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 	}
-	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(TeamID))
+	teams, err := h.userUsercase.GetTeamsByOwnerID(uint(TeamID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
