@@ -30,21 +30,25 @@ type (
 
 	Users struct {
 		gorm.Model
-		Email    string `gorm:"unique;not null;type:varchar(100)"`
-		Role     string
-		Password string
+		Email            string `gorm:"unique;not null;type:varchar(100)"`
+		Role             string
+		Password         string
+		ImageProfilePath string
+		ImageCoverPath   string
 	}
 
 	Organizers struct {
 		gorm.Model
-		UsersID      uint `gorm:"unique;not null"`
-		Name         string
-		Phone        string `gorm:"unique;not null"`
-		Description  string
-		AddressesID  uint `gorm:"unique"`
-		Addresses    Addresses
-		Compatitions []Compatitions
-		ImageURL     string
+		UsersID          uint `gorm:"unique;not null"`
+		Name             string
+		Phone            string `gorm:"unique;not null"`
+		Description      string
+		AddressesID      uint `gorm:"unique"`
+		Addresses        Addresses
+		Compatitions     []Compatitions
+		ImageURL         string
+		ImageProfilePath string
+		ImageCoverPath   string
 	}
 
 	NormalUsers struct {
@@ -103,11 +107,13 @@ type (
 	Compatitions struct {
 		gorm.Model
 		Name              string
+		Sport             string //football or futsal
 		Format            CompetitionFormat
 		OrganizersID      uint
 		Organizers        Organizers
 		StartDate         time.Time
 		EndDate           time.Time
+		Description       string
 		RegisterStartDate time.Time
 		RegisterEndDate   time.Time
 		ApplicationFee    float64
@@ -115,7 +121,6 @@ type (
 		AgeUnder          uint
 		Sex               SexType
 		FieldSurface      FieldSurfaces
-		Description       string
 		Status            CompetitionStatus
 		AddressesID       uint `gorm:"unique"`
 		Addresses         Addresses

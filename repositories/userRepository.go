@@ -33,6 +33,7 @@ type Userrepository interface {
 	UpdateSelectedFields(model interface{}, fieldname string, value interface{}) error
 	UpdateAddMemberRequestStatusByID(inID uint, inStatus string) error
 	UpdateNormalUser(inNormalUser *entities.NormalUsers) error
+	UpdateUser(inUser *entities.Users) error
 	UpdateNormalUserPhone(in_userID uint, newPhone string) error
 	UpdateAddMemberRequestStatusAndSoftDelete(inReq *entities.AddMemberRequests, inStatus string) error
 }

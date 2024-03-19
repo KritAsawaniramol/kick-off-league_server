@@ -20,16 +20,46 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
-// Logout implements UserUsecase.
-func (*userUsecaseImpl) Logout() error {
+// UpdateUser implements UserUsecase.
+func (*userUsecaseImpl) UpdateUser(in *model.User) error {
 	panic("unimplemented")
 }
 
 // RemoveImageProfile implements UserUsecase.
-func (u *userUsecaseImpl) RemoveImageProfile(normalUserID uint) error {
-	normalUser := entities.NormalUsers{}
-	normalUser.ID = normalUserID
-	if err := u.userrepository.UpdateSelectedFields(normalUser, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: ""}); err != nil {
+func (u *userUsecaseImpl) UpdateImageProfile(userID uint, newImagePath string) error {
+	user := &entities.Users{}
+	user.ID = userID
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: newImagePath}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// RemoveImageProfile implements UserUsecase.
+func (u *userUsecaseImpl) UpdateImageCover(userID uint, newImagePath string) error {
+	user := &entities.Users{}
+	user.ID = userID
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: newImagePath}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// RemoveImageProfile implements UserUsecase.
+func (u *userUsecaseImpl) RemoveImageProfile(userID uint) error {
+	user := &entities.Users{}
+	user.ID = userID
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: "./images/default/defaultProfile.jpg"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// RemoveImageProfile implements UserUsecase.
+func (u *userUsecaseImpl) RemoveImageCover(userID uint) error {
+	user := &entities.Users{}
+	user.ID = userID
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageCoverPath", &entities.NormalUsers{ImageCoverPath: "./images/default/defaultCover.jpg"}); err != nil {
 		return err
 	}
 	return nil
@@ -211,6 +241,33 @@ func (u *userUsecaseImpl) GetTeams(in *model.GetTeamsReq) ([]model.TeamList, err
 	return teamList, nil
 }
 
+// GetTeamList implements UserUsecase.
+func (u *userUsecaseImpl) GetTeamsByOwnerID(in uint) ([]model.TeamList, error) {
+
+	team := entities.Teams{
+		// 0 is select all id
+		OwnerID: in,
+	}
+
+	util.PrintObjInJson(team)
+
+	teams, err := u.userrepository.GetTeams(&team, "id", false, -1, -1)
+	if err != nil {
+		return []model.TeamList{}, err
+	}
+
+	teamList := []model.TeamList{}
+	for _, team := range teams {
+		teamList = append(teamList, model.TeamList{
+			ID:             team.ID,
+			Name:           team.Name,
+			Description:    team.Description,
+			NumberOfMember: uint(u.userrepository.GetNumberOfTeamsMember(team.ID)),
+		})
+	}
+	return teamList, nil
+}
+
 // GetMyTeam implements UserUsecase.
 func (*userUsecaseImpl) GetMyTeam() ([]model.Team, error) {
 	panic("unimplemented")
@@ -311,24 +368,26 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 
 }
 
+func UpdateUser() {
+
+}
+
 // UpdateNormalUser implements UserUsecase.
 func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error {
 
 	normalUser := &entities.NormalUsers{
-		FirstNameThai:    inUpdateModel.FirstNameThai,
-		LastNameThai:     inUpdateModel.LastNameThai,
-		FirstNameEng:     inUpdateModel.FirstNameEng,
-		LastNameEng:      inUpdateModel.LastNameEng,
-		Born:             inUpdateModel.Born,
-		Height:           inUpdateModel.Height,
-		Weight:           inUpdateModel.Weight,
-		Sex:              inUpdateModel.Sex,
-		Position:         inUpdateModel.Position,
-		Nationality:      inUpdateModel.Nationality,
-		Description:      inUpdateModel.Description,
-		Phone:            inUpdateModel.Phone,
-		ImageProfilePath: inUpdateModel.ImageProfilePath,
-		ImageCoverPath:   inUpdateModel.ImageCoverPath,
+		FirstNameThai: inUpdateModel.FirstNameThai,
+		LastNameThai:  inUpdateModel.LastNameThai,
+		FirstNameEng:  inUpdateModel.FirstNameEng,
+		LastNameEng:   inUpdateModel.LastNameEng,
+		Born:          inUpdateModel.Born,
+		Height:        inUpdateModel.Height,
+		Weight:        inUpdateModel.Weight,
+		Sex:           inUpdateModel.Sex,
+		Position:      inUpdateModel.Position,
+		Nationality:   inUpdateModel.Nationality,
+		Description:   inUpdateModel.Description,
+		Phone:         inUpdateModel.Phone,
 	}
 
 	normalUser.ID = inNormalUserID
@@ -484,9 +543,11 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 	}
 
 	userModel := model.User{
-		ID:    user.ID,
-		Email: user.Email,
-		Role:  user.Role,
+		ID:               user.ID,
+		Email:            user.Email,
+		Role:             user.Role,
+		ImageProfilePath: user.ImageProfilePath,
+		ImageCoverPath:   user.ImageCoverPath,
 	}
 
 	if user.Role == "normal" {
@@ -494,29 +555,21 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 		if err != nil {
 			return model.User{}, err
 		}
-		if normalUser.ImageProfilePath != "" {
-			normalUser.ImageProfilePath = normalUser.ImageProfilePath[1:]
-		}
-		if normalUser.ImageCoverPath != "" {
-			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
-		}
 
-		userModel.NormalUserInfo = model.NormalUserInfo{
-			ID:               normalUser.ID,
-			FirstNameThai:    normalUser.FirstNameThai,
-			LastNameThai:     normalUser.LastNameThai,
-			FirstNameEng:     normalUser.FirstNameEng,
-			LastNameEng:      normalUser.LastNameEng,
-			Born:             normalUser.Born,
-			Phone:            normalUser.Phone,
-			Height:           normalUser.Height,
-			Weight:           normalUser.Weight,
-			Sex:              normalUser.Sex,
-			Position:         normalUser.Position,
-			Nationality:      normalUser.Nationality,
-			Description:      normalUser.Description,
-			ImageProfilePath: normalUser.ImageProfilePath,
-			ImageCoverPath:   normalUser.ImageCoverPath,
+		userModel.NormalUserInfo = &model.NormalUserInfo{
+			ID:            normalUser.ID,
+			FirstNameThai: normalUser.FirstNameThai,
+			LastNameThai:  normalUser.LastNameThai,
+			FirstNameEng:  normalUser.FirstNameEng,
+			LastNameEng:   normalUser.LastNameEng,
+			Born:          normalUser.Born,
+			Phone:         normalUser.Phone,
+			Height:        normalUser.Height,
+			Weight:        normalUser.Weight,
+			Sex:           normalUser.Sex,
+			Position:      normalUser.Position,
+			Nationality:   normalUser.Nationality,
+			Description:   normalUser.Description,
 			Address: model.Address{
 				HouseNumber: normalUser.Addresses.HouseNumber,
 				Village:     normalUser.Addresses.Village,
@@ -526,12 +579,14 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 				Country:     normalUser.Addresses.Country,
 			},
 		}
+		// userModel.OrganizersInfo = model.OrganizersInfo{}
+
 	} else if user.Role == "organizer" {
 		organizer, err := u.userrepository.GetOrganizerWithAddressByUserID(user.ID)
 		if err != nil {
 			return model.User{}, err
 		}
-		userModel.OrganizersInfo = model.OrganizersInfo{
+		userModel.OrganizersInfo = &model.OrganizersInfo{
 			ID:          organizer.ID,
 			Name:        organizer.Name,
 			Phone:       organizer.Phone,
@@ -545,6 +600,8 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 				Country:     organizer.Addresses.Country,
 			},
 		}
+		// userModel.NormalUserInfo = model.NormalUserInfo{}
+
 	}
 	return userModel, nil
 }
@@ -566,9 +623,11 @@ func (u *userUsecaseImpl) RegisterNormaluser(in *model.RegisterNormaluser) error
 	}
 
 	user := &entities.Users{
-		Email:    in.Email,
-		Role:     "normal",
-		Password: string(hashedPassword),
+		Email:            in.Email,
+		Role:             "normal",
+		Password:         string(hashedPassword),
+		ImageProfilePath: "./images/default/defaultProfile.jpg",
+		ImageCoverPath:   "./images/default/defaultCover.jpg",
 	}
 
 	normalUser := &entities.NormalUsers{
@@ -630,9 +689,11 @@ func (u *userUsecaseImpl) RegisterOrganizer(in *model.RegisterOrganizer) error {
 	}
 
 	user := &entities.Users{
-		Email:    in.Email,
-		Role:     "organizer",
-		Password: string(hashedPassword),
+		Email:            in.Email,
+		Role:             "organizer",
+		Password:         string(hashedPassword),
+		ImageProfilePath: "./images/default/defaultProfile.jpg",
+		ImageCoverPath:   "./images/default/defaultCover.jpg",
 	}
 
 	organizer := &entities.Organizers{
@@ -657,9 +718,12 @@ func (u *userUsecaseImpl) GetUsers() ([]model.User, error) {
 	users_model := []model.User{}
 	for _, e := range users_entity {
 		m := model.User{
-			ID:    e.ID,
-			Email: e.Email,
-			Role:  e.Role,
+			NormalUserInfo:   &model.NormalUserInfo{},
+			ID:               e.ID,
+			Email:            e.Email,
+			Role:             e.Role,
+			ImageProfilePath: e.ImageProfilePath,
+			ImageCoverPath:   e.ImageCoverPath,
 		}
 		users_model = append(users_model, m)
 	}

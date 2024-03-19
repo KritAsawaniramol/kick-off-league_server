@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"kickoff-league.com/usecases"
+)
 
 type Handler interface {
 
@@ -14,7 +17,9 @@ type Handler interface {
 	GetUser(c *gin.Context)
 	GetTeams(c *gin.Context)
 	GetTeam(c *gin.Context)
+	GetTeamByOwnerID(c *gin.Context)
 	GetMyPenddingAddMemberRequest(c *gin.Context)
+	GetNormalUsers(c *gin.Context)
 	// uploadImage(c *gin.Context)
 	// UpdateNormalUserPhone(c *gin.Context)
 	DeleteImageProfile(c *gin.Context)
@@ -28,4 +33,14 @@ type Handler interface {
 	AcceptAddMemberRequest(c *gin.Context)
 	IgnoreAddMemberRequest(c *gin.Context)
 	// GetUserByPhone(c *gin.Context)
+}
+
+func NewhttpHandler(userUsercase usecases.UserUsecase) Handler {
+	return &httpHandler{
+		userUsercase: userUsercase,
+	}
+}
+
+type httpHandler struct {
+	userUsercase usecases.UserUsecase
 }

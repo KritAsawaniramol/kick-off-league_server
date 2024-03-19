@@ -16,12 +16,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	model "kickoff-league.com/models"
-	"kickoff-league.com/usecases"
 	"kickoff-league.com/util"
 )
 
-type httpHandler struct {
-	userUsercase usecases.UserUsecase
+// GetNormalUsers implements Handler.
+func (*httpHandler) GetNormalUsers(c *gin.Context) {
+	panic("unimplemented")
 }
 
 // DeleteImageProfile implements UserHandler.
@@ -49,7 +49,7 @@ func createImagePath(fileExt string, dst string) string {
 
 // UpdateImageCover implements UserHandler.
 func (h *httpHandler) UpdateImageCover(c *gin.Context) {
-	normalUserID := c.GetUint("normal_user_id")
+	userID := c.GetUint("user_id")
 
 	in, err := c.FormFile("image")
 	if err != nil {
@@ -70,10 +70,7 @@ func (h *httpHandler) UpdateImageCover(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
 
-	reqBody := new(model.UpdateNormalUser)
-	reqBody.ImageCoverPath = imagePath
-
-	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
+	if err := h.userUsercase.UpdateImageCover(userID, imagePath); err != nil {
 		if err := os.Remove(imagePath); err != nil {
 			fmt.Printf("Error removing file: %s\n", err)
 		}
@@ -84,7 +81,7 @@ func (h *httpHandler) UpdateImageCover(c *gin.Context) {
 }
 
 func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
-	normalUserID := c.GetUint("normal_user_id")
+	userID := c.GetUint("user_id")
 	in, err := c.FormFile("image")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
@@ -106,10 +103,7 @@ func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
 
-	reqBody := new(model.UpdateNormalUser)
-	reqBody.ImageProfilePath = imagePath
-
-	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
+	if err := h.userUsercase.UpdateImageProfile(userID, imagePath); err != nil {
 		log.Errorf(err.Error())
 		if err := os.Remove(imagePath); err != nil {
 			fmt.Printf("Error removing file: %s\n", err)
@@ -117,6 +111,15 @@ func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
+
+	// if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
+	// 	log.Errorf(err.Error())
+	// 	if err := os.Remove(imagePath); err != nil {
+	// 		fmt.Printf("Error removing file: %s\n", err)
+	// 	}
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	// 	return
+	// }
 	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
 }
 
@@ -223,6 +226,20 @@ func (h *httpHandler) GetMyPenddingAddMemberRequest(c *gin.Context) {
 // GetTeam implements UserHandler.
 func (h *httpHandler) GetTeam(c *gin.Context) {
 	TeamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+	}
+	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(TeamID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"teams": teams})
+}
+
+// GetTeamByOwnerID implements Handler.
+func (h *httpHandler) GetTeamByOwnerID(c *gin.Context) {
+	TeamID, err := strconv.ParseUint(c.Param("ownerid"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 	}
@@ -359,12 +376,6 @@ func (h *httpHandler) GetUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, normalUser)
-}
-
-func NewhttpHandler(userUsercase usecases.UserUsecase) Handler {
-	return &httpHandler{
-		userUsercase: userUsercase,
-	}
 }
 
 // GetUsers implements UserHandler.

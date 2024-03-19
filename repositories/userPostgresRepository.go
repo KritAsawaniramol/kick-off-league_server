@@ -16,9 +16,13 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// UpdateUser implements Userrepository.
+func (*userPostgresRepository) UpdateUser(inUser *entities.Users) error {
+	panic("unimplemented")
+}
+
 // UpdateSelectedFields implements Userrepository.
 func (u *userPostgresRepository) UpdateSelectedFields(model interface{}, fieldname string, value interface{}) error {
-
 	//model.ID is required
 	if err := u.db.Model(model).Select(fieldname).Updates(value).Error; err != nil {
 		return err

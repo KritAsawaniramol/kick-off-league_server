@@ -4,27 +4,6 @@ import (
 	"time"
 )
 
-type RegisterUser struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
-type RegisterNormaluser struct {
-	RegisterUser
-	Username string `json:"username" binding:"required"`
-}
-
-type RegisterOrganizer struct {
-	RegisterUser
-	OrganizerName string `json:"name" binding:"required"`
-	Phone         string `json:"phone" binding:"required"`
-}
-
-type LoginUser struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
 type OrganizersInfo struct {
 	ID          uint
 	Name        string
@@ -48,11 +27,13 @@ type LoginResponse struct {
 }
 
 type User struct {
-	ID             uint           `json:"id"`
-	Email          string         `json:"email"`
-	Role           string         `json:"role"`
-	NormalUserInfo NormalUserInfo `json:"normal_user,omitempty"`
-	OrganizersInfo OrganizersInfo `json:"organizer,omitempty"`
+	ID               uint            `json:"id"`
+	Email            string          `json:"email"`
+	Role             string          `json:"role"`
+	NormalUserInfo   *NormalUserInfo `json:"normal_user,omitempty"`
+	OrganizersInfo   *OrganizersInfo `json:"organizer,omitempty"`
+	ImageProfilePath string          `json:"image_profile_path"`
+	ImageCoverPath   string          `json:"image_cover_path"`
 }
 
 type AddMemberRequest struct {
@@ -69,43 +50,38 @@ type NormalUser struct {
 	Team        []Team     `json:"team"`
 	TeamCreated []Team     `json:"team_created"`
 	GoalRecord  GoalRecord `json:"goal_record"`
-	// imageProfile string
 }
 
 type NormalUserInfo struct {
-	ID               uint      `json:"id"`
-	FirstNameThai    string    `json:"first_name_thai"`
-	LastNameThai     string    `json:"last_name_thai"`
-	FirstNameEng     string    `json:"first_name_eng"`
-	LastNameEng      string    `json:"last_name_eng"`
-	Born             time.Time `json:"born"`
-	Phone            string    `json:"phone"`
-	Height           uint      `json:"height"`
-	Weight           uint      `json:"weight"`
-	Sex              string    `json:"sex"`
-	Position         string    `json:"position"`
-	Nationality      string    `json:"nationality"`
-	Description      string    `json:"description"`
-	ImageProfilePath string    `json:"image_profile_path"`
-	ImageCoverPath   string    `json:"image_cover_path"`
-	Address          `json:"address"`
+	ID            uint      `json:"id"`
+	FirstNameThai string    `json:"first_name_thai"`
+	LastNameThai  string    `json:"last_name_thai"`
+	FirstNameEng  string    `json:"first_name_eng"`
+	LastNameEng   string    `json:"last_name_eng"`
+	Born          time.Time `json:"born"`
+	Phone         string    `json:"phone"`
+	Height        uint      `json:"height"`
+	Weight        uint      `json:"weight"`
+	Sex           string    `json:"sex"`
+	Position      string    `json:"position"`
+	Nationality   string    `json:"nationality"`
+	Description   string    `json:"description"`
+	Address       `json:"address"`
 }
 
 type UpdateNormalUser struct {
-	FirstNameThai    string    `json:"first_name_thai"`
-	LastNameThai     string    `json:"last_name_thai"`
-	FirstNameEng     string    `json:"first_name_eng"`
-	LastNameEng      string    `json:"last_name_eng"`
-	Born             time.Time `json:"born"`
-	Phone            string    `json:"phone"`
-	Height           uint      `json:"height"`
-	Weight           uint      `json:"weight"`
-	Sex              string    `json:"sex"`
-	Position         string    `json:"position"`
-	Nationality      string    `json:"nationality"`
-	Description      string    `json:"description"`
-	ImageProfilePath string    `json:"image_profile_path"`
-	ImageCoverPath   string    `json:"image_cover_path"`
+	FirstNameThai string    `json:"first_name_thai"`
+	LastNameThai  string    `json:"last_name_thai"`
+	FirstNameEng  string    `json:"first_name_eng"`
+	LastNameEng   string    `json:"last_name_eng"`
+	Born          time.Time `json:"born"`
+	Phone         string    `json:"phone"`
+	Height        uint      `json:"height"`
+	Weight        uint      `json:"weight"`
+	Sex           string    `json:"sex"`
+	Position      string    `json:"position"`
+	Nationality   string    `json:"nationality"`
+	Description   string    `json:"description"`
 }
 
 type GoalRecord struct {

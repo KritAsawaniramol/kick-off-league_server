@@ -77,7 +77,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		authRouter.POST("/register/organizer", userHttpHandler.RegisterOrganizer)
 		authRouter.POST("/login", userHttpHandler.LoginUser)
 		authRouter.POST("/logout", auth.Auth(), userHttpHandler.LogoutUser)
-
 	}
 
 	viewRouter := s.app.Group("/view")
@@ -86,6 +85,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		viewRouter.GET("/teams/:id", userHttpHandler.GetTeam)
 		viewRouter.GET("/users", userHttpHandler.GetUsers)
 		viewRouter.GET("/users/:id", userHttpHandler.GetUser)
+		viewRouter.GET("/normalUsers")
+
 	}
 
 	adminRouter := s.app.Group("/admin")
@@ -117,6 +118,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)
 		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
+		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
 
 		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
 		// normalRouter.POST("/team")
