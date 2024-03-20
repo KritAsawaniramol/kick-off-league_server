@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
 	"net/mail"
 	"strings"
 	"time"
@@ -370,8 +371,13 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 		return errors.New("this user isn't owner's team")
 	}
 
+	util.PrintObjInJson(receiver)
+	util.PrintObjInJson(team)
+
 	for _, member := range team.TeamsMembers {
-		if member.NormalUsers.UsersID == receiver.UsersID {
+		fmt.Println(member.NormalUsers.UsersID)
+		fmt.Println(receiver.UsersID)
+		if member.NormalUsersID == receiver.ID {
 			return errors.New("this request receiver is already in team")
 		}
 	}

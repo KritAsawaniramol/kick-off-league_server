@@ -108,7 +108,7 @@ type GoalRecord struct {
 
 type CreateTeam struct {
 	Name        string        `json:"name" binding:"required"`
-	OwnerID     uint          `json:"owner_id" binding:"required"`
+	OwnerID     uint          `json:"owner_id"`
 	Member      []Member      `json:"member"`
 	Compatition []Compatition `json:"compatition"`
 	Description string        `json:"description"`
