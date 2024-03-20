@@ -327,8 +327,8 @@ func (h *httpHandler) SendAddMemberRequest(c *gin.Context) {
 
 	if err := h.userUsercase.SendAddMemberRequest(reqBody, userID); err != nil {
 		if err_str := err.Error(); err_str == "this user isn't owner's team" ||
-			err_str == "this request receiver is already in team" ||
-			err_str == "team have already sent a request to this receiver" {
+			err_str == "this user already invited" ||
+			err_str == "this user already in team" {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "Create AddMemberRequest failed"})

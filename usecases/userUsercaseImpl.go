@@ -378,13 +378,13 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 		fmt.Println(member.NormalUsers.UsersID)
 		fmt.Println(receiver.UsersID)
 		if member.NormalUsersID == receiver.ID {
-			return errors.New("this request receiver is already in team")
+			return errors.New("this user already in team")
 		}
 	}
 
 	for _, requestSend := range team.RequestSends {
 		if requestSend.ReceiverID == receiver.UsersID && requestSend.Status == "pending" {
-			return errors.New("team have already sent a request to this receiver")
+			return errors.New("this user already invited")
 		}
 	}
 
