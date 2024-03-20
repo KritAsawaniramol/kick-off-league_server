@@ -11,6 +11,7 @@ type Userrepository interface {
 	GetNormalUserWithAddressByUserID(in uint) (*entities.NormalUsers, error)
 	GetNormalUserByUsername(username string) (*entities.NormalUsers, error)
 	GetNumberOfTeamsMember(in uint) int64
+	GetNormalUsers(in *entities.NormalUsers) ([]entities.NormalUsers, error)
 
 	GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error)
 	GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error)

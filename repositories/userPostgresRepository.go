@@ -30,6 +30,18 @@ func (u *userPostgresRepository) UpdateSelectedFields(model interface{}, fieldna
 	return nil
 }
 
+// GetUsers implements Userrepository.
+func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
+	users := []entities.Users{}
+	if err := u.db.Find(&users).Order("id DESC").Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return users, nil
+}
+
 // GetCompatitions implements Userrepository.
 func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error) {
 	compatitions := []entities.Compatitions{}
@@ -40,6 +52,18 @@ func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orde
 		return nil, err
 	}
 	return compatitions, nil
+}
+
+// GetNormalUsers implements Userrepository.
+func (u *userPostgresRepository) GetNormalUsers(in *entities.NormalUsers) ([]entities.NormalUsers, error) {
+	normalUsers := []entities.NormalUsers{}
+	if err := u.db.Where(&in).Find(&normalUsers).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return normalUsers, nil
 }
 
 // GetTeams implements Userrepository.
@@ -357,18 +381,6 @@ func (u *userPostgresRepository) UpdateNormalUserPhone(in_userID uint, newPhone 
 
 func NewUserPostgresRepository(db *gorm.DB) Userrepository {
 	return &userPostgresRepository{db: db}
-}
-
-// GetUsers implements Userrepository.
-func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
-	users := []entities.Users{}
-	if err := u.db.Find(&users).Order("id DESC").Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("record not found")
-		}
-		return nil, err
-	}
-	return users, nil
 }
 
 // GetUserByEmail implements Userrepository.

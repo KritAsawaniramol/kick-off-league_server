@@ -36,15 +36,6 @@ type User struct {
 	ImageCoverPath   string          `json:"image_cover_path"`
 }
 
-type AddMemberRequest struct {
-	ID               uint   `json:"id"`
-	TeamID           uint   `json:"team_id" binding:"required"`
-	TeamName         string `json:"team_name"`
-	ReceiverUsername string `json:"receiver_username" binding:"required"`
-	Role             string `json:"role" binding:"required"`
-	Status           string `json:"status"`
-}
-
 type NormalUser struct {
 	NormalUserInfo
 	Team        []Team     `json:"team"`
@@ -69,6 +60,21 @@ type NormalUserInfo struct {
 	Address       `json:"address"`
 }
 
+type NormalUserList struct {
+	ID            uint      `json:"id"`
+	FirstNameThai string    `json:"first_name_thai"`
+	LastNameThai  string    `json:"last_name_thai"`
+	FirstNameEng  string    `json:"first_name_eng"`
+	LastNameEng   string    `json:"last_name_eng"`
+	Born          time.Time `json:"born"`
+	Height        uint      `json:"height"`
+	Weight        uint      `json:"weight"`
+	Sex           string    `json:"sex"`
+	Position      string    `json:"position"`
+	Nationality   string    `json:"nationality"`
+	Description   string    `json:"description"`
+}
+
 type UpdateNormalUser struct {
 	FirstNameThai string    `json:"first_name_thai"`
 	LastNameThai  string    `json:"last_name_thai"`
@@ -82,6 +88,15 @@ type UpdateNormalUser struct {
 	Position      string    `json:"position"`
 	Nationality   string    `json:"nationality"`
 	Description   string    `json:"description"`
+}
+
+type AddMemberRequest struct {
+	ID               uint   `json:"id"`
+	TeamID           uint   `json:"team_id" binding:"required"`
+	TeamName         string `json:"team_name"`
+	ReceiverUsername string `json:"receiver_username" binding:"required"`
+	Role             string `json:"role" binding:"required"`
+	Status           string `json:"status"`
 }
 
 type GoalRecord struct {

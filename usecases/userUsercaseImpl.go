@@ -20,6 +20,36 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// GetNormalUserList implements UserUsecase.
+func (u *userUsecaseImpl) GetNormalUserList() ([]model.NormalUserList, error) {
+	normalUsers_entity, err := u.userrepository.GetNormalUsers(&entities.NormalUsers{})
+	if err != nil {
+		if err.Error() == "record not found" {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	normalUserList := []model.NormalUserList{}
+	for _, v := range normalUsers_entity {
+		normalUserList = append(normalUserList, model.NormalUserList{
+			ID:            v.ID,
+			FirstNameThai: v.FirstNameThai,
+			LastNameThai:  v.LastNameThai,
+			FirstNameEng:  v.FirstNameEng,
+			LastNameEng:   v.LastNameEng,
+			Born:          v.Born,
+			Height:        v.Height,
+			Weight:        v.Weight,
+			Sex:           v.Sex,
+			Position:      v.Position,
+			Nationality:   v.Nationality,
+			Description:   v.Description,
+		})
+	}
+	return normalUserList, nil
+}
+
 // UpdateUser implements UserUsecase.
 func (*userUsecaseImpl) UpdateUser(in *model.User) error {
 	panic("unimplemented")
@@ -365,10 +395,6 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 	}
 
 	return nil
-
-}
-
-func UpdateUser() {
 
 }
 

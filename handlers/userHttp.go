@@ -20,8 +20,13 @@ import (
 )
 
 // GetNormalUsers implements Handler.
-func (*httpHandler) GetNormalUsers(c *gin.Context) {
-	panic("unimplemented")
+func (h *httpHandler) GetNormalUsers(c *gin.Context) {
+	normalUserList, err := h.userUsercase.GetNormalUserList()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
+	c.JSON(http.StatusOK, normalUserList)
+
 }
 
 // DeleteImageProfile implements UserHandler.
@@ -374,7 +379,6 @@ func (h *httpHandler) GetUsers(c *gin.Context) {
 	if err != nil {
 		response(c, http.StatusBadRequest, "Bad request")
 	}
-
 	c.JSON(http.StatusOK, normalUser)
 }
 

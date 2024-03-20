@@ -85,7 +85,9 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		viewRouter.GET("/teams/:id", userHttpHandler.GetTeam)
 		viewRouter.GET("/users", userHttpHandler.GetUsers)
 		viewRouter.GET("/users/:id", userHttpHandler.GetUser)
-		viewRouter.GET("/normalUsers")
+
+		viewRouter.GET("/normalUsers", userHttpHandler.GetNormalUsers)
+		viewRouter.GET("/organizer")
 
 	}
 
@@ -109,10 +111,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
 		normalRouter.POST("/team", userHttpHandler.CreateTeam)
 		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
-
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
 		normalRouter.GET("/normalUser/:id")
-
 		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
 		normalRouter.PUT("/image/cover", userHttpHandler.UpdateImageCover)
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)

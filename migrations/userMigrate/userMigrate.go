@@ -11,6 +11,7 @@ import (
 	model "kickoff-league.com/models"
 	"kickoff-league.com/repositories"
 	"kickoff-league.com/usecases"
+	"kickoff-league.com/util"
 )
 
 func main() {
@@ -20,11 +21,17 @@ func main() {
 
 	userPostgresRepository := repositories.NewUserPostgresRepository(db.GetDb())
 
-	userUsercase := usecases.NewUserUsercaseImpl(
-		userPostgresRepository,
-	)
+	// userUsercase := usecases.NewUserUsercaseImpl(
+	// 	userPostgresRepository,
+	// )
+	normalUser, err := userPostgresRepository.GetNormalUsers(&entities.NormalUsers{})
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+	util.PrintObjInJson(normalUser)
 
-	mockupData(userUsercase)
+	// mockupData(userUsercase)
+
 	// team := entities.Teams{}
 	// db.GetDb().Preload("TeamsMembers").First(&team, 1)
 

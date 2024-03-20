@@ -21,6 +21,8 @@ type UserUsecase interface {
 	GetTeams(in *model.GetTeamsReq) ([]model.TeamList, error)
 	GetCompatitions(in *model.GetCompatitionsReq) ([]model.Compatition, error)
 	GetTeamsByOwnerID(in uint) ([]model.TeamList, error)
+	GetNormalUserList() ([]model.NormalUserList, error)
+
 	CreateCompatition(in *model.CreateCompatition) error
 	CreateTeam(in *model.CreateTeam) error
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error
