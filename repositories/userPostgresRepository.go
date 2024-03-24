@@ -50,7 +50,7 @@ func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 // GetCompatitionByID implements Userrepository.
 func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error) {
 	compatition := &entities.Compatitions{}
-	if err := u.db.Where(&in).Preload(clause.Associations).First(&compatition).Error; err != nil {
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matches.GoalRecords").Preload("Teams.TeamsMembers").First(&compatition).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

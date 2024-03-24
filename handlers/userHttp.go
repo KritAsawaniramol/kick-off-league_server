@@ -228,10 +228,18 @@ func (h *httpHandler) CreateCompatition(c *gin.Context) {
 
 // GetCompatition implements Handler.
 func (h *httpHandler) GetCompatition(c *gin.Context) {
-	_, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	teamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
 	}
+	result, err := h.userUsercase.GetCompatition(uint(teamID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"compatition": result})
 
 }
 

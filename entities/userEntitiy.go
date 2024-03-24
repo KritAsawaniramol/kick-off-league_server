@@ -121,7 +121,7 @@ type (
 		ImageBanner          string
 		StartDate            time.Time
 		EndDate              time.Time
-		JoinCode             bool
+		JoinCode             []JoinCode
 		Description          string
 		Rule                 string
 		Prize                string
@@ -156,10 +156,9 @@ type (
 		Team2ID        uint `gorm:"foreignKey:TeamsID"`
 		Team1Goals     int
 		Team2Goals     int
-		TeamWinner     uint `gorm:"foreignKey:TeamsID"`
 		Round          string
-		Events         []Events    `gorm:"foreignKey:MatchesID"`
-		GoalRecords    GoalRecords `gorm:"foreignKey:MatchesID"`
+		// Events         []Events    `gorm:"foreignKey:MatchesID"`
+		GoalRecords []GoalRecords `gorm:"foreignKey:MatchesID"`
 
 		NextMatchIndex int
 		NextMatchSlot  string //Team1 or Team2
@@ -167,14 +166,14 @@ type (
 		Result MatchesResult
 	}
 
-	Events struct {
-		gorm.Model
-		MatchesID   uint
-		Time        string
-		Description string
-		RedCard     bool
-		YellowCard  bool
-	}
+	// Events struct {
+	// 	gorm.Model
+	// 	MatchesID   uint
+	// 	Time        string
+	// 	Description string
+	// 	RedCard     bool
+	// 	YellowCard  bool
+	// }
 
 	GoalRecords struct {
 		gorm.Model

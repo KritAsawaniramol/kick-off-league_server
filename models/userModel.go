@@ -5,12 +5,13 @@ import (
 )
 
 type OrganizersInfo struct {
-	ID          uint
-	Name        string
-	Phone       string
-	Description string
-	Address     Address
-	// imageProfile string
+	ID               uint
+	Name             string
+	Phone            string
+	Description      string
+	Address          Address
+	ImageProfilePath string
+	ImageCoverPath   string
 }
 
 type MyNormalUser struct {
@@ -119,7 +120,7 @@ type Team struct {
 	Name         string                 `json:"name" binding:"required"`
 	OwnerID      uint                   `json:"owner_id" binding:"required"`
 	Members      []Member               `json:"member"`
-	Compatitions []CompatitionBasicInfo `json:"compatitions"`
+	Compatitions []CompatitionBasicInfo `json:"compatitions,omitempty"`
 	Description  string                 `json:"description"`
 }
 
@@ -150,6 +151,7 @@ type Compatition struct {
 
 type GetCompatition struct {
 	ID                   uint              `json:"id"`
+	CreatedAt            time.Time         `json:"created_at"`
 	Name                 string            `json:"name" binding:"required"`
 	Sport                string            `json:"sport" binding:"required"`
 	Format               string            `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
@@ -161,44 +163,44 @@ type GetCompatition struct {
 	ImageBanner          string            `json:"image_banner"`
 	StartDate            time.Time         `json:"start_date" binding:"required"`
 	EndDate              time.Time         `json:"end_date" binding:"required"`
-	JoinCode             []JoinCode
-	Description          string  `json:"description"`
-	Rule                 string  `json:"rule"`
-	Prize                string  `json:"prize"`
-	ContractType         string  `json:"contract_type"  binding:"required"`
-	Contract             string  `json:"contract"  binding:"required"`
-	AgeOver              uint    `json:"age_over"`
-	AgeUnder             uint    `json:"age_under"`
-	Sex                  SexType `json:"sex" binding:"required"`
-	Status               string  `json:"status"`
-	NumberOfTeam         uint    `json:"number_of_team" binding:"required"`
-	NumOfPlayerInTeamMin uint    `json:"num_of_player_min"`
-	NumOfPlayerInTeamMax uint    `json:"num_of_player_max"`
-	Teams                Team
-	NumOfRound           int `json"number_of_round"`
-	NumOfMatch           int `json:"number_of_match"`
-	Matches              []Match
+	JoinCode             []JoinCode        `json:"join_code"`
+	Description          string            `json:"description"`
+	Rule                 string            `json:"rule"`
+	Prize                string            `json:"prize"`
+	ContractType         string            `json:"contract_type"  binding:"required"`
+	Contract             string            `json:"contract"  binding:"required"`
+	AgeOver              uint              `json:"age_over"`
+	AgeUnder             uint              `json:"age_under"`
+	Sex                  SexType           `json:"sex" binding:"required"`
+	Status               string            `json:"status"`
+	NumberOfTeam         uint              `json:"number_of_team" binding:"required"`
+	NumOfPlayerInTeamMin uint              `json:"num_of_player_min"`
+	NumOfPlayerInTeamMax uint              `json:"num_of_player_max"`
+	Teams                []Team            `json:"teams"`
+	NumOfRound           int               `json:"number_of_round"`
+	NumOfMatch           int               `json:"number_of_match"`
+	Matches              []Match           `json:"matches"`
 }
 
 type Match struct {
 	ID             uint          `json:"id"`
-	Index          uint          `json:"index"`
+	Index          int           `json:"index"`
 	DateTime       time.Time     `json:"date_time"`
 	Team1ID        uint          `json:"team1_id"`
 	Team2ID        uint          `json:"team2_id"`
 	Team1Goals     int           `json:"team1_goals"`
 	Team2Goals     int           `json:"team2_goals"`
-	TeamWinner     uint          `json:"team_winner"`
 	Round          string        `json:"round"`
 	NextMatchIndex int           `json:"next_match_index"`
 	NextMatchSlot  string        `json:"next_match_slot"` //Team1 or Team2
+	GoalRecords    []GoalRecord  `json:"goal_records"`
 	Result         MatchesResult `json:"result"`
 }
 
 type JoinCode struct {
 	ID        uint      `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	Value     string    `json:"value"`
+	Code      string    `json:"Code"`
 	Status    string    `json:"status"`
 }
 

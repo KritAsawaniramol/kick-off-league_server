@@ -103,15 +103,139 @@ func (*userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.C
 }
 
 // GetCompatition implements UserUsecase.
-func (u *userUsecaseImpl) GetCompatition(in uint) error {
+func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error) {
 	compatitionEntity := &entities.Compatitions{}
 	compatitionEntity.ID = in
 	result, err := u.userrepository.GetCompatition(compatitionEntity)
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		if err.Error() == "record not found" {
+			return nil, nil
+		}
+		return nil, err
 	}
-	util.PrintObjInJson(result)
-	return nil
+
+	joinCode := []model.JoinCode{}
+
+	for _, v := range result.JoinCode {
+		joinCode = append(joinCode, model.JoinCode{
+			ID:        v.ID,
+			CreatedAt: v.CreatedAt,
+			Code:      v.Code,
+			Status:    v.Status,
+		})
+	}
+
+	temes := []model.Team{}
+
+	for _, v := range result.Teams {
+		members := []model.Member{}
+		for _, member := range v.TeamsMembers {
+			members = append(members, model.Member{
+				ID:            member.ID,
+				UsersID:       member.NormalUsers.UsersID,
+				FirstNameThai: member.NormalUsers.FirstNameThai,
+				LastNameThai:  member.NormalUsers.LastNameThai,
+				FirstNameEng:  member.NormalUsers.FirstNameEng,
+				LastNameEng:   member.NormalUsers.LastNameEng,
+				Position:      member.NormalUsers.Position,
+				Sex:           member.NormalUsers.Sex,
+			})
+		}
+
+		temes = append(temes, model.Team{
+			ID:          v.ID,
+			Name:        v.Name,
+			OwnerID:     v.OwnerID,
+			Description: v.Description,
+			Members:     members,
+		})
+	}
+
+	matches := []model.Match{}
+
+	for _, v := range result.Matches {
+		goalRecords := []model.GoalRecord{}
+
+		for _, goalRecord := range v.GoalRecords {
+			goalRecords = append(goalRecords, model.GoalRecord{
+				MatchesID:  goalRecord.MatchesID,
+				TeamID:     goalRecord.TeamsID,
+				PlayerID:   goalRecord.PlayerID,
+				TimeScored: goalRecord.TimeScored,
+			})
+		}
+
+		matches = append(matches, model.Match{
+			ID:             v.ID,
+			Index:          v.Index,
+			DateTime:       v.DateTime,
+			Team1ID:        v.Team1ID,
+			Team2ID:        v.Team2ID,
+			Team1Goals:     v.Team1Goals,
+			Team2Goals:     v.Team2Goals,
+			Round:          v.Round,
+			NextMatchIndex: v.NextMatchIndex,
+			NextMatchSlot:  v.NextMatchSlot,
+			GoalRecords:    goalRecords,
+			Result:         model.MatchesResult(v.Result),
+		})
+	}
+
+	getCompatitionModel := model.GetCompatition{
+		ID:        result.ID,
+		CreatedAt: result.CreatedAt,
+		Name:      result.Name,
+		Sport:     result.Sport,
+		Format:    result.Format,
+		Type:      model.CompetitionFormat(result.Type),
+		OrganizerInfo: model.OrganizersInfo{
+			ID:          result.OrganizersID,
+			Name:        result.Organizers.Name,
+			Phone:       result.Organizers.Phone,
+			Description: result.Organizers.Description,
+			Address: model.Address{
+				HouseNumber: result.Organizers.Addresses.HouseNumber,
+				Village:     result.Organizers.Addresses.Village,
+				Subdistrict: result.Organizers.Addresses.Subdistrict,
+				District:    result.Organizers.Addresses.District,
+				PostalCode:  result.Organizers.Addresses.PostalCode,
+				Country:     result.Organizers.Addresses.Country,
+			},
+			ImageProfilePath: result.Organizers.ImageProfilePath,
+			ImageCoverPath:   result.Organizers.ImageCoverPath,
+		},
+		FieldSurface:    string(result.FieldSurface),
+		ApplicationType: result.ApplicationType,
+		Address: model.Address{
+			HouseNumber: result.HouseNumber,
+			Village:     result.Village,
+			Subdistrict: result.Subdistrict,
+			District:    result.District,
+			PostalCode:  result.PostalCode,
+			Country:     result.Country,
+		},
+		ImageBanner:          result.ImageBanner,
+		StartDate:            result.StartDate,
+		EndDate:              result.EndDate,
+		JoinCode:             joinCode,
+		Description:          result.Description,
+		Rule:                 result.Rule,
+		Prize:                result.Prize,
+		ContractType:         result.ContractType,
+		Contract:             result.Contract,
+		AgeOver:              result.AgeOver,
+		AgeUnder:             result.AgeUnder,
+		Sex:                  model.SexType(result.Sex),
+		Status:               string(result.Status),
+		NumberOfTeam:         result.NumberOfTeam,
+		NumOfPlayerInTeamMin: result.NumOfPlayerInTeamMin,
+		NumOfPlayerInTeamMax: result.NumOfPlayerInTeamMax,
+		Teams:                temes,
+		NumOfRound:           result.NumOfRound,
+		NumOfMatch:           result.NumOfMatch,
+		Matches:              matches,
+	}
+	return &getCompatitionModel, nil
 }
 
 // CreateCompatition implements UserUsecase.
