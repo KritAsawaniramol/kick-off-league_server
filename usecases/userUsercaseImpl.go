@@ -22,6 +22,11 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// JoinCompatition implements UserUsecase.
+func (*userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
+	return nil
+}
+
 // GetNormalUserList implements UserUsecase.
 func (u *userUsecaseImpl) GetNormalUserList() ([]model.NormalUserList, error) {
 	normalUsers_entity, err := u.userrepository.GetNormalUsers(&entities.NormalUsers{})
@@ -141,12 +146,13 @@ func (u *userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model
 				PostalCode:  v.PostalCode,
 				Country:     v.Country,
 			},
-			Status:        string(v.Status),
-			Sex:           model.SexType(v.Sex),
-			StartDate:     v.StartDate,
-			EndDate:       v.EndDate,
-			OrganizerID:   v.OrganizersID,
-			OrganizerName: v.Organizers.Name,
+			Status:          string(v.Status),
+			Sex:             model.SexType(v.Sex),
+			StartDate:       v.StartDate,
+			EndDate:         v.EndDate,
+			OrganizerID:     v.OrganizersID,
+			OrganizerName:   v.Organizers.Name,
+			ApplicationType: v.ApplicationType,
 		})
 	}
 	return compatitionsModel, nil

@@ -201,6 +201,17 @@ func (h *httpHandler) CreateTeam(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "CreateTeam success"})
 }
 
+// JoinCompatition implements Handler.
+func (h *httpHandler) JoinCompatition(c *gin.Context) {
+	joinModel := &model.JoinCompatition{}
+	if err := c.BindJSON(joinModel); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	}
+
+	// h.userUsercase.JoinCompatition()
+
+}
+
 // CreateCompatition implements UserHandler.
 func (h *httpHandler) CreateCompatition(c *gin.Context) {
 	organizerID := c.GetUint("organizer_id")

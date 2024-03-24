@@ -123,6 +123,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
 		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
 		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
+
+		normalRouter.PUT("compatition/join/:id", userHttpHandler.JoinCompatition)
 		// normalRouter.POST("/team")
 	}
 

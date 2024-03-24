@@ -62,6 +62,7 @@ func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*ent
 // GetCompatitions implements Userrepository.
 func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error) {
 	compatitions := []entities.Compatitions{}
+	util.PrintObjInJson(in)
 	if err := u.db.Where(&in).Preload("Organizers").Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
