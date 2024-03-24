@@ -151,11 +151,17 @@ type Compatition struct {
 }
 
 type GetCompatitions struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name" binding:"required"`
-	Sport  string `json:"sport" binding:"required"`
-	Format string `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
-
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	Sport         string    `json:"sport"`
+	Format        string    `json:"format"` // 1 vs 1, 2 vs 2,...
+	Address       Address   `json:"address"`
+	Status        string    `json:"status"`
+	Sex           SexType   `json:"sex"`
+	StartDate     time.Time `json:"start_date"`
+	EndDate       time.Time `json:"end_date"`
+	OrganizerID   uint      `json:"organizer_id"`
+	OrganizerName string    `json:"organizer_name"`
 }
 
 type GetCompatition struct {
@@ -270,6 +276,7 @@ type Member struct {
 type GetCompatitionsReq struct {
 	TeamID       uint   `json:"team_id"`
 	NormalUserID uint   `json:"owner_id"`
+	OrganizerID  uint   `json:"organizer_id"`
 	Ordering     string `json:"ordering"`
 	Decs         bool   `json:"decs"`
 	Page         uint   `json:"page"`

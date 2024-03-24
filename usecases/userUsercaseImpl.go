@@ -98,8 +98,39 @@ func (u *userUsecaseImpl) RemoveImageCover(userID uint) error {
 }
 
 // GetCompatitions implements UserUsecase.
-func (*userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.Compatition, error) {
-	return nil, nil
+func (u *userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error) {
+	compatitions, err := u.userrepository.GetCompatitions(&entities.Compatitions{}, "id", true, 0, 0)
+	if err != nil {
+		if err.Error() == "record not found" {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	compatitionsModel := []model.GetCompatitions{}
+	for _, v := range compatitions {
+		compatitionsModel = append(compatitionsModel, model.GetCompatitions{
+			ID:     v.ID,
+			Name:   v.Name,
+			Sport:  v.Sport,
+			Format: v.Format,
+			Address: model.Address{
+				HouseNumber: v.HouseNumber,
+				Village:     v.Village,
+				Subdistrict: v.Subdistrict,
+				District:    v.District,
+				PostalCode:  v.PostalCode,
+				Country:     v.Country,
+			},
+			Status:        string(v.Status),
+			Sex:           model.SexType(v.Sex),
+			StartDate:     v.StartDate,
+			EndDate:       v.EndDate,
+			OrganizerID:   v.OrganizersID,
+			OrganizerName: v.Organizers.Name,
+		})
+	}
+	return compatitionsModel, nil
 }
 
 // GetCompatition implements UserUsecase.
