@@ -238,14 +238,18 @@ func (h *httpHandler) GetCompatition(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"compatition": result})
-
 }
 
 // GetCompatitions implements Handler.
 func (h *httpHandler) GetCompatitions(c *gin.Context) {
 
+	// result, err := h.userUsercase.GetCompatition(uint(teamID))
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	// 	return
+	// }
+	// c.JSON(http.StatusOK, gin.H{"compatition": result})
 }
 
 // GetMyPenddingAddMemberRequest implements UserHandler.

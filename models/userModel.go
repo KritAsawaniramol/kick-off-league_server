@@ -149,6 +149,14 @@ type Compatition struct {
 	NumOfPlayerInTeamMax uint   `json:"num_of_player_max"`
 }
 
+type GetCompatitions struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"name" binding:"required"`
+	Sport  string `json:"sport" binding:"required"`
+	Format string `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
+
+}
+
 type GetCompatition struct {
 	ID                   uint              `json:"id"`
 	CreatedAt            time.Time         `json:"created_at"`

@@ -89,6 +89,9 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		viewRouter.GET("/normalUsers", userHttpHandler.GetNormalUsers)
 		viewRouter.GET("/organizer")
 
+		viewRouter.GET("/compatition", userHttpHandler.GetCompatitions)
+		viewRouter.GET("/compatition/:id", userHttpHandler.GetCompatition)
+
 	}
 
 	adminRouter := s.app.Group("/admin")
@@ -101,8 +104,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	organizerRouter.Use(auth.AuthOrganizer())
 	{
 		organizerRouter.POST("/compatition", userHttpHandler.CreateCompatition)
-		organizerRouter.GET("/compatition", userHttpHandler.GetCompatitions)
-		organizerRouter.GET("/compatition:id", userHttpHandler.GetCompatition)
 
 	}
 
