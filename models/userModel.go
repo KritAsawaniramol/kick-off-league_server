@@ -50,6 +50,7 @@ type NormalUserInfo struct {
 	LastNameThai  string    `json:"last_name_thai"`
 	FirstNameEng  string    `json:"first_name_eng"`
 	LastNameEng   string    `json:"last_name_eng"`
+	Username      string    `json:"username"`
 	Born          time.Time `json:"born"`
 	Phone         string    `json:"phone"`
 	Height        uint      `json:"height"`

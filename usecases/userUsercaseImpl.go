@@ -837,9 +837,10 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 	}
 
 	userModel := model.User{
-		ID:               user.ID,
-		Email:            user.Email,
-		Role:             user.Role,
+		ID:    user.ID,
+		Email: user.Email,
+		Role:  user.Role,
+
 		ImageProfilePath: user.ImageProfilePath,
 		ImageCoverPath:   user.ImageCoverPath,
 	}
@@ -856,6 +857,7 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 			LastNameThai:  normalUser.LastNameThai,
 			FirstNameEng:  normalUser.FirstNameEng,
 			LastNameEng:   normalUser.LastNameEng,
+			Username:      normalUser.Username,
 			Born:          normalUser.Born,
 			Phone:         normalUser.Phone,
 			Height:        normalUser.Height,
