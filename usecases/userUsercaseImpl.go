@@ -99,7 +99,26 @@ func (u *userUsecaseImpl) RemoveImageCover(userID uint) error {
 
 // GetCompatitions implements UserUsecase.
 func (u *userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error) {
-	compatitions, err := u.userrepository.GetCompatitions(&entities.Compatitions{}, "id", true, 0, 0)
+
+	compatition := &entities.Compatitions{
+		OrganizersID: in.OrganizerID,
+	}
+
+	limit := int(in.PageSize)
+	if limit <= 0 {
+		limit = -1
+	}
+
+	offset := int(in.PageSize * in.Page)
+	if offset <= 0 {
+		offset = -1
+	}
+
+	if in.Ordering == "" {
+		in.Ordering = "id"
+	}
+
+	compatitions, err := u.userrepository.GetCompatitions(compatition, "id", true, limit, offset)
 	if err != nil {
 		if err.Error() == "record not found" {
 			return nil, nil
