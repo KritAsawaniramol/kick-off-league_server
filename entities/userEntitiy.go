@@ -17,17 +17,6 @@ type (
 		Country     string
 	}
 
-	CompatitionAddresses struct {
-		gorm.Model
-		CompatitionsID uint
-		HouseNumber    string
-		Village        string
-		Subdistrict    string
-		District       string
-		PostalCode     string
-		Country        string
-	}
-
 	Users struct {
 		gorm.Model
 		Email            string `gorm:"unique;not null;type:varchar(100)"`
@@ -104,30 +93,78 @@ type (
 		Compatitions   Compatitions
 	}
 
+	Address struct {
+		HouseNumber string
+		Village     string
+		Subdistrict string
+		District    string
+		PostalCode  string
+		Country     string
+	}
+
 	Compatitions struct {
 		gorm.Model
-		Name              string
-		Sport             string //football or futsal
-		Format            CompetitionFormat
-		OrganizersID      uint
-		Organizers        Organizers
-		StartDate         time.Time
-		EndDate           time.Time
-		Description       string
-		RegisterStartDate time.Time
-		RegisterEndDate   time.Time
-		ApplicationFee    float64
-		AgeOver           uint
-		AgeUnder          uint
-		Sex               SexType
-		FieldSurface      FieldSurfaces
-		Status            CompetitionStatus
-		AddressesID       uint `gorm:"unique"`
-		Addresses         Addresses
-		NumberOfTeam      uint
-		Teams             []Teams `gorm:"many2many:compatition_teams;"`
-		NumOfPlayerMin    uint
-		NumOfPlayerMax    uint
+		Name                 string
+		Sport                string //football or futsal
+		Format               string
+		Type                 CompetitionFormat
+		OrganizersID         uint
+		Organizers           Organizers
+		FieldSurface         FieldSurfaces
+		ApplicationType      string
+		HouseNumber          string
+		Village              string
+		Subdistrict          string
+		District             string
+		PostalCode           string
+		Country              string
+		ImageBanner          string
+		StartDate            time.Time
+		EndDate              time.Time
+		JoinCode             bool
+		Description          string
+		Rule                 string
+		Prize                string
+		ContractType         string
+		Contract             string
+		AgeOver              uint
+		AgeUnder             uint
+		Sex                  SexType
+		Status               CompetitionStatus
+		NumberOfTeam         uint
+		NumOfPlayerInTeamMin uint
+		NumOfPlayerInTeamMax uint
+		Teams                []Teams `gorm:"many2many:compatition_teams;"`
+		NumOfRound           int
+		NumOfMatch           int
+		Matches              []Matches
+	}
+
+	JoinCode struct {
+		gorm.Model
+		CompatitionsID uint
+		Code           string
+		Status         string //used, unused
+	}
+
+	Matches struct {
+		gorm.Model
+		Index          int //start with 1
+		CompatitionsID uint
+		DateTime       time.Time
+		Team1ID        uint `gorm:"foreignKey:TeamsID"`
+		Team2ID        uint `gorm:"foreignKey:TeamsID"`
+		Team1Goals     int
+		Team2Goals     int
+		TeamWinner     uint `gorm:"foreignKey:TeamsID"`
+		Round          string
+		Events         []Events    `gorm:"foreignKey:MatchesID"`
+		GoalRecords    GoalRecords `gorm:"foreignKey:MatchesID"`
+
+		NextMatchIndex int
+		NextMatchSlot  string //Team1 or Team2
+
+		Result MatchesResult
 	}
 
 	Events struct {
@@ -137,19 +174,6 @@ type (
 		Description string
 		RedCard     bool
 		YellowCard  bool
-	}
-
-	Matches struct {
-		gorm.Model
-		CompetitionID uint
-		DateTime      time.Time
-		Team1ID       uint `gorm:"foreignKey:TeamsID"`
-		Team2ID       uint `gorm:"foreignKey:TeamsID"`
-		Team1Goals    int
-		Team2Goals    int
-		Events        []Events    `gorm:"foreignKey:MatchesID"`
-		GoalRecords   GoalRecords `gorm:"foreignKey:MatchesID"`
-		Result        MatchesResult
 	}
 
 	GoalRecords struct {
@@ -173,9 +197,9 @@ type (
 type CompetitionFormat string
 
 const (
-	Tournament               CompetitionFormat = "Tournament"
-	GroupStage               CompetitionFormat = "GroupStage"
-	TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
+	Tournament CompetitionFormat = "Tournament"
+	GroupStage CompetitionFormat = "GroupStage"
+	// TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
 )
 
 type FieldSurfaces string

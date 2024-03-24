@@ -24,6 +24,8 @@ type UserUsecase interface {
 	GetNormalUserList() ([]model.NormalUserList, error)
 
 	CreateCompatition(in *model.CreateCompatition) error
+	GetCompatition(in uint) error
+
 	CreateTeam(in *model.CreateTeam) error
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error
 	AcceptAddMemberRequest(inReqID uint, userID uint) error

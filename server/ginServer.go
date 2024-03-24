@@ -101,6 +101,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	organizerRouter.Use(auth.AuthOrganizer())
 	{
 		organizerRouter.POST("/compatition", userHttpHandler.CreateCompatition)
+		organizerRouter.GET("/compatition", userHttpHandler.GetCompatitions)
+		organizerRouter.GET("/compatition:id", userHttpHandler.GetCompatition)
 
 	}
 
@@ -119,7 +121,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
 		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
-
 		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
 		// normalRouter.POST("/team")
 	}

@@ -27,7 +27,11 @@ type Handler interface {
 	UpdateImageProfile(c *gin.Context)
 	UploadImage(c *gin.Context)
 	CreateTeam(c *gin.Context)
+
 	CreateCompatition(c *gin.Context)
+	GetCompatition(c *gin.Context)
+	GetCompatitions(c *gin.Context)
+
 	UpdateNormalUser(c *gin.Context)
 	SendAddMemberRequest(c *gin.Context)
 	AcceptAddMemberRequest(c *gin.Context)

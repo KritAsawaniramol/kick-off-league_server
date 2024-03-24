@@ -16,6 +16,11 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// InsertMatchs implements Userrepository.
+func (*userPostgresRepository) InsertMatchs(in []entities.Matches) error {
+	panic("unimplemented")
+}
+
 // UpdateUser implements Userrepository.
 func (*userPostgresRepository) UpdateUser(inUser *entities.Users) error {
 	panic("unimplemented")
@@ -40,6 +45,18 @@ func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+// GetCompatitionByID implements Userrepository.
+func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error) {
+	compatition := &entities.Compatitions{}
+	if err := u.db.Where(&in).Preload(clause.Associations).First(&compatition).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return compatition, nil
 }
 
 // GetCompatitions implements Userrepository.

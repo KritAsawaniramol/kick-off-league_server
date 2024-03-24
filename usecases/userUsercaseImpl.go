@@ -3,6 +3,7 @@ package usecases
 import (
 	"errors"
 	"fmt"
+	"math"
 	"net/mail"
 	"strings"
 	"time"
@@ -101,31 +102,171 @@ func (*userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.C
 	return nil, nil
 }
 
+// GetCompatition implements UserUsecase.
+func (u *userUsecaseImpl) GetCompatition(in uint) error {
+	compatitionEntity := &entities.Compatitions{}
+	compatitionEntity.ID = in
+	result, err := u.userrepository.GetCompatition(compatitionEntity)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+	}
+	util.PrintObjInJson(result)
+	return nil
+}
+
 // CreateCompatition implements UserUsecase.
 func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
-	if err := u.userrepository.InsertCompatition(&entities.Compatitions{
-		Name:         in.Name,
-		Format:       entities.CompetitionFormat(in.Format),
-		OrganizersID: in.OrganizerID,
-		StartDate:    in.StartDate,
-		EndDate:      in.EndDate,
-		AgeOver:      in.AgeOver,
-		AgeUnder:     in.AgeUnder,
-		Sex:          entities.SexType(in.Sex),
-		Description:  in.Description,
-		Status:       "creating",
-		Addresses: entities.Addresses{
-			HouseNumber: in.Address.HouseNumber,
-			Village:     in.Address.Village,
-			Subdistrict: in.Address.Subdistrict,
-			District:    in.Address.District,
-			PostalCode:  in.Address.PostalCode,
-			Country:     in.Address.Country,
-		},
-	}); err != nil {
+
+	compatition := &entities.Compatitions{
+		Name:                 in.Name,
+		Sport:                in.Sport,
+		Type:                 entities.CompetitionFormat(in.Type),
+		Format:               in.Format,
+		Description:          in.Description,
+		Rule:                 in.Rule,
+		Prize:                in.Prize,
+		StartDate:            in.StartDate,
+		EndDate:              in.EndDate,
+		ApplicationType:      in.ApplicationType,
+		ImageBanner:          in.ImageBanner,
+		AgeOver:              in.AgeOver,
+		AgeUnder:             in.AgeUnder,
+		Sex:                  entities.SexType(in.Sex),
+		NumberOfTeam:         in.NumberOfTeam,
+		NumOfPlayerInTeamMin: in.NumOfPlayerInTeamMin,
+		NumOfPlayerInTeamMax: in.NumOfPlayerInTeamMax,
+		FieldSurface:         entities.FieldSurfaces(in.FieldSurface),
+		OrganizersID:         in.OrganizerID,
+		HouseNumber:          in.Address.HouseNumber,
+		Village:              in.Address.Village,
+		Subdistrict:          in.Address.Subdistrict,
+		District:             in.Address.District,
+		PostalCode:           in.Address.PostalCode,
+		Country:              in.Address.Country,
+		ContractType:         in.ContractType,
+		Contract:             in.Contract,
+		Status:               "Coming soon",
+	}
+
+	matchs := []entities.Matches{}
+	numOfRound := 0
+	if in.Type == "Tournament" {
+		if checkNumberPowerOfTwo(int(in.NumberOfTeam)) != 0 {
+			return errors.New("number of Team for create competition(tounament) is not power of 2")
+		}
+		if in.NumberOfTeam < 2 {
+			return errors.New("number of Team have to morn than 1")
+		}
+		numOfRound = int(math.Log2(float64(in.NumberOfTeam)))
+		fmt.Printf("in.NumberOfTeam: %v\n", in.NumberOfTeam)
+		fmt.Printf("numOfRound: %v\n", numOfRound)
+		count := 0
+		for i := 0; i < numOfRound; i++ {
+			round := numOfRound - i
+			numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
+			fmt.Printf("number of match in round %d: %d\n", round, numOfMatchInRound)
+			for j := 0; j < int(numOfMatchInRound); j++ {
+				match := entities.Matches{
+					Round: fmt.Sprintf("Round %d", i+1),
+				}
+				if i != numOfRound-1 {
+					if j%2 == 0 {
+						match.NextMatchSlot = "Team1"
+					} else {
+						match.NextMatchSlot = "Team2"
+					}
+				}
+				if i != 0 {
+					fmt.Printf("i: %v\n", i)
+					matchs[count].NextMatchIndex = len(matchs) + 1
+					matchs[count+1].NextMatchIndex = len(matchs) + 1
+					count += 2
+				}
+				match.Index = len(matchs) + 1
+				matchs = append(matchs, match)
+			}
+		}
+	} else if in.Type == "Round Robin" {
+		numOfRound = int(in.NumberOfTeam - 1)
+		numOfMatch := (int(in.NumberOfTeam) * numOfRound) / 2
+		numOfMatchInRound := numOfMatch / numOfRound
+		for i := 1; i <= int(numOfRound); i++ {
+			for j := 0; j < int(numOfMatchInRound); j++ {
+				matchs = append(matchs, entities.Matches{
+					Round: fmt.Sprintf("Round %d", i),
+					Index: len(matchs) + 1,
+				})
+			}
+		}
+	} else {
+		return errors.New("undefined compatition type")
+	}
+
+	fmt.Printf("number of match %d\n", len(matchs))
+
+	for _, v := range matchs {
+		fmt.Printf("match %d. %s. Next match slot: %s, Next match: %v\n", v.Index, v.Round, v.NextMatchSlot, v.NextMatchIndex)
+	}
+
+	compatition.Matches = matchs
+	compatition.NumOfRound = numOfRound
+	compatition.NumOfMatch = len(matchs)
+	if err := u.userrepository.InsertCompatition(compatition); err != nil {
 		return err
 	}
+
 	return nil
+}
+
+func checkNumberPowerOfTwo(n int) int {
+	return n & (n - 1)
+}
+
+// func (u *userUsecaseImpl) createRoundRobin(n int, compatitionID uint) []entities.Matches {
+// 	lst := make([]int, n-1)
+// 	matches := []entities.Matches{}
+// 	for i := 0; i < len(lst); i++ {
+// 		lst[i] = i + 2
+
+// 	}
+// 	if n%2 == 1 {
+// 		lst = append(lst, 0) // 0 denotes a bye
+// 		n++
+// 	}
+// 	for r := 1; r < n; r++ {
+// 		fmt.Printf("Round %2d", r)
+// 		lst2 := append([]int{1}, lst...)
+
+// 		for i := 0; i < n/2; i++ {
+// 			if lst[i] != 0 || lst2[n-1-i] != 0 {
+// 				// fmt.Printf(" (%2d vs %-2d)", lst2[i], lst2[n-1-i])
+// 				matches = append(matches, entities.Matches{
+// 					CompetitionID: compatitionID,
+// 					// DateTime    :,
+// 					Team1ID     :,
+// 					Team2ID     :,
+// 					// Team1Goals  :,
+// 					// Team2Goals  :,
+// 					// Events      :,
+// 					// GoalRecords :,
+// 					// Result      :,
+// 				})
+// 				}
+// 			}
+// 		}
+// 		fmt.Println()
+// 		rotate(lst)
+// 	}
+// 	return nil
+// }
+
+func rotate(lst []int) {
+	len := len(lst)
+	last := lst[len-1]
+	for i := len - 1; i >= 1; i-- {
+		lst[i] = lst[i-1]
+	}
+	lst[0] = last
 }
 
 func isEmail(email string) bool {
@@ -201,22 +342,19 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 
 	for _, v := range selectedTeams.Compatitions {
 		compatition_model = append(compatition_model, model.CompatitionBasicInfo{
-			ID:                v.ID,
-			Name:              v.Name,
-			Format:            model.CompetitionFormat(v.Format),
-			OrganizerID:       v.OrganizersID,
-			StartDate:         v.StartDate,
-			EndDate:           v.EndDate,
-			RegisterStartDate: v.RegisterStartDate,
-			RegisterEndDate:   v.RegisterEndDate,
-			ApplicationFee:    v.ApplicationFee,
-			AgeOver:           v.AgeOver,
-			AgeUnder:          v.AgeUnder,
-			Sex:               model.SexType(v.Sex),
-			FieldSurface:      model.FieldSurfaces(v.FieldSurface),
-			Description:       v.Description,
-			Status:            model.CompetitionStatus(v.Status),
-			NumberOfTeam:      v.NumberOfTeam,
+			ID:           v.ID,
+			Name:         v.Name,
+			Format:       model.CompetitionFormat(v.Format),
+			OrganizerID:  v.OrganizersID,
+			StartDate:    v.StartDate,
+			EndDate:      v.EndDate,
+			AgeOver:      v.AgeOver,
+			AgeUnder:     v.AgeUnder,
+			Sex:          model.SexType(v.Sex),
+			FieldSurface: model.FieldSurfaces(v.FieldSurface),
+			Description:  v.Description,
+			Status:       model.CompetitionStatus(v.Status),
+			NumberOfTeam: v.NumberOfTeam,
 		})
 	}
 

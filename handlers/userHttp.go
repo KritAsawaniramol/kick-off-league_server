@@ -206,6 +206,7 @@ func (h *httpHandler) CreateCompatition(c *gin.Context) {
 	organizerID := c.GetUint("organizer_id")
 	reqBody := new(model.CreateCompatition)
 	if err := c.BindJSON(reqBody); err != nil {
+		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
@@ -213,10 +214,30 @@ func (h *httpHandler) CreateCompatition(c *gin.Context) {
 	reqBody.OrganizerID = organizerID
 
 	if err := h.userUsercase.CreateCompatition(reqBody); err != nil {
+		if err.Error() == "number of Team for create competition(tounament) is not power of 2" ||
+			err.Error() == "number of Team have to morn than 1" ||
+			err.Error() == "undefined compatition type" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
+}
+
+// GetCompatition implements Handler.
+func (h *httpHandler) GetCompatition(c *gin.Context) {
+	_, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+	}
+
+}
+
+// GetCompatitions implements Handler.
+func (h *httpHandler) GetCompatitions(c *gin.Context) {
+
 }
 
 // GetMyPenddingAddMemberRequest implements UserHandler.
@@ -230,11 +251,11 @@ func (h *httpHandler) GetMyPenddingAddMemberRequest(c *gin.Context) {
 
 // GetTeam implements UserHandler.
 func (h *httpHandler) GetTeam(c *gin.Context) {
-	TeamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	teamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 	}
-	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(TeamID))
+	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(teamID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
@@ -244,11 +265,11 @@ func (h *httpHandler) GetTeam(c *gin.Context) {
 
 // GetTeamByOwnerID implements Handler.
 func (h *httpHandler) GetTeamByOwnerID(c *gin.Context) {
-	TeamID, err := strconv.ParseUint(c.Param("ownerid"), 10, 64)
+	teamID, err := strconv.ParseUint(c.Param("ownerid"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 	}
-	teams, err := h.userUsercase.GetTeamsByOwnerID(uint(TeamID))
+	teams, err := h.userUsercase.GetTeamsByOwnerID(uint(teamID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return

@@ -23,8 +23,10 @@ type Userrepository interface {
 	GetOrganizer(*entities.Organizers) (*entities.Organizers, error)
 	GetAddMemberRequestByID(in *entities.AddMemberRequests) ([]entities.AddMemberRequests, error)
 	GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error)
+	GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error)
 
 	InsertCompatition(in *entities.Compatitions) error
+	InsertMatchs(in []entities.Matches) error
 	InsertTeamsMembers(in *entities.TeamsMembers) error
 	InsertTeam(in *entities.Teams) error
 	InsertUserWihtNormalUserAndAddress(in_normalUser *entities.NormalUsers, in_user *entities.Users) error
