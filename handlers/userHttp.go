@@ -244,12 +244,32 @@ func (h *httpHandler) GetCompatition(c *gin.Context) {
 // GetCompatitions implements Handler.
 func (h *httpHandler) GetCompatitions(c *gin.Context) {
 
-	// result, err := h.userUsercase.GetCompatition(uint(teamID))
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-	// 	return
-	// }
-	// c.JSON(http.StatusOK, gin.H{"compatition": result})
+	organizerID, err := strconv.ParseUint(c.Query("organizerID"), 10, 64)
+	if c.Query("organizerID") != "" && err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+	normalUserID, err := strconv.ParseUint(c.Query("normalUserID"), 10, 64)
+	if c.Query("normalUserID") != "" && err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+	teamID, err := strconv.ParseUint(c.Query("teamID"), 10, 64)
+	if c.Query("teamID") != "" && err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	compatitions, err := h.userUsercase.GetCompatitions(&model.GetCompatitionsReq{
+		NormalUserID: uint(normalUserID),
+		TeamID:       uint(teamID),
+		OrganizerID:  uint(organizerID),
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"compatition": compatitions})
 }
 
 // GetMyPenddingAddMemberRequest implements UserHandler.
