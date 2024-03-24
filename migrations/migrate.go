@@ -20,6 +20,7 @@ func Migration(db database.Database) {
 		&entities.Matches{},
 		&entities.GoalRecords{},
 		&entities.AddMemberRequests{},
+		&entities.JoinCode{},
 	)
 
 	db.GetDb().Migrator().AddColumn(&entities.TeamsMembers{}, "Status")
