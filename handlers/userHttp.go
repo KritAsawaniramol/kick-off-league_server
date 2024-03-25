@@ -201,6 +201,29 @@ func (h *httpHandler) CreateTeam(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "CreateTeam success"})
 }
 
+// UpdateMatch implements Handler.
+func (h *httpHandler) UpdateMatch(c *gin.Context) {
+	matchID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+	updateMatch := &model.UpdateMatch{}
+	err = c.BindJSON(updateMatch)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	err = h.userUsercase.UpdateMatch(uint(matchID), updateMatch)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Create match success"})
+}
+
 // UpdateCompatition implements Handler.
 func (h *httpHandler) UpdateCompatition(c *gin.Context) {
 	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -219,6 +242,7 @@ func (h *httpHandler) UpdateCompatition(c *gin.Context) {
 	err = h.userUsercase.UpdateCompatition(uint(compatitionID), updateCompatition)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
 }

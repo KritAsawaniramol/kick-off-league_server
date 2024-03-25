@@ -23,6 +23,37 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// UpdateMatch implements UserUsecase.
+func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) error {
+	goalRecords := []entities.GoalRecords{}
+	for _, goalRecord := range updateMatch.GoalRecords {
+		goalRecords = append(goalRecords, entities.GoalRecords{
+			MatchsID:   goalRecord.MatchsID,
+			TeamsID:    goalRecord.TeamID,
+			PlayerID:   goalRecord.PlayerID,
+			TimeScored: goalRecord.TimeScored,
+		})
+	}
+
+	err := u.userrepository.UpdateMatch(id, &entities.Matchs{
+		DateTime:   updateMatch.DateTime,
+		Team1Goals: updateMatch.Team1Goals,
+		Team2Goals: updateMatch.Team2Goals,
+		Result:     updateMatch.Result,
+	})
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return err
+	}
+
+	err = u.userrepository.AppendGoalRecordsToMatch(id, goalRecords)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return err
+	}
+	return nil
+}
+
 // UpdateCompatitionStatus implements UserUsecase.
 func (u *userUsecaseImpl) UpdateCompatitionStatus(id uint, status string) error {
 	compatition := &entities.Compatitions{}

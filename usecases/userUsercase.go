@@ -23,6 +23,7 @@ type UserUsecase interface {
 	GetNormalUserList() ([]model.NormalUserList, error)
 	GetNormalUser(id uint) (*model.NormalUserProfile, error)
 
+	UpdateMatch(id uint, updateMatch *model.UpdateMatch) error
 	JoinCompatition(in *model.JoinCompatition) error
 	CreateCompatition(in *model.CreateCompatition) error
 	GetCompatition(in uint) (*model.GetCompatition, error)

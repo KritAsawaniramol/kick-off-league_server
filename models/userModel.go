@@ -119,10 +119,10 @@ type AddMemberRequest struct {
 }
 
 type GoalRecord struct {
-	MatchsID   uint
-	TeamID     uint
-	PlayerID   uint
-	TimeScored uint
+	MatchsID   uint `json:"matches_id" binding:"required"`
+	TeamID     uint `json:"team_id" binding:"required"`
+	PlayerID   uint `json:"player_id" binding:"required"`
+	TimeScored uint `json:"time_scored" binding:"required"`
 }
 
 type CreateTeam struct {
@@ -262,6 +262,14 @@ type Match struct {
 	NextMatchSlot  string       `json:"next_match_slot"` //Team1 or Team2
 	GoalRecords    []GoalRecord `json:"goal_records"`
 	Result         string       `json:"result"`
+}
+
+type UpdateMatch struct {
+	DateTime    time.Time    `json:"date_time"`
+	Team1Goals  int          `json:"team1_goals"`
+	Team2Goals  int          `json:"team2_goals"`
+	GoalRecords []GoalRecord `json:"goal_records"`
+	Result      string       `json:"result"  binding:"required"`
 }
 
 type JoinCode struct {

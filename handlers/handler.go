@@ -34,6 +34,7 @@ type Handler interface {
 	GetCompatitions(c *gin.Context)
 	JoinCompatition(c *gin.Context)
 	UpdateCompatition(c *gin.Context)
+	UpdateMatch(c *gin.Context)
 
 	UpdateNormalUser(c *gin.Context)
 	SendAddMemberRequest(c *gin.Context)
