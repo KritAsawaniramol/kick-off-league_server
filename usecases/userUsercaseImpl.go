@@ -679,7 +679,7 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 	util.PrintObjInJson(matchs)
 	u.userrepository.AppendMatchToCompatition(compatition, matchs)
 	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
-		Status: "Stared",
+		Status: "Started",
 
 		NumOfRound: numOfRound,
 		NumOfMatch: len(matchs),
