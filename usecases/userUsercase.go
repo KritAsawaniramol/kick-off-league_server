@@ -21,6 +21,7 @@ type UserUsecase interface {
 	GetTeams(in *model.GetTeamsReq) ([]model.TeamList, error)
 	GetTeamsByOwnerID(in uint) ([]model.TeamList, error)
 	GetNormalUserList() ([]model.NormalUserList, error)
+	GetNormalUser(id uint) (*model.NormalUserProfile, error)
 
 	JoinCompatition(in *model.JoinCompatition) error
 

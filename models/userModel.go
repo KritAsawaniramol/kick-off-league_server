@@ -14,10 +14,9 @@ type OrganizersInfo struct {
 	ImageCoverPath   string
 }
 
-type MyNormalUser struct {
-	NormalUser
-	Username string `json:"username"`
-}
+// type MyNormalUser struct {
+// 	NormalUser
+// }
 
 type LoginResponse struct {
 	ID           uint   `json:"id"`
@@ -60,6 +59,23 @@ type NormalUserInfo struct {
 	Nationality   string    `json:"nationality"`
 	Description   string    `json:"description"`
 	Address       `json:"address"`
+}
+
+type NormalUserProfile struct {
+	NormalUserInfo
+	UserID           uint   `json:"user_id"`
+	ImageProfilePath string `json:"image_profile_path"`
+	ImageCoverPath   string `json:"image_cover_path"`
+	NormalUserStat   `json:"normal_user_stat"`
+}
+
+type NormalUserStat struct {
+	WinRate     float32       `json:"win_rate"`
+	TotalMatch  int           `json:"total_match"`
+	Win         int           `json:"win"`
+	Lose        int           `json:"lose"`
+	Goals       int           `json:"goals"`
+	RecentMatch []RecentMatch `json:"recent_match"`
 }
 
 type NormalUserList struct {
@@ -120,9 +136,9 @@ type Team struct {
 	ID           uint                   `json:"id"`
 	Name         string                 `json:"name" binding:"required"`
 	OwnerID      uint                   `json:"owner_id" binding:"required"`
+	Description  string                 `json:"description"`
 	Members      []Member               `json:"member"`
 	Compatitions []CompatitionBasicInfo `json:"compatitions,omitempty"`
-	Description  string                 `json:"description"`
 }
 
 type CompatitionBasicInfo struct {
@@ -196,6 +212,14 @@ type GetCompatition struct {
 	NumOfRound           int               `json:"number_of_round"`
 	NumOfMatch           int               `json:"number_of_match"`
 	Matches              []Match           `json:"matches"`
+}
+
+type RecentMatch struct {
+	ID         uint      `json:"id"`
+	DateTime   time.Time `json:"date_time"`
+	VsTeamName string    `json:"vs_team_name"`
+	Result     string    `json:"result"`
+	Score      string    `json:"score"`
 }
 
 type Match struct {

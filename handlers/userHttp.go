@@ -468,7 +468,7 @@ func (h *httpHandler) GetUser(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 	}
 	user, err := h.userUsercase.GetUser(uint(userID))
 	if err != nil {
@@ -478,5 +478,23 @@ func (h *httpHandler) GetUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
+	})
+}
+
+// GetNormalUser implements Handler.
+func (h *httpHandler) GetNormalUser(c *gin.Context) {
+	normalUserID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		log.Errorf(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	}
+	normalUser, err := h.userUsercase.GetNormalUser(uint(normalUserID))
+	if err != nil {
+		log.Errorf(err.Error())
+		c.JSON(http.StatusNotFound, gin.H{"message": "Not Found"})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"normalUser": normalUser,
 	})
 }

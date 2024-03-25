@@ -55,11 +55,25 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 	}
 
 	for _, member := range team.TeamsMembers {
-		fmt.Printf("member.NormalUsers.Born: %v\n", member.NormalUsers.Born)
-		fmt.Printf("compatition.AgeOver: %v\n", compatition.AgeOver)
+		if age := calculateAge(member.NormalUsers.Born); age < int(compatition.AgeOver) ||
+			age > int(compatition.AgeUnder) {
+			return errors.New("unable to join. the participating team is full")
+		}
 	}
 
 	return nil
+}
+
+func calculateAge(birthDate time.Time) int {
+	now := time.Now()
+	years := now.Year() - birthDate.Year()
+
+	// Check if the birthday has occurred this year or not
+	if now.Month() < birthDate.Month() || (now.Month() == birthDate.Month() && now.Day() < birthDate.Day()) {
+		years--
+	}
+
+	return years
 }
 
 // GetNormalUserList implements UserUsecase.
@@ -921,6 +935,59 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.LoginRespons
 		return "", model.LoginResponse{}, err
 	}
 	return t, loginResponse, nil
+}
+
+// GetNormalUser implements UserUsecase.
+func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, error) {
+	normalUserEntity := &entities.NormalUsers{}
+	normalUserEntity.ID = id
+	resultNormalUser, err := u.userrepository.GetNormalUser(normalUserEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	resultUser, err := u.userrepository.GetUserByID(resultNormalUser.UsersID)
+	if err != nil {
+		return nil, err
+	}
+	normalUserProfile := &model.NormalUserProfile{
+		NormalUserInfo: model.NormalUserInfo{
+			ID:            resultNormalUser.ID,
+			FirstNameThai: resultNormalUser.FirstNameThai,
+			LastNameThai:  resultNormalUser.LastNameThai,
+			FirstNameEng:  resultNormalUser.FirstNameEng,
+			LastNameEng:   resultNormalUser.LastNameEng,
+			Username:      resultNormalUser.Username,
+			Born:          resultNormalUser.Born,
+			Phone:         resultNormalUser.Phone,
+			Height:        resultNormalUser.Height,
+			Weight:        resultNormalUser.Weight,
+			Sex:           resultNormalUser.Sex,
+			Position:      resultNormalUser.Position,
+			Nationality:   resultNormalUser.Nationality,
+			Description:   resultNormalUser.Description,
+			Address: model.Address{
+				HouseNumber: resultNormalUser.Addresses.HouseNumber,
+				Village:     resultNormalUser.Addresses.Village,
+				Subdistrict: resultNormalUser.Addresses.Subdistrict,
+				District:    resultNormalUser.Addresses.District,
+				PostalCode:  resultNormalUser.Addresses.PostalCode,
+				Country:     resultNormalUser.Addresses.Country,
+			},
+		},
+		UserID:           resultUser.ID,
+		ImageProfilePath: resultUser.ImageProfilePath,
+		ImageCoverPath:   resultUser.ImageCoverPath,
+		NormalUserStat: model.NormalUserStat{
+			WinRate:     0,
+			TotalMatch:  0,
+			Win:         0,
+			Lose:        0,
+			Goals:       0,
+			RecentMatch: []model.RecentMatch{},
+		},
+	}
+	return normalUserProfile, nil
 }
 
 // GetUser implements UserUsecase.

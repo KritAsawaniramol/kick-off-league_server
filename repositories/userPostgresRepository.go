@@ -124,7 +124,7 @@ func (u *userPostgresRepository) GetOrganizerWithAddressByUserID(in uint) (*enti
 // GetNormalUser implements Userrepository.
 func (u *userPostgresRepository) GetNormalUser(in *entities.NormalUsers) (*entities.NormalUsers, error) {
 	normalUser := new(entities.NormalUsers)
-	if err := u.db.Where(&in).First(normalUser).Error; err != nil {
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Teams.Teams").First(normalUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -251,7 +251,7 @@ func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*
 // GetTeam implements Userrepository.
 func (u *userPostgresRepository) GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error) {
 	team := new(entities.Teams)
-	if err := u.db.Model(in).Preload(clause.Associations).First(team).Error; err != nil {
+	if err := u.db.Model(in).Preload(clause.Associations).Preload("TeamsMembers.NormalUsers").First(team).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

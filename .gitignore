@@ -4,3 +4,4 @@ config.yaml
 migrations/userMigrate
 migrations/userMigrate.go
 /images
+migrations/userMigrate/userMigrate.go

@@ -20,6 +20,7 @@ type Handler interface {
 	GetTeamByOwnerID(c *gin.Context)
 	GetMyPenddingAddMemberRequest(c *gin.Context)
 	GetNormalUsers(c *gin.Context)
+	GetNormalUser(c *gin.Context)
 	// uploadImage(c *gin.Context)
 	// UpdateNormalUserPhone(c *gin.Context)
 	DeleteImageProfile(c *gin.Context)
