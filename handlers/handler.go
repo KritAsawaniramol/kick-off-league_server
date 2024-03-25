@@ -33,11 +33,16 @@ type Handler interface {
 	GetCompatition(c *gin.Context)
 	GetCompatitions(c *gin.Context)
 	JoinCompatition(c *gin.Context)
+	UpdateCompatition(c *gin.Context)
 
 	UpdateNormalUser(c *gin.Context)
 	SendAddMemberRequest(c *gin.Context)
 	AcceptAddMemberRequest(c *gin.Context)
 	IgnoreAddMemberRequest(c *gin.Context)
+
+	StartCompatition(c *gin.Context)
+	Finishcompatition(c *gin.Context)
+	Cancelcompatition(c *gin.Context)
 
 	// GetUserByPhone(c *gin.Context)
 }

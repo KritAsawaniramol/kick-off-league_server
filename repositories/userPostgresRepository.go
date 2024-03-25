@@ -16,6 +16,24 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// UpdateCompatition implements Userrepository.
+func (u *userPostgresRepository) UpdateCompatition(id uint, in *entities.Compatitions) error {
+	c := &entities.Compatitions{}
+	c.ID = id
+	if err := u.db.Model(c).Updates(in).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// AppendTeamtoCompatition implements Userrepository.
+func (u *userPostgresRepository) AppendTeamtoCompatition(compatition *entities.Compatitions, newTeam *entities.Teams) error {
+	if err := u.db.Model(compatition).Association("Teams").Append(newTeam); err != nil {
+		return err
+	}
+	return nil
+}
+
 // InsertMatchs implements Userrepository.
 func (*userPostgresRepository) InsertMatchs(in []entities.Matches) error {
 	panic("unimplemented")

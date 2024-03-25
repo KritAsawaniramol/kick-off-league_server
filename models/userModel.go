@@ -74,6 +74,7 @@ type NormalUserStat struct {
 	TotalMatch  int           `json:"total_match"`
 	Win         int           `json:"win"`
 	Lose        int           `json:"lose"`
+	Draw        int           `json:"draw"`
 	Goals       int           `json:"goals"`
 	RecentMatch []RecentMatch `json:"recent_match"`
 }
@@ -142,20 +143,20 @@ type Team struct {
 }
 
 type CompatitionBasicInfo struct {
-	ID          uint              `json:"id"`
-	Name        string            `json:"name"`
-	Format      CompetitionFormat `json:"format"`
-	Description string            `json:"description"`
-	StartDate   time.Time         `json:"start_date"`
-	EndDate     time.Time         `json:"end_date"`
+	ID          uint      `json:"id"`
+	Name        string    `json:"name"`
+	Format      string    `json:"format"`
+	Description string    `json:"description"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
 
-	AgeOver      uint              `json:"age_over"`
-	AgeUnder     uint              `json:"age_under"`
-	Sex          SexType           `json:"sex"`
-	FieldSurface FieldSurfaces     `json:"field_surface"`
-	Status       CompetitionStatus `json:"status"`
-	NumberOfTeam uint              `json:"number_of_team"`
-	OrganizerID  uint              `json:"organizer_id"`
+	AgeOver      uint   `json:"age_over"`
+	AgeUnder     uint   `json:"age_under"`
+	Sex          string `json:"sex"`
+	FieldSurface string `json:"field_surface"`
+	Status       string `json:"status"`
+	NumberOfTeam uint   `json:"number_of_team"`
+	OrganizerID  uint   `json:"organizer_id"`
 }
 
 type Compatition struct {
@@ -174,44 +175,70 @@ type GetCompatitions struct {
 	Address         Address   `json:"address"`
 	Status          string    `json:"status"`
 	ApplicationType string    `json:"application_type"`
-	Sex             SexType   `json:"sex"`
+	Sex             string    `json:"sex"`
 	StartDate       time.Time `json:"start_date"`
 	EndDate         time.Time `json:"end_date"`
 	OrganizerID     uint      `json:"organizer_id"`
 	OrganizerName   string    `json:"organizer_name"`
+	AgeOver         uint      `json:"age_over"`
+	AgeUnder        uint      `json:"age_under"`
 }
 
 type GetCompatition struct {
-	ID                   uint              `json:"id"`
-	CreatedAt            time.Time         `json:"created_at"`
-	Name                 string            `json:"name" binding:"required"`
-	Sport                string            `json:"sport" binding:"required"`
-	Format               string            `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
-	Type                 CompetitionFormat `json:"type" binding:"required"`   // Tournament, Round Robbin,....
-	OrganizerInfo        OrganizersInfo    `json:"organizer_info"`
-	FieldSurface         string            `json:"field_surface"`
-	ApplicationType      string            `json:"application_type" binding:"required"` // free, with code
-	Address              Address           `json:"address" binding:"required"`
-	ImageBanner          string            `json:"image_banner"`
-	StartDate            time.Time         `json:"start_date" binding:"required"`
-	EndDate              time.Time         `json:"end_date" binding:"required"`
-	JoinCode             []JoinCode        `json:"join_code"`
-	Description          string            `json:"description"`
-	Rule                 string            `json:"rule"`
-	Prize                string            `json:"prize"`
-	ContractType         string            `json:"contract_type"  binding:"required"`
-	Contract             string            `json:"contract"  binding:"required"`
-	AgeOver              uint              `json:"age_over"`
-	AgeUnder             uint              `json:"age_under"`
-	Sex                  SexType           `json:"sex" binding:"required"`
-	Status               string            `json:"status"`
-	NumberOfTeam         uint              `json:"number_of_team" binding:"required"`
-	NumOfPlayerInTeamMin uint              `json:"num_of_player_min"`
-	NumOfPlayerInTeamMax uint              `json:"num_of_player_max"`
-	Teams                []Team            `json:"teams"`
-	NumOfRound           int               `json:"number_of_round"`
-	NumOfMatch           int               `json:"number_of_match"`
-	Matches              []Match           `json:"matches"`
+	ID                   uint           `json:"id"`
+	CreatedAt            time.Time      `json:"created_at"`
+	Name                 string         `json:"name" binding:"required"`
+	Sport                string         `json:"sport" binding:"required"`
+	Format               string         `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
+	Type                 string         `json:"type" binding:"required"`   // Tournament, Round Robbin,....
+	OrganizerInfo        OrganizersInfo `json:"organizer_info"`
+	FieldSurface         string         `json:"field_surface"`
+	ApplicationType      string         `json:"application_type" binding:"required"` // free, with code
+	Address              Address        `json:"address" binding:"required"`
+	ImageBanner          string         `json:"image_banner"`
+	StartDate            time.Time      `json:"start_date" binding:"required"`
+	EndDate              time.Time      `json:"end_date" binding:"required"`
+	JoinCode             []JoinCode     `json:"join_code"`
+	Description          string         `json:"description"`
+	Rule                 string         `json:"rule"`
+	Prize                string         `json:"prize"`
+	ContractType         string         `json:"contract_type"  binding:"required"`
+	Contract             string         `json:"contract"  binding:"required"`
+	AgeOver              uint           `json:"age_over"`
+	AgeUnder             uint           `json:"age_under"`
+	Sex                  string         `json:"sex" binding:"required"`
+	Status               string         `json:"status"`
+	NumberOfTeam         uint           `json:"number_of_team" binding:"required"`
+	NumOfPlayerInTeamMin uint           `json:"num_of_player_min"`
+	NumOfPlayerInTeamMax uint           `json:"num_of_player_max"`
+	Teams                []Team         `json:"teams"`
+	NumOfRound           int            `json:"number_of_round"`
+	NumOfMatch           int            `json:"number_of_match"`
+	Matches              []Match        `json:"matches"`
+}
+
+type UpdateCompatition struct {
+	Name                 string    `json:"name"`
+	Sport                string    `json:"sport"`
+	Format               string    `json:"format"` // 1 vs 1, 2 vs 2,...
+	Type                 string    `json:"type"`   // Tournament, Round Robbin,....
+	FieldSurface         string    `json:"field_surface"`
+	ApplicationType      string    `json:"application_type"` // free, with code
+	Address              Address   `json:"address"`
+	ImageBanner          string    `json:"image_banner"`
+	StartDate            time.Time `json:"start_date"`
+	EndDate              time.Time `json:"end_date"`
+	Description          string    `json:"description"`
+	Rule                 string    `json:"rule"`
+	Prize                string    `json:"prize"`
+	ContractType         string    `json:"contract_type" `
+	Contract             string    `json:"contract" `
+	AgeOver              uint      `json:"age_over"`
+	AgeUnder             uint      `json:"age_under"`
+	Sex                  string    `json:"sex"`
+	NumberOfTeam         uint      `json:"number_of_team"`
+	NumOfPlayerInTeamMin uint      `json:"num_of_player_min"`
+	NumOfPlayerInTeamMax uint      `json:"num_of_player_max"`
 }
 
 type RecentMatch struct {
@@ -223,18 +250,18 @@ type RecentMatch struct {
 }
 
 type Match struct {
-	ID             uint          `json:"id"`
-	Index          int           `json:"index"`
-	DateTime       time.Time     `json:"date_time"`
-	Team1ID        uint          `json:"team1_id"`
-	Team2ID        uint          `json:"team2_id"`
-	Team1Goals     int           `json:"team1_goals"`
-	Team2Goals     int           `json:"team2_goals"`
-	Round          string        `json:"round"`
-	NextMatchIndex int           `json:"next_match_index"`
-	NextMatchSlot  string        `json:"next_match_slot"` //Team1 or Team2
-	GoalRecords    []GoalRecord  `json:"goal_records"`
-	Result         MatchesResult `json:"result"`
+	ID             uint         `json:"id"`
+	Index          int          `json:"index"`
+	DateTime       time.Time    `json:"date_time"`
+	Team1ID        uint         `json:"team1_id"`
+	Team2ID        uint         `json:"team2_id"`
+	Team1Goals     int          `json:"team1_goals"`
+	Team2Goals     int          `json:"team2_goals"`
+	Round          string       `json:"round"`
+	NextMatchIndex int          `json:"next_match_index"`
+	NextMatchSlot  string       `json:"next_match_slot"` //Team1 or Team2
+	GoalRecords    []GoalRecord `json:"goal_records"`
+	Result         string       `json:"result"`
 }
 
 type JoinCode struct {
@@ -245,10 +272,10 @@ type JoinCode struct {
 }
 
 type CreateCompatition struct {
-	Name   string            `json:"name" binding:"required"`
-	Sport  string            `json:"sport" binding:"required"`
-	Type   CompetitionFormat `json:"type" binding:"required"`   // Tournament, Round Robbin,....
-	Format string            `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
+	Name   string `json:"name" binding:"required"`
+	Sport  string `json:"sport" binding:"required"`
+	Type   string `json:"type" binding:"required"`   // Tournament, Round Robbin,....
+	Format string `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
 
 	// Desscription
 	Description string `json:"description"`
@@ -261,10 +288,10 @@ type CreateCompatition struct {
 	ImageBanner     string    `json:"image_banner"`
 
 	// Condition
-	AgeOver      uint    `json:"age_over"`
-	AgeUnder     uint    `json:"age_under"`
-	Sex          SexType `json:"sex" binding:"required"`
-	NumberOfTeam uint    `json:"number_of_team" binding:"required"`
+	AgeOver      uint   `json:"age_over"`
+	AgeUnder     uint   `json:"age_under"`
+	Sex          string `json:"sex" binding:"required"`
+	NumberOfTeam uint   `json:"number_of_team" binding:"required"`
 
 	NumOfPlayerInTeamMin uint `json:"num_of_player_min"`
 	NumOfPlayerInTeamMax uint `json:"num_of_player_max"`
@@ -339,46 +366,39 @@ type TeamList struct {
 	// img         string
 }
 
-type CompetitionFormat string
+// type CompetitionFormat string
 
-const (
-	Tournament CompetitionFormat = "Tournament"
-	RoundRobin CompetitionFormat = "RoundRobin"
-	// TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
-)
+// const (
+// 	Tournament CompetitionFormat = "Tournament"
+// 	RoundRobin CompetitionFormat = "Round Robin"
+// )
 
-type FieldSurfaces string
+// type FieldSurfaces string
 
-const (
-	NaturalGrass   FieldSurfaces = "naturalGrass"
-	ArtificialTurf FieldSurfaces = "artificialTurf"
-	FlatSurface    FieldSurfaces = "flatSurface"
-	Other          FieldSurfaces = "other"
-)
+// const (
+// 	NaturalGrass   FieldSurfaces = "NaturalGrass"
+// 	ArtificialTurf FieldSurfaces = "ArtificialTurf"
+// 	FlatSurface    FieldSurfaces = "FlatSurface"
+// 	Other          FieldSurfaces = "Other"
+// )
 
-type CompetitionStatus string
+// type SexType string
 
-const (
-	ComingSoon         CompetitionStatus = "ComingSoon"
-	ApplicationsOpened CompetitionStatus = "ApplicationsOpened"
-	ApplicationsEnded  CompetitionStatus = "ApplicationsEnded"
-	Started            CompetitionStatus = "Started"
-	Finished           CompetitionStatus = "Finished"
-	Cancelled          CompetitionStatus = "Cancelled"
-)
+// const (
+// 	Male   SexType = "Male"
+// 	Female SexType = "Female"
+// 	Unisex SexType = "Unisex"
+// )
 
-type SexType string
+// type MatchesResult string
 
-const (
-	Male   SexType = "Male"
-	Female SexType = "Female"
-	Unisex SexType = "Unisex"
-)
+// const (
+// 	Team1Win MatchesResult = "Team1Win"
+// 	Team2Win MatchesResult = "Team2Win"
+// 	Draw     MatchesResult = "Draw"
+// )
 
-type MatchesResult string
-
-const (
-	Team1Win MatchesResult = "Team1Win"
-	Team2Win MatchesResult = "Team2Win"
-	Draw     MatchesResult = "Draw"
-)
+var SexType = []string{"Male", "Female", "Unisex"}
+var FieldSurfaces = []string{"NaturalGrass", "ArtificialTurf", "FlatSurface"}
+var CompetitionFormat = []string{"Tournament", "Round Robin"}
+var MatchesResult = []string{"Team1Win", "Team2Win", "Draw"}

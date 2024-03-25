@@ -22,6 +22,64 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// UpdateCompatitionStatus implements UserUsecase.
+func (u *userUsecaseImpl) UpdateCompatitionStatus(id uint, status string) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = id
+	compatition, err := u.userrepository.GetCompatition(compatition)
+	if err != nil {
+		return err
+	}
+
+	// if status == "coming soon" {
+	// 	return errors.New("can't update compatition status to \"coming soon\"")
+	// } else if status == "Application opening"
+
+	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
+		Status: status,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateCompatition implements UserUsecase.
+func (u *userUsecaseImpl) UpdateCompatition(id uint, in *model.UpdateCompatition) error {
+	err := u.userrepository.UpdateCompatition(id, &entities.Compatitions{
+		Name:                 in.Name,
+		Sport:                in.Sport,
+		Format:               in.Format,
+		Type:                 in.Type,
+		FieldSurface:         in.FieldSurface,
+		ApplicationType:      in.ApplicationType,
+		HouseNumber:          in.Address.HouseNumber,
+		Village:              in.Address.Village,
+		Subdistrict:          in.Address.Subdistrict,
+		District:             in.Address.District,
+		PostalCode:           in.Address.PostalCode,
+		Country:              in.Address.Country,
+		ImageBanner:          in.ImageBanner,
+		StartDate:            in.StartDate,
+		EndDate:              in.EndDate,
+		Description:          in.Description,
+		Rule:                 in.Rule,
+		Prize:                in.Prize,
+		ContractType:         in.ContractType,
+		Contract:             in.Contract,
+		AgeOver:              in.AgeOver,
+		AgeUnder:             in.AgeUnder,
+		Sex:                  in.Sex,
+		NumberOfTeam:         in.NumberOfTeam,
+		NumOfPlayerInTeamMin: in.NumOfPlayerInTeamMin,
+		NumOfPlayerInTeamMax: in.NumOfPlayerInTeamMax,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // JoinCompatition implements UserUsecase.
 func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 	compatitionsEntity := &entities.Compatitions{}
@@ -46,19 +104,40 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		return err
 	}
 
-	if len(team.TeamsMembers) < int(compatition.NumOfPlayerInTeamMin) {
-		return errors.New("unable to participate. your team does not have enough members")
+	if len(team.TeamsMembers) < int(compatition.NumOfPlayerInTeamMin) && compatition.NumOfPlayerInTeamMin != 0 {
+		return errors.New("unable to join. your team does not have enough members")
 	}
 
-	if len(team.TeamsMembers) > int(compatition.NumOfPlayerInTeamMax) {
-		return errors.New("unable to participate. your team has exceeded the maximum number of members")
+	if len(team.TeamsMembers) > int(compatition.NumOfPlayerInTeamMax) && compatition.NumOfPlayerInTeamMax != 0 {
+		return errors.New("uunable to join. your team has exceeded the maximum number of members")
 	}
 
 	for _, member := range team.TeamsMembers {
-		if age := calculateAge(member.NormalUsers.Born); age < int(compatition.AgeOver) ||
-			age > int(compatition.AgeUnder) {
-			return errors.New("unable to join. the participating team is full")
+		age := calculateAge(member.NormalUsers.Born)
+		if age < int(compatition.AgeOver) && age != 0 {
+			return errors.New("unable to join. your team has older members. or lower than specified")
 		}
+
+		if age > int(compatition.AgeUnder) && age != 0 {
+			return errors.New("unable to join. your team has older members. or lower than specified")
+		}
+
+		if member.NormalUsers.Sex != string(compatition.Sex) {
+			return errors.New("unable to join. your team has members whose sex does not match the gender assigned to the competition")
+		}
+
+		for _, teamJoined := range compatition.Teams {
+			for _, teamJoinedMember := range teamJoined.TeamsMembers {
+				if teamJoinedMember.NormalUsersID == member.NormalUsers.ID {
+					return errors.New("unable to join. your team already has members who have entered this competition")
+				}
+			}
+		}
+	}
+
+	err = u.userrepository.AppendTeamtoCompatition(compatition, team)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -196,12 +275,14 @@ func (u *userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model
 				Country:     v.Country,
 			},
 			Status:          string(v.Status),
-			Sex:             model.SexType(v.Sex),
+			Sex:             v.Sex,
 			StartDate:       v.StartDate,
 			EndDate:         v.EndDate,
 			OrganizerID:     v.OrganizersID,
 			OrganizerName:   v.Organizers.Name,
 			ApplicationType: v.ApplicationType,
+			AgeOver:         v.AgeOver,
+			AgeUnder:        v.AgeUnder,
 		})
 	}
 	return compatitionsModel, nil
@@ -263,10 +344,9 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 
 		for _, goalRecord := range v.GoalRecords {
 			goalRecords = append(goalRecords, model.GoalRecord{
-				MatchesID:  goalRecord.MatchesID,
-				TeamID:     goalRecord.TeamsID,
-				PlayerID:   goalRecord.PlayerID,
-				TimeScored: goalRecord.TimeScored,
+				MatchesID: goalRecord.MatchesID,
+				TeamID:    goalRecord.TeamsID,
+				PlayerID:  goalRecord.PlayerID,
 			})
 		}
 
@@ -282,7 +362,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 			NextMatchIndex: v.NextMatchIndex,
 			NextMatchSlot:  v.NextMatchSlot,
 			GoalRecords:    goalRecords,
-			Result:         model.MatchesResult(v.Result),
+			Result:         v.Result,
 		})
 	}
 
@@ -292,7 +372,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		Name:      result.Name,
 		Sport:     result.Sport,
 		Format:    result.Format,
-		Type:      model.CompetitionFormat(result.Type),
+		Type:      result.Type,
 		OrganizerInfo: model.OrganizersInfo{
 			ID:          result.OrganizersID,
 			Name:        result.Organizers.Name,
@@ -330,7 +410,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		Contract:             result.Contract,
 		AgeOver:              result.AgeOver,
 		AgeUnder:             result.AgeUnder,
-		Sex:                  model.SexType(result.Sex),
+		Sex:                  result.Sex,
 		Status:               string(result.Status),
 		NumberOfTeam:         result.NumberOfTeam,
 		NumOfPlayerInTeamMin: result.NumOfPlayerInTeamMin,
@@ -349,7 +429,7 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 	compatition := &entities.Compatitions{
 		Name:                 in.Name,
 		Sport:                in.Sport,
-		Type:                 entities.CompetitionFormat(in.Type),
+		Type:                 in.Type,
 		Format:               in.Format,
 		Description:          in.Description,
 		Rule:                 in.Rule,
@@ -360,11 +440,11 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		ImageBanner:          in.ImageBanner,
 		AgeOver:              in.AgeOver,
 		AgeUnder:             in.AgeUnder,
-		Sex:                  entities.SexType(in.Sex),
+		Sex:                  in.Sex,
 		NumberOfTeam:         in.NumberOfTeam,
 		NumOfPlayerInTeamMin: in.NumOfPlayerInTeamMin,
 		NumOfPlayerInTeamMax: in.NumOfPlayerInTeamMax,
-		FieldSurface:         entities.FieldSurfaces(in.FieldSurface),
+		FieldSurface:         in.FieldSurface,
 		OrganizersID:         in.OrganizerID,
 		HouseNumber:          in.Address.HouseNumber,
 		Village:              in.Address.Village,
@@ -444,6 +524,77 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		return err
 	}
 
+	return nil
+}
+
+// StartCompatition implements UserUsecase.
+func (u *userUsecaseImpl) StartCompatition(id uint) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = id
+	compatition, err := u.userrepository.GetCompatition(compatition)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Hello world")
+	fmt.Printf("compatition.Status: %v\n", compatition.Status)
+	if compatition.Status != "Coming soon" {
+		return errors.New("unable to start the compatition. compatition isn't \"Coming soon\"")
+	}
+	util.PrintObjInJson(compatition.Teams)
+
+	// matchs := []entities.Matches{}
+	// numOfRound := 0
+	// if compatition.Type == "Tournament" {
+	// 	if checkNumberPowerOfTwo(int(compatition.NumberOfTeam)) != 0 {
+	// 		return errors.New("number of Team for create competition(tounament) is not power of 2")
+	// 	}
+	// 	if compatition.NumberOfTeam < 2 {
+	// 		return errors.New("number of Team have to morn than 1")
+	// 	}
+	// 	numOfRound = int(math.Log2(float64(compatition.NumberOfTeam)))
+	// 	fmt.Printf("compatition.NumberOfTeam: %v\n", compatition.NumberOfTeam)
+	// 	fmt.Printf("numOfRound: %v\n", numOfRound)
+	// 	count := 0
+	// 	for i := 0; i < numOfRound; i++ {
+	// 		round := numOfRound - i
+	// 		numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
+	// 		fmt.Printf("number of match in round %d: %d\n", round, numOfMatchInRound)
+	// 		for j := 0; j < int(numOfMatchInRound); j++ {
+	// 			match := entities.Matches{
+	// 				Round: fmt.Sprintf("Round %d", i+1),
+	// 			}
+	// 			if i != numOfRound-1 {
+	// 				if j%2 == 0 {
+	// 					match.NextMatchSlot = "Team1"
+	// 				} else {
+	// 					match.NextMatchSlot = "Team2"
+	// 				}
+	// 			}
+	// 			if i != 0 {
+	// 				fmt.Printf("i: %v\n", i)
+	// 				matchs[count].NextMatchIndex = len(matchs) + 1
+	// 				matchs[count+1].NextMatchIndex = len(matchs) + 1
+	// 				count += 2
+	// 			}
+	// 			match.Index = len(matchs) + 1
+	// 			matchs = append(matchs, match)
+	// 		}
+	// 	}
+	// } else if compatition.Type == "Round Robin" {
+	// 	numOfRound = int(compatition.NumberOfTeam - 1)
+	// 	numOfMatch := (int(compatition.NumberOfTeam) * numOfRound) / 2
+	// 	numOfMatchInRound := numOfMatch / numOfRound
+	// 	for i := 1; i <= int(numOfRound); i++ {
+	// 		for j := 0; j < int(numOfMatchInRound); j++ {
+	// 			matchs = append(matchs, entities.Matches{
+	// 				Round: fmt.Sprintf("Round %d", i),
+	// 				Index: len(matchs) + 1,
+	// 			})
+	// 		}
+	// 	}
+	// } else {
+	// 	return errors.New("undefined compatition type")
+	// }
 	return nil
 }
 
@@ -573,16 +724,16 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 		compatition_model = append(compatition_model, model.CompatitionBasicInfo{
 			ID:           v.ID,
 			Name:         v.Name,
-			Format:       model.CompetitionFormat(v.Format),
+			Format:       v.Format,
 			OrganizerID:  v.OrganizersID,
 			StartDate:    v.StartDate,
 			EndDate:      v.EndDate,
 			AgeOver:      v.AgeOver,
 			AgeUnder:     v.AgeUnder,
-			Sex:          model.SexType(v.Sex),
-			FieldSurface: model.FieldSurfaces(v.FieldSurface),
+			Sex:          v.Sex,
+			FieldSurface: v.FieldSurface,
 			Description:  v.Description,
-			Status:       model.CompetitionStatus(v.Status),
+			Status:       v.Status,
 			NumberOfTeam: v.NumberOfTeam,
 		})
 	}
@@ -983,6 +1134,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			TotalMatch:  0,
 			Win:         0,
 			Lose:        0,
+			Draw:        0,
 			Goals:       0,
 			RecentMatch: []model.RecentMatch{},
 		},

@@ -107,10 +107,10 @@ type (
 		Name            string
 		Sport           string //football or futsal
 		Format          string
-		Type            CompetitionFormat
+		Type            string
 		OrganizersID    uint
 		Organizers      Organizers
-		FieldSurface    FieldSurfaces
+		FieldSurface    string
 		ApplicationType string
 		HouseNumber     string
 		Village         string
@@ -128,14 +128,14 @@ type (
 		ContractType    string
 		Contract        string
 
-		Status               CompetitionStatus
+		Status               string
 		Teams                []Teams `gorm:"many2many:compatition_teams;"`
 		NumOfPlayerInTeamMin uint
 		NumOfPlayerInTeamMax uint
 
 		AgeOver  uint
 		AgeUnder uint
-		Sex      SexType
+		Sex      string
 
 		NumberOfTeam uint
 		NumOfRound   int
@@ -160,13 +160,11 @@ type (
 		Team1Goals     int
 		Team2Goals     int
 		Round          string
-		// Events         []Events    `gorm:"foreignKey:MatchesID"`
-		GoalRecords []GoalRecords `gorm:"foreignKey:MatchesID"`
-
+		GoalRecords    []GoalRecords `gorm:"foreignKey:MatchesID"`
+		VideoURL       string
 		NextMatchIndex int
 		NextMatchSlot  string //Team1 or Team2
-
-		Result MatchesResult
+		Result         string
 	}
 
 	// Events struct {
@@ -196,46 +194,45 @@ type (
 	}
 )
 
-type CompetitionFormat string
+// type CompetitionFormat string
 
-const (
-	Tournament CompetitionFormat = "Tournament"
-	GroupStage CompetitionFormat = "GroupStage"
-	// TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
-)
+// const (
+// 	Tournament CompetitionFormat = "Tournament"
+// 	GroupStage CompetitionFormat = "GroupStage"
+// 	// TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
+// )
 
-type FieldSurfaces string
+// type FieldSurfaces string
 
-const (
-	NaturalGrass   FieldSurfaces = "naturalGrass"
-	ArtificialTurf FieldSurfaces = "artificialTurf"
-	FlatSurface    FieldSurfaces = "flatSurface"
-	Other          FieldSurfaces = "other"
-)
+// const (
+// 	NaturalGrass   FieldSurfaces = "naturalGrass"
+// 	ArtificialTurf FieldSurfaces = "artificialTurf"
+// 	FlatSurface    FieldSurfaces = "flatSurface"
+// 	Other          FieldSurfaces = "other"
+// )
 
-type CompetitionStatus string
+// type CompetitionStatus string
 
-const (
-	ComingSoon         CompetitionStatus = "ComingSoon"
-	ApplicationsOpened CompetitionStatus = "ApplicationsOpened"
-	ApplicationsEnded  CompetitionStatus = "ApplicationsEnded"
-	Started            CompetitionStatus = "Started"
-	Finished           CompetitionStatus = "Finished"
-	Cancelled          CompetitionStatus = "Cancelled"
-)
+// const (
+// 	ComingSoon         CompetitionStatus = "ComingSoon"
+// 	ApplicationsOpened CompetitionStatus = "ApplicationsOpened"
+// 	Started            CompetitionStatus = "Started"
+// 	Finished           CompetitionStatus = "Finished"
+// 	Cancelled          CompetitionStatus = "Cancelled"
+// )
 
-type SexType string
+// type SexType string
 
-const (
-	Male   SexType = "Male"
-	Female SexType = "Female"
-	Unisex SexType = "Unisex"
-)
+// const (
+// 	Male   SexType = "Male"
+// 	Female SexType = "Female"
+// 	Unisex SexType = "Unisex"
+// )
 
-type MatchesResult string
+// type MatchesResult string
 
-const (
-	Team1Win MatchesResult = "Team1Win"
-	Team2Win MatchesResult = "Team2Win"
-	Draw     MatchesResult = "Draw"
-)
+// const (
+// 	Team1Win MatchesResult = "Team1Win"
+// 	Team2Win MatchesResult = "Team2Win"
+// 	Draw     MatchesResult = "Draw"
+// )

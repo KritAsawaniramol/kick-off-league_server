@@ -24,10 +24,13 @@ type UserUsecase interface {
 	GetNormalUser(id uint) (*model.NormalUserProfile, error)
 
 	JoinCompatition(in *model.JoinCompatition) error
-
 	CreateCompatition(in *model.CreateCompatition) error
 	GetCompatition(in uint) (*model.GetCompatition, error)
 	GetCompatitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error)
+	UpdateCompatition(id uint, in *model.UpdateCompatition) error
+	StartCompatition(id uint) error
+
+	UpdateCompatitionStatus(id uint, status string) error
 
 	CreateTeam(in *model.CreateTeam) error
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error

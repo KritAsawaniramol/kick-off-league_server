@@ -105,7 +105,10 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	organizerRouter.Use(auth.AuthOrganizer())
 	{
 		organizerRouter.POST("/compatition", userHttpHandler.CreateCompatition)
-
+		organizerRouter.PUT("/compatition/:id", userHttpHandler.UpdateCompatition)
+		organizerRouter.PUT("/compatition/start/:id", userHttpHandler.StartCompatition)
+		organizerRouter.PUT("/compatition/finish/:id", userHttpHandler.Finishcompatition)
+		organizerRouter.PUT("/compatition/cancel/:id", userHttpHandler.Cancelcompatition)
 	}
 
 	normalRouter := s.app.Group("/user")
