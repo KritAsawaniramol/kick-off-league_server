@@ -16,11 +16,19 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// AppendMatchToCompatition implements Userrepository.
+func (u *userPostgresRepository) AppendMatchToCompatition(compatition *entities.Compatitions, matchs []entities.Matchs) error {
+	if err := u.db.Model(compatition).Association("Matchs").Append(matchs); err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdateCompatition implements Userrepository.
 func (u *userPostgresRepository) UpdateCompatition(id uint, in *entities.Compatitions) error {
 	c := &entities.Compatitions{}
 	c.ID = id
-	if err := u.db.Model(c).Updates(in).Error; err != nil {
+	if err := u.db.Where(c).Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
@@ -35,7 +43,7 @@ func (u *userPostgresRepository) AppendTeamtoCompatition(compatition *entities.C
 }
 
 // InsertMatchs implements Userrepository.
-func (*userPostgresRepository) InsertMatchs(in []entities.Matches) error {
+func (*userPostgresRepository) InsertMatchs(in []entities.Matchs) error {
 	panic("unimplemented")
 }
 
@@ -68,7 +76,7 @@ func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 // GetCompatitionByID implements Userrepository.
 func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error) {
 	compatition := &entities.Compatitions{}
-	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matches.GoalRecords").Preload("Teams.TeamsMembers").First(&compatition).Error; err != nil {
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.TeamsMembers").First(&compatition).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -269,7 +277,7 @@ func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*
 // GetTeam implements Userrepository.
 func (u *userPostgresRepository) GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error) {
 	team := new(entities.Teams)
-	if err := u.db.Model(in).Preload(clause.Associations).Preload("TeamsMembers.NormalUsers").First(team).Error; err != nil {
+	if err := u.db.Where(in).Preload(clause.Associations).Preload("TeamsMembers.NormalUsers").First(team).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

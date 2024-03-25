@@ -140,7 +140,7 @@ type (
 		NumberOfTeam uint
 		NumOfRound   int
 		NumOfMatch   int
-		Matches      []Matches
+		Matchs       []Matchs
 	}
 
 	JoinCode struct {
@@ -150,7 +150,7 @@ type (
 		Status         string //used, unused
 	}
 
-	Matches struct {
+	Matchs struct {
 		gorm.Model
 		Index          int //start with 1
 		CompatitionsID uint
@@ -160,7 +160,7 @@ type (
 		Team1Goals     int
 		Team2Goals     int
 		Round          string
-		GoalRecords    []GoalRecords `gorm:"foreignKey:MatchesID"`
+		GoalRecords    []GoalRecords `gorm:"foreignKey:MatchsID"`
 		VideoURL       string
 		NextMatchIndex int
 		NextMatchSlot  string //Team1 or Team2
@@ -169,7 +169,7 @@ type (
 
 	// Events struct {
 	// 	gorm.Model
-	// 	MatchesID   uint
+	// 	MatchsID   uint
 	// 	Time        string
 	// 	Description string
 	// 	RedCard     bool
@@ -178,7 +178,7 @@ type (
 
 	GoalRecords struct {
 		gorm.Model
-		MatchesID  uint
+		MatchsID   uint
 		TeamsID    uint
 		PlayerID   uint
 		TimeScored uint
@@ -229,10 +229,10 @@ type (
 // 	Unisex SexType = "Unisex"
 // )
 
-// type MatchesResult string
+// type MatchsResult string
 
 // const (
-// 	Team1Win MatchesResult = "Team1Win"
-// 	Team2Win MatchesResult = "Team2Win"
-// 	Draw     MatchesResult = "Draw"
+// 	Team1Win MatchsResult = "Team1Win"
+// 	Team2Win MatchsResult = "Team2Win"
+// 	Draw     MatchsResult = "Draw"
 // )

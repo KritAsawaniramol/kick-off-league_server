@@ -530,14 +530,31 @@ func (h *httpHandler) GetNormalUser(c *gin.Context) {
 	})
 }
 
-// Cancelcompatition implements Handler.
-func (*httpHandler) Cancelcompatition(c *gin.Context) {
+// CancelCompatition implements Handler.
+func (*httpHandler) CancelCompatition(c *gin.Context) {
 	panic("unimplemented")
 }
 
-// Finishcompatition implements Handler.
-func (*httpHandler) Finishcompatition(c *gin.Context) {
+// FinishCompatition implements Handler.
+func (*httpHandler) FinishCompatition(c *gin.Context) {
 	panic("unimplemented")
+}
+
+// OpenCompatition implements Handler.
+func (h *httpHandler) OpenCompatition(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	err = h.userUsercase.OpenApplicationCompatition(uint(compatitionID))
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
 }
 
 // StartCompatition implements Handler.
@@ -549,7 +566,11 @@ func (h *httpHandler) StartCompatition(c *gin.Context) {
 		return
 	}
 
-	h.userUsercase.StartCompatition(uint(compatitionID))
+	err = h.userUsercase.StartCompatition(uint(compatitionID))
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
 }
 

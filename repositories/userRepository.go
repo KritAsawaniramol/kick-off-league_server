@@ -25,10 +25,12 @@ type Userrepository interface {
 	GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error)
 	GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error)
 
+	AppendMatchToCompatition(compatition *entities.Compatitions, matchs []entities.Matchs) error
+
 	AppendTeamtoCompatition(compatition *entities.Compatitions, newTeam *entities.Teams) error
 	UpdateCompatition(id uint, in *entities.Compatitions) error
 	InsertCompatition(in *entities.Compatitions) error
-	InsertMatchs(in []entities.Matches) error
+	InsertMatchs(in []entities.Matchs) error
 	InsertTeamsMembers(in *entities.TeamsMembers) error
 	InsertTeam(in *entities.Teams) error
 	InsertUserWihtNormalUserAndAddress(in_normalUser *entities.NormalUsers, in_user *entities.Users) error

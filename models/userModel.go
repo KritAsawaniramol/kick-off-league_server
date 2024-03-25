@@ -119,7 +119,7 @@ type AddMemberRequest struct {
 }
 
 type GoalRecord struct {
-	MatchesID  uint
+	MatchsID   uint
 	TeamID     uint
 	PlayerID   uint
 	TimeScored uint
@@ -214,7 +214,7 @@ type GetCompatition struct {
 	Teams                []Team         `json:"teams"`
 	NumOfRound           int            `json:"number_of_round"`
 	NumOfMatch           int            `json:"number_of_match"`
-	Matches              []Match        `json:"matches"`
+	Matchs               []Match        `json:"Matchs"`
 }
 
 type UpdateCompatition struct {
@@ -275,7 +275,7 @@ type CreateCompatition struct {
 	Name   string `json:"name" binding:"required"`
 	Sport  string `json:"sport" binding:"required"`
 	Type   string `json:"type" binding:"required"`   // Tournament, Round Robbin,....
-	Format string `json:"format" binding:"required"` // 1 vs 1, 2 vs 2,...
+	Format string `json:"format" binding:"required"` // 1vs1, 2vs2,...
 
 	// Desscription
 	Description string `json:"description"`
@@ -328,7 +328,7 @@ type Member struct {
 type JoinCompatition struct {
 	CompatitionID uint   `json:"compatition_id" binding:"required"`
 	TeamID        uint   `json:"team_id" binding:"required"`
-	Code          string `json:"code" binding:"required"`
+	Code          string `json:"code"`
 }
 
 type GetCompatitionsReq struct {
@@ -390,15 +390,15 @@ type TeamList struct {
 // 	Unisex SexType = "Unisex"
 // )
 
-// type MatchesResult string
+// type MatchsResult string
 
 // const (
-// 	Team1Win MatchesResult = "Team1Win"
-// 	Team2Win MatchesResult = "Team2Win"
-// 	Draw     MatchesResult = "Draw"
+// 	Team1Win MatchsResult = "Team1Win"
+// 	Team2Win MatchsResult = "Team2Win"
+// 	Draw     MatchsResult = "Draw"
 // )
 
 var SexType = []string{"Male", "Female", "Unisex"}
 var FieldSurfaces = []string{"NaturalGrass", "ArtificialTurf", "FlatSurface"}
 var CompetitionFormat = []string{"Tournament", "Round Robin"}
-var MatchesResult = []string{"Team1Win", "Team2Win", "Draw"}
+var MatchsResult = []string{"Team1Win", "Team2Win", "Draw"}

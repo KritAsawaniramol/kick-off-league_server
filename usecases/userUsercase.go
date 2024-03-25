@@ -28,6 +28,7 @@ type UserUsecase interface {
 	GetCompatition(in uint) (*model.GetCompatition, error)
 	GetCompatitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error)
 	UpdateCompatition(id uint, in *model.UpdateCompatition) error
+	OpenApplicationCompatition(id uint) error
 	StartCompatition(id uint) error
 
 	UpdateCompatitionStatus(id uint, status string) error

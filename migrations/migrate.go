@@ -17,7 +17,7 @@ func Migration(db database.Database) {
 		&entities.Compatitions{},
 		&entities.CompatitionsTeams{},
 		&entities.Addresses{},
-		&entities.Matches{},
+		&entities.Matchs{},
 		&entities.GoalRecords{},
 		&entities.AddMemberRequests{},
 		&entities.JoinCode{},

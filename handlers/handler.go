@@ -41,8 +41,9 @@ type Handler interface {
 	IgnoreAddMemberRequest(c *gin.Context)
 
 	StartCompatition(c *gin.Context)
-	Finishcompatition(c *gin.Context)
-	Cancelcompatition(c *gin.Context)
+	FinishCompatition(c *gin.Context)
+	OpenCompatition(c *gin.Context)
+	CancelCompatition(c *gin.Context)
 
 	// GetUserByPhone(c *gin.Context)
 }

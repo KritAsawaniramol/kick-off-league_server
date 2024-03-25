@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/rand"
 	"net/mail"
 	"strings"
 	"time"
@@ -91,18 +92,20 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		return err
 	}
 
-	if int(compatition.NumberOfTeam) >= len(compatition.Teams) {
+	if int(compatition.NumberOfTeam) <= len(compatition.Teams) {
 		return errors.New("unable to join. the participating team is full")
 	}
 
-	if compatition.Status != "Application opening" {
-		return errors.New("unable to join. application isn't opening")
+	if compatition.Status != "Applications opening" {
+		return errors.New("unable to join. applications isn't opening")
 	}
 
 	team, err := u.userrepository.GetTeamWithAllAssociationsByID(teamEntity)
 	if err != nil {
 		return err
 	}
+
+	util.PrintObjInJson(teamEntity)
 
 	if len(team.TeamsMembers) < int(compatition.NumOfPlayerInTeamMin) && compatition.NumOfPlayerInTeamMin != 0 {
 		return errors.New("unable to join. your team does not have enough members")
@@ -122,13 +125,17 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 			return errors.New("unable to join. your team has older members. or lower than specified")
 		}
 
-		if member.NormalUsers.Sex != string(compatition.Sex) {
+		if member.NormalUsers.Sex != string(compatition.Sex) && string(compatition.Sex) != "Unisex" {
 			return errors.New("unable to join. your team has members whose sex does not match the gender assigned to the competition")
 		}
 
 		for _, teamJoined := range compatition.Teams {
 			for _, teamJoinedMember := range teamJoined.TeamsMembers {
 				if teamJoinedMember.NormalUsersID == member.NormalUsers.ID {
+					fmt.Printf("teamJoined.ID: %v\n", teamJoined.ID)
+					fmt.Printf("teamJoinedMember.NormalUsersID: %v\n", teamJoinedMember.NormalUsersID)
+					fmt.Printf("team.ID: %v\n", team.ID)
+					fmt.Printf("member.NormalUsers.ID: %v\n", member.NormalUsers.ID)
 					return errors.New("unable to join. your team already has members who have entered this competition")
 				}
 			}
@@ -337,20 +344,20 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		})
 	}
 
-	matches := []model.Match{}
+	Matchs := []model.Match{}
 
-	for _, v := range result.Matches {
+	for _, v := range result.Matchs {
 		goalRecords := []model.GoalRecord{}
 
 		for _, goalRecord := range v.GoalRecords {
 			goalRecords = append(goalRecords, model.GoalRecord{
-				MatchesID: goalRecord.MatchesID,
-				TeamID:    goalRecord.TeamsID,
-				PlayerID:  goalRecord.PlayerID,
+				MatchsID: goalRecord.MatchsID,
+				TeamID:   goalRecord.TeamsID,
+				PlayerID: goalRecord.PlayerID,
 			})
 		}
 
-		matches = append(matches, model.Match{
+		Matchs = append(Matchs, model.Match{
 			ID:             v.ID,
 			Index:          v.Index,
 			DateTime:       v.DateTime,
@@ -418,7 +425,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		Teams:                temes,
 		NumOfRound:           result.NumOfRound,
 		NumOfMatch:           result.NumOfMatch,
-		Matches:              matches,
+		Matchs:               Matchs,
 	}
 	return &getCompatitionModel, nil
 }
@@ -457,8 +464,8 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		Status:               "Coming soon",
 	}
 
-	matchs := []entities.Matches{}
-	numOfRound := 0
+	// matchs := []entities.Matchs{}
+	// numOfRound := 0
 	if in.Type == "Tournament" {
 		if checkNumberPowerOfTwo(int(in.NumberOfTeam)) != 0 {
 			return errors.New("number of Team for create competition(tounament) is not power of 2")
@@ -466,16 +473,124 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		if in.NumberOfTeam < 2 {
 			return errors.New("number of Team have to morn than 1")
 		}
-		numOfRound = int(math.Log2(float64(in.NumberOfTeam)))
-		fmt.Printf("in.NumberOfTeam: %v\n", in.NumberOfTeam)
-		fmt.Printf("numOfRound: %v\n", numOfRound)
+		// numOfRound = int(math.Log2(float64(in.NumberOfTeam)))
+
+		// count := 0
+		// for i := 0; i < numOfRound; i++ {
+		// round := numOfRound - i
+		// numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
+		// fmt.Printf("number of match in round %d: %d\n", round, numOfMatchInRound)
+		// for j := 0; j < int(numOfMatchInRound); j++ {
+		// 	match := entities.Matchs{
+		// 		Round: fmt.Sprintf("Round %d", i+1),
+		// 	}
+		// 	if i != numOfRound-1 {
+		// 		if j%2 == 0 {
+		// 			match.NextMatchSlot = "Team1"
+		// 		} else {
+		// 			match.NextMatchSlot = "Team2"
+		// 		}
+		// 	}
+		// 	if i != 0 {
+		// 		fmt.Printf("i: %v\n", i)
+		// 		matchs[count].NextMatchIndex = len(matchs) + 1
+		// 		matchs[count+1].NextMatchIndex = len(matchs) + 1
+		// 		count += 2
+		// 	}
+		// 	match.Index = len(matchs) + 1
+		// 	matchs = append(matchs, match)
+		// }
+		// }
+	}
+	// else if in.Type == "Round Robin" {
+	// numOfRound = int(in.NumberOfTeam - 1)
+	// numOfMatch := (int(in.NumberOfTeam) * numOfRound) / 2
+	// numOfMatchInRound := numOfMatch / numOfRound
+	// for i := 1; i <= int(numOfRound); i++ {
+	// 	for j := 0; j < int(numOfMatchInRound); j++ {
+	// 		matchs = append(matchs, entities.Matchs{
+	// 			Round: fmt.Sprintf("Round %d", i),
+	// 			Index: len(matchs) + 1,
+	// 		})
+	// 	}
+	// }
+	// } else {
+	// 	return errors.New("undefined compatition type")
+	// }
+
+	// fmt.Printf("number of match %d\n", len(matchs))
+
+	// for _, v := range matchs {
+	// 	fmt.Printf("match %d. %s. Next match slot: %s, Next match: %v\n", v.Index, v.Round, v.NextMatchSlot, v.NextMatchIndex)
+	// }
+
+	// compatition.Matchs = matchs
+	// compatition.NumOfRound = numOfRound
+	// compatition.NumOfMatch = len(matchs)
+
+	if in.Type != "Tournament" && in.Type != "Round Robin" {
+		return errors.New("undefined compatition type")
+	}
+	if err := u.userrepository.InsertCompatition(compatition); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *userUsecaseImpl) OpenApplicationCompatition(id uint) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = id
+	compatition, err := u.userrepository.GetCompatition(compatition)
+	if err != nil {
+		return err
+	}
+
+	if compatition.Status != "Coming soon" {
+		return fmt.Errorf("can't update compatition status to \"Applications opening\" (status now: %v)", compatition.Status)
+	}
+
+	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
+		Status: "Applications opening",
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// StartCompatition implements UserUsecase.
+func (u *userUsecaseImpl) StartCompatition(id uint) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = id
+	compatition, err := u.userrepository.GetCompatition(compatition)
+	if err != nil {
+		return err
+	}
+
+	if compatition.Status != "Applications opening" {
+		return fmt.Errorf("can't update compatition status to \"Stared\" (status now: %v)", compatition.Status)
+	}
+
+	compatition.Teams = shuffleTeam(compatition.Teams)
+
+	matchs := []entities.Matchs{}
+	numOfRound := 0
+	if compatition.Type == "Tournament" {
+		if checkNumberPowerOfTwo(int(compatition.NumberOfTeam)) != 0 {
+			return errors.New("number of Team for create competition(tounament) is not power of 2")
+		}
+		if compatition.NumberOfTeam < 2 {
+			return errors.New("number of Team have to morn than 1")
+		}
+		numOfRound = int(math.Log2(float64(compatition.NumberOfTeam)))
 		count := 0
 		for i := 0; i < numOfRound; i++ {
+
 			round := numOfRound - i
 			numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
-			fmt.Printf("number of match in round %d: %d\n", round, numOfMatchInRound)
 			for j := 0; j < int(numOfMatchInRound); j++ {
-				match := entities.Matches{
+				match := entities.Matchs{
 					Round: fmt.Sprintf("Round %d", i+1),
 				}
 				if i != numOfRound-1 {
@@ -490,21 +605,30 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 					matchs[count].NextMatchIndex = len(matchs) + 1
 					matchs[count+1].NextMatchIndex = len(matchs) + 1
 					count += 2
+				} else {
+					if j*2 < len(compatition.Teams) {
+						match.Team1ID = compatition.Teams[j*2].ID
+					}
+					if (j*2)+1 < len(compatition.Teams) {
+						match.Team1ID = compatition.Teams[(j*2)+1].ID
+					}
 				}
 				match.Index = len(matchs) + 1
 				matchs = append(matchs, match)
 			}
 		}
-	} else if in.Type == "Round Robin" {
-		numOfRound = int(in.NumberOfTeam - 1)
-		numOfMatch := (int(in.NumberOfTeam) * numOfRound) / 2
-		numOfMatchInRound := numOfMatch / numOfRound
-		for i := 1; i <= int(numOfRound); i++ {
-			for j := 0; j < int(numOfMatchInRound); j++ {
-				matchs = append(matchs, entities.Matches{
-					Round: fmt.Sprintf("Round %d", i),
-					Index: len(matchs) + 1,
-				})
+	} else if compatition.Type == "Round Robin" {
+		numOfRound = int(compatition.NumberOfTeam - 1)
+		// numOfMatch := (int(compatition.NumberOfTeam) * numOfRound) / 2
+		// numOfMatchInRound := numOfMatch / numOfRound
+		matchs = roundRobin(int(compatition.NumberOfTeam))
+		for i := 0; i < len(matchs); i++ {
+			if int(matchs[i].Team1ID) != 0 && int(matchs[i].Team1ID) <= len(compatition.Teams) {
+				matchs[i].Team1ID = compatition.Teams[matchs[i].Team1ID-1].ID
+			}
+
+			if int(matchs[i].Team2ID) != 0 && int(matchs[i].Team2ID) <= len(compatition.Teams) {
+				matchs[i].Team2ID = compatition.Teams[matchs[i].Team2ID-1].ID
 			}
 		}
 	} else {
@@ -517,94 +641,70 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		fmt.Printf("match %d. %s. Next match slot: %s, Next match: %v\n", v.Index, v.Round, v.NextMatchSlot, v.NextMatchIndex)
 	}
 
-	compatition.Matches = matchs
-	compatition.NumOfRound = numOfRound
-	compatition.NumOfMatch = len(matchs)
-	if err := u.userrepository.InsertCompatition(compatition); err != nil {
+	// compatition.Matchs = matchs
+	// compatition.NumOfRound = numOfRound
+	// compatition.NumOfMatch = len(matchs)
+
+	util.PrintObjInJson(matchs)
+	u.userrepository.AppendMatchToCompatition(compatition, matchs)
+	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
+		Status: "Stared",
+
+		NumOfRound: numOfRound,
+		NumOfMatch: len(matchs),
+	})
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
 		return err
 	}
-
 	return nil
 }
 
-// StartCompatition implements UserUsecase.
-func (u *userUsecaseImpl) StartCompatition(id uint) error {
-	compatition := &entities.Compatitions{}
-	compatition.ID = id
-	compatition, err := u.userrepository.GetCompatition(compatition)
-	if err != nil {
-		return err
+func roundRobin(n int) []entities.Matchs {
+	matchs := []entities.Matchs{}
+	lst := make([]int, n-1)
+	for i := 0; i < len(lst); i++ {
+		lst[i] = i + 2
 	}
-	fmt.Println("Hello world")
-	fmt.Printf("compatition.Status: %v\n", compatition.Status)
-	if compatition.Status != "Coming soon" {
-		return errors.New("unable to start the compatition. compatition isn't \"Coming soon\"")
+	if n%2 == 1 {
+		lst = append(lst, 0) // 0 denotes a bye
+		n++
 	}
-	util.PrintObjInJson(compatition.Teams)
-
-	// matchs := []entities.Matches{}
-	// numOfRound := 0
-	// if compatition.Type == "Tournament" {
-	// 	if checkNumberPowerOfTwo(int(compatition.NumberOfTeam)) != 0 {
-	// 		return errors.New("number of Team for create competition(tounament) is not power of 2")
-	// 	}
-	// 	if compatition.NumberOfTeam < 2 {
-	// 		return errors.New("number of Team have to morn than 1")
-	// 	}
-	// 	numOfRound = int(math.Log2(float64(compatition.NumberOfTeam)))
-	// 	fmt.Printf("compatition.NumberOfTeam: %v\n", compatition.NumberOfTeam)
-	// 	fmt.Printf("numOfRound: %v\n", numOfRound)
-	// 	count := 0
-	// 	for i := 0; i < numOfRound; i++ {
-	// 		round := numOfRound - i
-	// 		numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
-	// 		fmt.Printf("number of match in round %d: %d\n", round, numOfMatchInRound)
-	// 		for j := 0; j < int(numOfMatchInRound); j++ {
-	// 			match := entities.Matches{
-	// 				Round: fmt.Sprintf("Round %d", i+1),
-	// 			}
-	// 			if i != numOfRound-1 {
-	// 				if j%2 == 0 {
-	// 					match.NextMatchSlot = "Team1"
-	// 				} else {
-	// 					match.NextMatchSlot = "Team2"
-	// 				}
-	// 			}
-	// 			if i != 0 {
-	// 				fmt.Printf("i: %v\n", i)
-	// 				matchs[count].NextMatchIndex = len(matchs) + 1
-	// 				matchs[count+1].NextMatchIndex = len(matchs) + 1
-	// 				count += 2
-	// 			}
-	// 			match.Index = len(matchs) + 1
-	// 			matchs = append(matchs, match)
-	// 		}
-	// 	}
-	// } else if compatition.Type == "Round Robin" {
-	// 	numOfRound = int(compatition.NumberOfTeam - 1)
-	// 	numOfMatch := (int(compatition.NumberOfTeam) * numOfRound) / 2
-	// 	numOfMatchInRound := numOfMatch / numOfRound
-	// 	for i := 1; i <= int(numOfRound); i++ {
-	// 		for j := 0; j < int(numOfMatchInRound); j++ {
-	// 			matchs = append(matchs, entities.Matches{
-	// 				Round: fmt.Sprintf("Round %d", i),
-	// 				Index: len(matchs) + 1,
-	// 			})
-	// 		}
-	// 	}
-	// } else {
-	// 	return errors.New("undefined compatition type")
-	// }
-	return nil
+	// count := 0
+	for r := 1; r < n; r++ {
+		fmt.Printf("Round %2d", r)
+		lst2 := append([]int{1}, lst...)
+		for i := 0; i < n/2; i++ {
+			matchs = append(matchs, entities.Matchs{
+				Index:   len(matchs) + 1,
+				Round:   fmt.Sprintf("Round %d", r),
+				Team1ID: uint(lst2[i]),
+				Team2ID: uint(lst2[n-1-i]),
+			})
+			fmt.Printf(" (%2d vs %-2d)", lst2[i], lst2[n-1-i])
+		}
+		fmt.Println()
+		rotate(lst)
+	}
+	return matchs
 }
 
 func checkNumberPowerOfTwo(n int) int {
 	return n & (n - 1)
 }
 
-// func (u *userUsecaseImpl) createRoundRobin(n int, compatitionID uint) []entities.Matches {
+func shuffleTeam(src []entities.Teams) []entities.Teams {
+	dest := make([]entities.Teams, len(src))
+	perm := rand.Perm(len(src))
+	for i, v := range perm {
+		dest[v] = src[i]
+	}
+	return dest
+}
+
+// func (u *userUsecaseImpl) createRoundRobin(n int, compatitionID uint) []entities.Matchs {
 // 	lst := make([]int, n-1)
-// 	matches := []entities.Matches{}
+// 	Matchs := []entities.Matchs{}
 // 	for i := 0; i < len(lst); i++ {
 // 		lst[i] = i + 2
 
@@ -620,7 +720,7 @@ func checkNumberPowerOfTwo(n int) int {
 // 		for i := 0; i < n/2; i++ {
 // 			if lst[i] != 0 || lst2[n-1-i] != 0 {
 // 				// fmt.Printf(" (%2d vs %-2d)", lst2[i], lst2[n-1-i])
-// 				matches = append(matches, entities.Matches{
+// 				Matchs = append(Matchs, entities.Matchs{
 // 					CompetitionID: compatitionID,
 // 					// DateTime    :,
 // 					Team1ID     :,
