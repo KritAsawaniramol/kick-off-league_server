@@ -208,7 +208,7 @@ func (h *httpHandler) JoinCompatition(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 	}
 
-	// h.userUsercase.JoinCompatition()
+	h.userUsercase.JoinCompatition(joinModel)
 
 }
 

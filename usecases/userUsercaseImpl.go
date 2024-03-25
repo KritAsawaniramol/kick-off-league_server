@@ -23,7 +23,42 @@ type userUsecaseImpl struct {
 }
 
 // JoinCompatition implements UserUsecase.
-func (*userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
+func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
+	compatitionsEntity := &entities.Compatitions{}
+	teamEntity := &entities.Teams{}
+	compatitionsEntity.ID = in.CompatitionID
+	teamEntity.ID = in.TeamID
+	compatition, err := u.userrepository.GetCompatition(compatitionsEntity)
+	if err != nil {
+		return err
+	}
+
+	if int(compatition.NumberOfTeam) >= len(compatition.Teams) {
+		return errors.New("unable to join. the participating team is full")
+	}
+
+	if compatition.Status != "Application opening" {
+		return errors.New("unable to join. application isn't opening")
+	}
+
+	team, err := u.userrepository.GetTeamWithAllAssociationsByID(teamEntity)
+	if err != nil {
+		return err
+	}
+
+	if len(team.TeamsMembers) < int(compatition.NumOfPlayerInTeamMin) {
+		return errors.New("unable to participate. your team does not have enough members")
+	}
+
+	if len(team.TeamsMembers) > int(compatition.NumOfPlayerInTeamMax) {
+		return errors.New("unable to participate. your team has exceeded the maximum number of members")
+	}
+
+	for _, member := range team.TeamsMembers {
+		fmt.Printf("member.NormalUsers.Born: %v\n", member.NormalUsers.Born)
+		fmt.Printf("compatition.AgeOver: %v\n", compatition.AgeOver)
+	}
+
 	return nil
 }
 
@@ -570,7 +605,6 @@ func (u *userUsecaseImpl) GetTeams(in *model.GetTeamsReq) ([]model.TeamList, err
 	if in.Ordering == "" {
 		in.Ordering = "id"
 	}
-	util.PrintObjInJson(team)
 
 	teams, err := u.userrepository.GetTeams(&team, strings.Trim(in.Ordering, " "), in.Decs, limit, offset)
 	if err != nil {
@@ -659,9 +693,14 @@ func (u *userUsecaseImpl) AcceptAddMemberRequest(inReqID uint, userID uint) erro
 		return err
 	}
 
+	normalUser, err := u.userrepository.GetNormalUser(&entities.NormalUsers{UsersID: userID})
+	if err != nil {
+		return err
+	}
+
 	if err := u.userrepository.InsertTeamsMembers(&entities.TeamsMembers{
 		TeamsID:       addMemberRequest.TeamsID,
-		NormalUsersID: userID,
+		NormalUsersID: normalUser.ID,
 		Role:          addMemberRequest.Role,
 	}); err != nil {
 		return err

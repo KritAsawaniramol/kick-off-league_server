@@ -104,40 +104,43 @@ type (
 
 	Compatitions struct {
 		gorm.Model
-		Name                 string
-		Sport                string //football or futsal
-		Format               string
-		Type                 CompetitionFormat
-		OrganizersID         uint
-		Organizers           Organizers
-		FieldSurface         FieldSurfaces
-		ApplicationType      string
-		HouseNumber          string
-		Village              string
-		Subdistrict          string
-		District             string
-		PostalCode           string
-		Country              string
-		ImageBanner          string
-		StartDate            time.Time
-		EndDate              time.Time
-		JoinCode             []JoinCode
-		Description          string
-		Rule                 string
-		Prize                string
-		ContractType         string
-		Contract             string
-		AgeOver              uint
-		AgeUnder             uint
-		Sex                  SexType
+		Name            string
+		Sport           string //football or futsal
+		Format          string
+		Type            CompetitionFormat
+		OrganizersID    uint
+		Organizers      Organizers
+		FieldSurface    FieldSurfaces
+		ApplicationType string
+		HouseNumber     string
+		Village         string
+		Subdistrict     string
+		District        string
+		PostalCode      string
+		Country         string
+		ImageBanner     string
+		StartDate       time.Time
+		EndDate         time.Time
+		JoinCode        []JoinCode
+		Description     string
+		Rule            string
+		Prize           string
+		ContractType    string
+		Contract        string
+
 		Status               CompetitionStatus
-		NumberOfTeam         uint
+		Teams                []Teams `gorm:"many2many:compatition_teams;"`
 		NumOfPlayerInTeamMin uint
 		NumOfPlayerInTeamMax uint
-		Teams                []Teams `gorm:"many2many:compatition_teams;"`
-		NumOfRound           int
-		NumOfMatch           int
-		Matches              []Matches
+
+		AgeOver  uint
+		AgeUnder uint
+		Sex      SexType
+
+		NumberOfTeam uint
+		NumOfRound   int
+		NumOfMatch   int
+		Matches      []Matches
 	}
 
 	JoinCode struct {

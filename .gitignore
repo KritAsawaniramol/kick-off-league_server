@@ -1,5 +1,6 @@
 .env
 config.yaml
 .json
+migrations/userMigrate
 migrations/userMigrate.go
 /images
