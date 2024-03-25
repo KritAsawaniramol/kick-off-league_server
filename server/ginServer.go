@@ -128,7 +128,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
 		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
 
-		normalRouter.PUT("compatition/join/:id", userHttpHandler.JoinCompatition)
+		normalRouter.PUT("compatition/join", userHttpHandler.JoinCompatition)
 		// normalRouter.POST("/team")
 	}
 
