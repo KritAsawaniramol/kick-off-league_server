@@ -1368,6 +1368,13 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 		winRate = 0
 	}
 
+	// Custom sort function
+	sortByMatchDateTime := func(i, j int) bool {
+		return recentMatch[i].DateTime.After(recentMatch[j].DateTime)
+	}
+	// Sorting the array using custom sort function
+	sort.Slice(recentMatch, sortByMatchDateTime)
+
 	normalUserProfile := &model.NormalUserProfile{
 		NormalUserInfo: model.NormalUserInfo{
 			ID:            resultNormalUser.ID,
@@ -1403,7 +1410,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			Lose:                lose,
 			Goals:               len(resultNormalUser.GoalRecords),
 			GoalsPerCompatition: goalPerCompatition,
-			RecentMatch:         recentMatch,
+			RecentMatch:         recentMatch[:20],
 		},
 	}
 	return normalUserProfile, nil
