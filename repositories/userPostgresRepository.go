@@ -273,6 +273,30 @@ func (u *userPostgresRepository) InsertTeamsMembers(in *entities.TeamsMembers) e
 	return nil
 }
 
+// InsertNormalUserCompatition implements Userrepository.
+func (u *userPostgresRepository) InsertNormalUserCompatition(in *entities.NormalUsersCompatitions) error {
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		nomalUser := &entities.NormalUsers{}
+		nomalUser.ID = in.NormalUsersID
+		if err := tx.First(nomalUser).Error; err != nil {
+			return err
+		}
+		compatition := &entities.Compatitions{}
+		compatition.ID = in.CompatitionsID
+		if err := tx.First(compatition).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(in).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetTeam implements Userrepository.
 func (u *userPostgresRepository) GetTeam(in uint) (*entities.Teams, error) {
 	team := &entities.Teams{}

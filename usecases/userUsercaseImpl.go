@@ -263,8 +263,6 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		return err
 	}
 
-	util.PrintObjInJson(teamEntity)
-
 	if len(team.TeamsMembers) < int(compatition.NumOfPlayerInTeamMin) && compatition.NumOfPlayerInTeamMin != 0 {
 		return errors.New("unable to join. your team does not have enough members")
 	}
@@ -290,13 +288,22 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		for _, teamJoined := range compatition.Teams {
 			for _, teamJoinedMember := range teamJoined.TeamsMembers {
 				if teamJoinedMember.NormalUsersID == member.NormalUsers.ID {
-					fmt.Printf("teamJoined.ID: %v\n", teamJoined.ID)
-					fmt.Printf("teamJoinedMember.NormalUsersID: %v\n", teamJoinedMember.NormalUsersID)
-					fmt.Printf("team.ID: %v\n", team.ID)
-					fmt.Printf("member.NormalUsers.ID: %v\n", member.NormalUsers.ID)
 					return errors.New("unable to join. your team already has members who have entered this competition")
 				}
 			}
+		}
+	}
+
+	for _, member := range team.TeamsMembers {
+		err := u.userrepository.InsertNormalUserCompatition(
+			&entities.NormalUsersCompatitions{
+				NormalUsersID:  member.NormalUsersID,
+				CompatitionsID: in.CompatitionID,
+				TeamsID:        in.TeamID,
+			},
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -755,7 +762,7 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 				}
 				match.Index = len(matchs) + 1
 				match.DateTime = time.Date(
-					0, 0, 0, 0, 0, 0, 0, time.Local)
+					0001, 01, 01, 0, 0, 0, 0, time.Local)
 				matchs = append(matchs, match)
 			}
 		}
@@ -790,8 +797,7 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 	util.PrintObjInJson(matchs)
 	u.userrepository.AppendMatchToCompatition(compatition, matchs)
 	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
-		Status: "Started",
-
+		Status:     "Started",
 		NumOfRound: numOfRound,
 		NumOfMatch: len(matchs),
 	})
@@ -1098,9 +1104,6 @@ func (u *userUsecaseImpl) SendAddMemberRequest(inAddMemberRequest *model.AddMemb
 	if team.OwnerID != inUserID {
 		return errors.New("this user isn't owner's team")
 	}
-
-	util.PrintObjInJson(receiver)
-	util.PrintObjInJson(team)
 
 	for _, member := range team.TeamsMembers {
 		fmt.Println(member.NormalUsers.UsersID)

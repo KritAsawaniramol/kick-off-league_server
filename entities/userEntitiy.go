@@ -42,29 +42,47 @@ type (
 
 	NormalUsers struct {
 		gorm.Model
-		UsersID       uint   `gorm:"unique;not null"`
-		Username      string `gorm:"unique;not null"`
-		FirstNameThai string
-		LastNameThai  string
-		FirstNameEng  string
-		LastNameEng   string
-		Born          time.Time
-		Height        uint
-		Weight        uint
-		Sex           string
-		Position      string
-		Nationality   string
-		Description   string
-		Phone         string
-		AddressesID   uint `gorm:"unique"`
-		Addresses     Addresses
-		Teams         []TeamsMembers
-		TeamsCreated  []Teams       `gorm:"foreignKey:OwnerID;references:users_id"`
-		GoalRecords   []GoalRecords `gorm:"foreignKey:PlayerID"`
-		// Matchs           []Matchs
+		UsersID          uint   `gorm:"unique;not null"`
+		Username         string `gorm:"unique;not null"`
+		FirstNameThai    string
+		LastNameThai     string
+		FirstNameEng     string
+		LastNameEng      string
+		Born             time.Time
+		Height           uint
+		Weight           uint
+		Sex              string
+		Position         string
+		Nationality      string
+		Description      string
+		Phone            string
+		AddressesID      uint `gorm:"unique"`
+		Addresses        Addresses
+		Teams            []TeamsMembers
+		TeamsCreated     []Teams       `gorm:"foreignKey:OwnerID;references:users_id"`
+		GoalRecords      []GoalRecords `gorm:"foreignKey:PlayerID"`
+		Compatitions     []NormalUsersCompatitions
 		RequestReceives  []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
 		ImageProfilePath string
 		ImageCoverPath   string
+	}
+
+	TeamsMembers struct {
+		gorm.Model
+		TeamsID       uint
+		Teams         Teams `gorm:"foreignKey:TeamsID;references:ID"`
+		NormalUsersID uint
+		NormalUsers   NormalUsers `gorm:"foreignKey:NormalUsersID;references:ID"`
+		Role          string
+	}
+
+	NormalUsersCompatitions struct {
+		gorm.Model
+		NormalUsersID  uint
+		NormalUsers    NormalUsers `gorm:"foreignKey:NormalUsersID;references:ID"`
+		CompatitionsID uint
+		Compatitions   Compatitions `gorm:"foreignKey:CompatitionsID;references:ID"`
+		TeamsID        uint
 	}
 
 	Teams struct {
@@ -75,15 +93,6 @@ type (
 		TeamsMembers []TeamsMembers
 		Compatitions []Compatitions      `gorm:"many2many:compatition_teams;"`
 		RequestSends []AddMemberRequests `gorm:"foreignKey:teams_id;"`
-	}
-
-	TeamsMembers struct {
-		gorm.Model
-		TeamsID       uint
-		Teams         Teams `gorm:"foreignKey:TeamsID;references:ID"`
-		NormalUsersID uint
-		NormalUsers   NormalUsers `gorm:"foreignKey:NormalUsersID;references:ID"`
-		Role          string
 	}
 
 	CompatitionsTeams struct {
@@ -105,34 +114,34 @@ type (
 
 	Compatitions struct {
 		gorm.Model
-		Name            string
-		Sport           string //football or futsal
-		Format          string
-		Type            string
-		OrganizersID    uint
-		Organizers      Organizers
-		FieldSurface    string
-		ApplicationType string
-		HouseNumber     string
-		Village         string
-		Subdistrict     string
-		District        string
-		PostalCode      string
-		Country         string
-		ImageBanner     string
-		StartDate       time.Time
-		EndDate         time.Time
-		JoinCode        []JoinCode
-		Description     string
-		Rule            string
-		Prize           string
-		ContractType    string
-		Contract        string
-
+		Name                 string
+		Sport                string //football or futsal
+		Format               string
+		Type                 string
+		OrganizersID         uint
+		Organizers           Organizers
+		FieldSurface         string
+		ApplicationType      string
+		HouseNumber          string
+		Village              string
+		Subdistrict          string
+		District             string
+		PostalCode           string
+		Country              string
+		ImageBanner          string
+		StartDate            time.Time
+		EndDate              time.Time
+		JoinCode             []JoinCode
+		Description          string
+		Rule                 string
+		Prize                string
+		ContractType         string
+		Contract             string
 		Status               string
 		Teams                []Teams `gorm:"many2many:compatition_teams;"`
 		NumOfPlayerInTeamMin uint
 		NumOfPlayerInTeamMax uint
+		NormalUsers          []NormalUsersCompatitions
 
 		AgeOver  uint
 		AgeUnder uint
@@ -156,10 +165,8 @@ type (
 		Index          int //start with 1
 		CompatitionsID uint
 		DateTime       time.Time
-		Team1ID        uint          `gorm:"foreignKey:TeamsID"`
-		Team1Players   []NormalUsers `gorm:"many2many:normal_users_team1_players"`
-		Team2ID        uint          `gorm:"foreignKey:TeamsID"`
-		Team2Players   []NormalUsers `gorm:"many2many:normal_users_team2_players"`
+		Team1ID        uint `gorm:"foreignKey:TeamsID"`
+		Team2ID        uint `gorm:"foreignKey:TeamsID"`
 		Team1Goals     int
 		Team2Goals     int
 		Round          string        // Round 1, Round 2
@@ -169,15 +176,6 @@ type (
 		NextMatchSlot  string //Team1 or Team2
 		Result         string
 	}
-
-	// Events struct {
-	// 	gorm.Model
-	// 	MatchsID   uint
-	// 	Time        string
-	// 	Description string
-	// 	RedCard     bool
-	// 	YellowCard  bool
-	// }
 
 	GoalRecords struct {
 		gorm.Model
@@ -196,46 +194,3 @@ type (
 		Status     string
 	}
 )
-
-// type CompetitionFormat string
-
-// const (
-// 	Tournament CompetitionFormat = "Tournament"
-// 	GroupStage CompetitionFormat = "GroupStage"
-// 	// TournamentsAndGroupStage CompetitionFormat = "TournamentsAndGroupStage"
-// )
-
-// type FieldSurfaces string
-
-// const (
-// 	NaturalGrass   FieldSurfaces = "naturalGrass"
-// 	ArtificialTurf FieldSurfaces = "artificialTurf"
-// 	FlatSurface    FieldSurfaces = "flatSurface"
-// 	Other          FieldSurfaces = "other"
-// )
-
-// type CompetitionStatus string
-
-// const (
-// 	ComingSoon         CompetitionStatus = "ComingSoon"
-// 	ApplicationsOpened CompetitionStatus = "ApplicationsOpened"
-// 	Started            CompetitionStatus = "Started"
-// 	Finished           CompetitionStatus = "Finished"
-// 	Cancelled          CompetitionStatus = "Cancelled"
-// )
-
-// type SexType string
-
-// const (
-// 	Male   SexType = "Male"
-// 	Female SexType = "Female"
-// 	Unisex SexType = "Unisex"
-// )
-
-// type MatchsResult string
-
-// const (
-// 	Team1Win MatchsResult = "Team1Win"
-// 	Team2Win MatchsResult = "Team2Win"
-// 	Draw     MatchsResult = "Draw"
-// )

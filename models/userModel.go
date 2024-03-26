@@ -224,7 +224,7 @@ type GetCompatition struct {
 	Teams                []Team         `json:"teams"`
 	NumOfRound           int            `json:"number_of_round"`
 	NumOfMatch           int            `json:"number_of_match"`
-	Matchs               []Match        `json:"Matchs"`
+	Matchs               []Match        `json:"match"`
 }
 
 type UpdateCompatition struct {
