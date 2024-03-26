@@ -42,25 +42,26 @@ type (
 
 	NormalUsers struct {
 		gorm.Model
-		UsersID          uint   `gorm:"unique;not null"`
-		Username         string `gorm:"unique;not null"`
-		FirstNameThai    string
-		LastNameThai     string
-		FirstNameEng     string
-		LastNameEng      string
-		Born             time.Time
-		Height           uint
-		Weight           uint
-		Sex              string
-		Position         string
-		Nationality      string
-		Description      string
-		Phone            string
-		AddressesID      uint `gorm:"unique"`
-		Addresses        Addresses
-		Teams            []TeamsMembers
-		TeamsCreated     []Teams             `gorm:"foreignKey:OwnerID;references:users_id"`
-		GoalRecords      []GoalRecords       `gorm:"foreignKey:PlayerID"`
+		UsersID       uint   `gorm:"unique;not null"`
+		Username      string `gorm:"unique;not null"`
+		FirstNameThai string
+		LastNameThai  string
+		FirstNameEng  string
+		LastNameEng   string
+		Born          time.Time
+		Height        uint
+		Weight        uint
+		Sex           string
+		Position      string
+		Nationality   string
+		Description   string
+		Phone         string
+		AddressesID   uint `gorm:"unique"`
+		Addresses     Addresses
+		Teams         []TeamsMembers
+		TeamsCreated  []Teams       `gorm:"foreignKey:OwnerID;references:users_id"`
+		GoalRecords   []GoalRecords `gorm:"foreignKey:PlayerID"`
+		// Matchs           []Matchs
 		RequestReceives  []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
 		ImageProfilePath string
 		ImageCoverPath   string
@@ -155,11 +156,13 @@ type (
 		Index          int //start with 1
 		CompatitionsID uint
 		DateTime       time.Time
-		Team1ID        uint `gorm:"foreignKey:TeamsID"`
-		Team2ID        uint `gorm:"foreignKey:TeamsID"`
+		Team1ID        uint          `gorm:"foreignKey:TeamsID"`
+		Team1Players   []NormalUsers `gorm:"many2many:normal_users_team1_players"`
+		Team2ID        uint          `gorm:"foreignKey:TeamsID"`
+		Team2Players   []NormalUsers `gorm:"many2many:normal_users_team2_players"`
 		Team1Goals     int
 		Team2Goals     int
-		Round          string
+		Round          string        // Round 1, Round 2
 		GoalRecords    []GoalRecords `gorm:"foreignKey:MatchsID"`
 		VideoURL       string
 		NextMatchIndex int

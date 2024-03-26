@@ -16,6 +16,14 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// DeleteTeamMember implements Userrepository.
+func (u *userPostgresRepository) DeleteTeamMember(nomalUserID uint, teamID uint) error {
+	if err := u.db.Where("normal_users_id = ?", nomalUserID).Where("teams_id = ?", teamID).Delete(&entities.TeamsMembers{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // AppendGoalRecordsToMatch implements Userrepository.
 func (u *userPostgresRepository) AppendGoalRecordsToMatch(id uint, goalRecords []entities.GoalRecords) error {
 	match := &entities.Matchs{}
@@ -103,6 +111,42 @@ func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*ent
 		return nil, err
 	}
 	return compatition, nil
+}
+
+// GetMatch implements Userrepository.
+func (u *userPostgresRepository) GetMatch(in *entities.Matchs) (*entities.Matchs, error) {
+	match := &entities.Matchs{}
+	if err := u.db.Where(in).Preload("GoalRecords").First(match).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return match, nil
+}
+
+// GetTeamsWithCompatitionAndMatch implements Userrepository.
+func (u *userPostgresRepository) GetTeamsWithCompatitionAndMatch(in *entities.Teams) (*entities.Teams, error) {
+	team := &entities.Teams{}
+	if err := u.db.Where(in).Preload("Compatitions").Preload("Compatitions.Matchs").First(team).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return team, nil
+}
+
+// GetMatchs implements Userrepository.
+func (u *userPostgresRepository) GetMatchs(in *entities.Matchs) ([]entities.Matchs, error) {
+	match := []entities.Matchs{}
+	if err := u.db.Where(in).Find(match).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return match, nil
 }
 
 // GetCompatitions implements Userrepository.

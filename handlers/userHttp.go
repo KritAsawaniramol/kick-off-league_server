@@ -19,6 +19,31 @@ import (
 	"kickoff-league.com/util"
 )
 
+// RemoveTeamMember implements Handler.
+func (h *httpHandler) RemoveTeamMember(c *gin.Context) {
+	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	normalUserID := new(struct {
+		NormalUserID uint `json:"normal_user_id"`
+	})
+
+	err = c.BindJSON(normalUserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	if err := h.userUsercase.RemoveNormalUserFormTeam(uint(teamID), normalUserID.NormalUserID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "RemoveTeamMember success"})
+}
+
 // GetNormalUsers implements Handler.
 func (h *httpHandler) GetNormalUsers(c *gin.Context) {
 	normalUserList, err := h.userUsercase.GetNormalUserList()
@@ -201,6 +226,28 @@ func (h *httpHandler) CreateTeam(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "CreateTeam success"})
 }
 
+// GetMatchResult implements Handler.
+func (h *httpHandler) GetMatchResult(c *gin.Context) {
+
+}
+
+// GetNextMatch implements Handler.
+func (h *httpHandler) GetNextMatch(c *gin.Context) {
+	normalUserID, err := strconv.ParseUint(c.Param("normalUserID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	nextMatchs, err := h.userUsercase.GetNextMatch(uint(normalUserID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"next_match": nextMatchs})
+}
+
 // UpdateMatch implements Handler.
 func (h *httpHandler) UpdateMatch(c *gin.Context) {
 	matchID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -255,7 +302,7 @@ func (h *httpHandler) JoinCompatition(c *gin.Context) {
 	}
 	err := h.userUsercase.JoinCompatition(joinModel)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "unable to join.") {
+		if strings.HasPrefix(err.Error(), "unable") {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		} else {
 			fmt.Printf("err: %v\n", err)
@@ -555,13 +602,37 @@ func (h *httpHandler) GetNormalUser(c *gin.Context) {
 }
 
 // CancelCompatition implements Handler.
-func (*httpHandler) CancelCompatition(c *gin.Context) {
-	panic("unimplemented")
+func (h *httpHandler) CancelCompatition(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	err = h.userUsercase.CancelCompatition(uint(compatitionID))
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
 }
 
 // FinishCompatition implements Handler.
-func (*httpHandler) FinishCompatition(c *gin.Context) {
-	panic("unimplemented")
+func (h *httpHandler) FinishCompatition(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	err = h.userUsercase.FinishCompatition(uint(compatitionID))
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "finish com"})
 }
 
 // OpenCompatition implements Handler.
@@ -578,7 +649,7 @@ func (h *httpHandler) OpenCompatition(c *gin.Context) {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
+	c.JSON(http.StatusOK, gin.H{"message": "open application for compatition success"})
 }
 
 // StartCompatition implements Handler.
@@ -595,7 +666,7 @@ func (h *httpHandler) StartCompatition(c *gin.Context) {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
+	c.JSON(http.StatusOK, gin.H{"message": "Update compatition status to \"Started\" success"})
 }
 
 // UpdateCompatitionStatus implements Handler.

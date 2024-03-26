@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"net/mail"
+	"sort"
 	"strings"
 	"time"
 
@@ -23,9 +24,95 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// RemoveNormalUserFormTeam implements UserUsecase.
+func (u *userUsecaseImpl) RemoveNormalUserFormTeam(teamID uint, nomalUserID uint) error {
+	err := u.userrepository.DeleteTeamMember(teamID, nomalUserID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetNextMatch implements UserUsecase.
+func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
+	nextMatchs := []model.NextMatch{}
+	normalUser := &entities.NormalUsers{}
+	normalUser.ID = id
+	resultNormalUser, err := u.userrepository.GetNormalUser(normalUser)
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range resultNormalUser.Teams {
+		team := &entities.Teams{}
+		team.ID = t.TeamsID
+		resultTeam, err := u.userrepository.GetTeamsWithCompatitionAndMatch(team)
+		if err != nil {
+			return nil, err
+		}
+		for _, compatition := range resultTeam.Compatitions {
+			if compatition.Status == util.CompetitionStatus[2] {
+				for _, match := range compatition.Matchs {
+					if match.Team1ID == t.ID && match.Team2ID != 0 && match.Result == "" {
+						rivalTeam, err := u.userrepository.GetTeam(match.Team2ID)
+						if err != nil {
+							return nil, err
+						}
+						nextMatchs = append(nextMatchs, model.NextMatch{
+							RivalTeamID:      match.Team2ID,
+							RivalTeamName:    rivalTeam.Name,
+							CompatitionsID:   compatition.ID,
+							CompatitionsName: compatition.Name,
+							CompatitionsAddress: model.Address{
+								HouseNumber: compatition.HouseNumber,
+								Village:     compatition.Village,
+								Subdistrict: compatition.Subdistrict,
+								District:    compatition.District,
+								PostalCode:  compatition.PostalCode,
+								Country:     compatition.Country,
+							},
+							MatchID:       match.ID,
+							MatchDateTime: match.DateTime,
+						})
+					} else if match.Team2ID == t.ID && match.Team1ID != 0 && match.Result == "" {
+						rivalTeam, err := u.userrepository.GetTeam(match.Team1ID)
+						if err != nil {
+							return nil, err
+						}
+						nextMatchs = append(nextMatchs, model.NextMatch{
+							RivalTeamID:      match.Team1ID,
+							RivalTeamName:    rivalTeam.Name,
+							CompatitionsID:   compatition.ID,
+							CompatitionsName: compatition.Name,
+							CompatitionsAddress: model.Address{
+								HouseNumber: compatition.HouseNumber,
+								Village:     compatition.Village,
+								Subdistrict: compatition.Subdistrict,
+								District:    compatition.District,
+								PostalCode:  compatition.PostalCode,
+								Country:     compatition.Country,
+							},
+							MatchID:       match.ID,
+							MatchDateTime: match.DateTime,
+						})
+					}
+				}
+			}
+		}
+	}
+
+	// Custom sort function
+	sortByMatchDateTime := func(i, j int) bool {
+		return nextMatchs[i].MatchDateTime.After(nextMatchs[j].MatchDateTime)
+	}
+	// Sorting the array using custom sort function
+	sort.Slice(nextMatchs, sortByMatchDateTime)
+	return nextMatchs, nil
+}
+
 // UpdateMatch implements UserUsecase.
 func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) error {
 	goalRecords := []entities.GoalRecords{}
+
 	for _, goalRecord := range updateMatch.GoalRecords {
 		goalRecords = append(goalRecords, entities.GoalRecords{
 			MatchsID:   goalRecord.MatchsID,
@@ -51,6 +138,46 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		fmt.Printf("err: %v\n", err)
 		return err
 	}
+
+	getMatch := &entities.Matchs{}
+	getMatch.ID = id
+	match, err := u.userrepository.GetMatch(getMatch)
+	if err != nil || match == nil {
+		fmt.Printf("err: %v\n", err)
+		return err
+	}
+
+	if match.NextMatchIndex != 0 {
+		nextMatch, err := u.userrepository.GetMatch(&entities.Matchs{Index: match.NextMatchIndex})
+		if err != nil || match == nil {
+			fmt.Printf("err: %v\n", err)
+			return err
+		}
+
+		if updateMatch.Result == util.MatchsResult[0] {
+			if match.NextMatchSlot == "Team1" {
+				nextMatch.Team1ID = match.Team1ID
+			} else if match.NextMatchSlot == "Team2" {
+				nextMatch.Team2ID = match.Team1ID
+			}
+		} else if updateMatch.Result == util.MatchsResult[1] {
+			if match.NextMatchSlot == "Team1" {
+				nextMatch.Team1ID = match.Team2ID
+			} else if match.NextMatchSlot == "Team2" {
+				nextMatch.Team2ID = match.Team2ID
+			}
+		}
+
+		err = u.userrepository.UpdateMatch(nextMatch.ID, &entities.Matchs{
+			Team1ID: nextMatch.Team1ID,
+			Team2ID: nextMatch.Team2ID,
+		})
+		if err != nil {
+			fmt.Printf("err: %v\n", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -504,60 +631,8 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		if in.NumberOfTeam < 2 {
 			return errors.New("number of Team have to morn than 1")
 		}
-		// numOfRound = int(math.Log2(float64(in.NumberOfTeam)))
 
-		// count := 0
-		// for i := 0; i < numOfRound; i++ {
-		// round := numOfRound - i
-		// numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
-		// fmt.Printf("number of match in round %d: %d\n", round, numOfMatchInRound)
-		// for j := 0; j < int(numOfMatchInRound); j++ {
-		// 	match := entities.Matchs{
-		// 		Round: fmt.Sprintf("Round %d", i+1),
-		// 	}
-		// 	if i != numOfRound-1 {
-		// 		if j%2 == 0 {
-		// 			match.NextMatchSlot = "Team1"
-		// 		} else {
-		// 			match.NextMatchSlot = "Team2"
-		// 		}
-		// 	}
-		// 	if i != 0 {
-		// 		fmt.Printf("i: %v\n", i)
-		// 		matchs[count].NextMatchIndex = len(matchs) + 1
-		// 		matchs[count+1].NextMatchIndex = len(matchs) + 1
-		// 		count += 2
-		// 	}
-		// 	match.Index = len(matchs) + 1
-		// 	matchs = append(matchs, match)
-		// }
-		// }
 	}
-	// else if in.Type == "Round Robin" {
-	// numOfRound = int(in.NumberOfTeam - 1)
-	// numOfMatch := (int(in.NumberOfTeam) * numOfRound) / 2
-	// numOfMatchInRound := numOfMatch / numOfRound
-	// for i := 1; i <= int(numOfRound); i++ {
-	// 	for j := 0; j < int(numOfMatchInRound); j++ {
-	// 		matchs = append(matchs, entities.Matchs{
-	// 			Round: fmt.Sprintf("Round %d", i),
-	// 			Index: len(matchs) + 1,
-	// 		})
-	// 	}
-	// }
-	// } else {
-	// 	return errors.New("undefined compatition type")
-	// }
-
-	// fmt.Printf("number of match %d\n", len(matchs))
-
-	// for _, v := range matchs {
-	// 	fmt.Printf("match %d. %s. Next match slot: %s, Next match: %v\n", v.Index, v.Round, v.NextMatchSlot, v.NextMatchIndex)
-	// }
-
-	// compatition.Matchs = matchs
-	// compatition.NumOfRound = numOfRound
-	// compatition.NumOfMatch = len(matchs)
 
 	if in.Type != "Tournament" && in.Type != "Round Robin" {
 		return errors.New("undefined compatition type")
@@ -566,6 +641,39 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		return err
 	}
 
+	return nil
+}
+
+// CancelCompatition implements UserUsecase.
+func (u *userUsecaseImpl) CancelCompatition(id uint) error {
+	err := u.userrepository.UpdateCompatition(id, &entities.Compatitions{
+		Status: util.CompetitionStatus[4],
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// FinishCompatition implements UserUsecase.
+func (u *userUsecaseImpl) FinishCompatition(id uint) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = id
+	compatition, err := u.userrepository.GetCompatition(compatition)
+	if err != nil {
+		return err
+	}
+
+	if compatition.Status != util.CompetitionStatus[2] {
+		return fmt.Errorf("can't update compatition status to \"Finished\" (status now: %v)", compatition.Status)
+	}
+
+	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
+		Status: util.CompetitionStatus[3],
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -616,6 +724,7 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 		}
 		numOfRound = int(math.Log2(float64(compatition.NumberOfTeam)))
 		count := 0
+
 		for i := 0; i < numOfRound; i++ {
 
 			round := numOfRound - i
@@ -645,6 +754,8 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 					}
 				}
 				match.Index = len(matchs) + 1
+				match.DateTime = time.Date(
+					0, 0, 0, 0, 0, 0, 0, time.Local)
 				matchs = append(matchs, match)
 			}
 		}
@@ -711,6 +822,8 @@ func roundRobin(n int) []entities.Matchs {
 				Round:   fmt.Sprintf("Round %d", r),
 				Team1ID: uint(lst2[i]),
 				Team2ID: uint(lst2[n-1-i]),
+				DateTime: time.Date(
+					0001, 01, 01, 0, 0, 0, 0, time.Local),
 			})
 			fmt.Printf(" (%2d vs %-2d)", lst2[i], lst2[n-1-i])
 		}
@@ -732,44 +845,6 @@ func shuffleTeam(src []entities.Teams) []entities.Teams {
 	}
 	return dest
 }
-
-// func (u *userUsecaseImpl) createRoundRobin(n int, compatitionID uint) []entities.Matchs {
-// 	lst := make([]int, n-1)
-// 	Matchs := []entities.Matchs{}
-// 	for i := 0; i < len(lst); i++ {
-// 		lst[i] = i + 2
-
-// 	}
-// 	if n%2 == 1 {
-// 		lst = append(lst, 0) // 0 denotes a bye
-// 		n++
-// 	}
-// 	for r := 1; r < n; r++ {
-// 		fmt.Printf("Round %2d", r)
-// 		lst2 := append([]int{1}, lst...)
-
-// 		for i := 0; i < n/2; i++ {
-// 			if lst[i] != 0 || lst2[n-1-i] != 0 {
-// 				// fmt.Printf(" (%2d vs %-2d)", lst2[i], lst2[n-1-i])
-// 				Matchs = append(Matchs, entities.Matchs{
-// 					CompetitionID: compatitionID,
-// 					// DateTime    :,
-// 					Team1ID     :,
-// 					Team2ID     :,
-// 					// Team1Goals  :,
-// 					// Team2Goals  :,
-// 					// Events      :,
-// 					// GoalRecords :,
-// 					// Result      :,
-// 				})
-// 				}
-// 			}
-// 		}
-// 		fmt.Println()
-// 		rotate(lst)
-// 	}
-// 	return nil
-// }
 
 func rotate(lst []int) {
 	len := len(lst)

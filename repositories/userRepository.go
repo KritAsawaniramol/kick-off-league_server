@@ -13,6 +13,7 @@ type Userrepository interface {
 	GetNumberOfTeamsMember(in uint) int64
 	GetNormalUsers(in *entities.NormalUsers) ([]entities.NormalUsers, error)
 
+	GetTeamsWithCompatitionAndMatch(in *entities.Teams) (*entities.Teams, error)
 	GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error)
 	GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error)
 	GetTeams(in *entities.Teams, orderString string, decs bool, limit int, offset int) ([]entities.Teams, error)
@@ -27,6 +28,9 @@ type Userrepository interface {
 
 	AppendGoalRecordsToMatch(id uint, goalRecords []entities.GoalRecords) error
 	UpdateMatch(uint, *entities.Matchs) error
+	DeleteTeamMember(nomalUserID uint, teamID uint) error
+	GetMatch(in *entities.Matchs) (*entities.Matchs, error)
+	GetMatchs(in *entities.Matchs) ([]entities.Matchs, error)
 	AppendMatchToCompatition(compatition *entities.Compatitions, matchs []entities.Matchs) error
 
 	AppendTeamtoCompatition(compatition *entities.Compatitions, newTeam *entities.Teams) error

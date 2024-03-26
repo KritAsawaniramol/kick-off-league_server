@@ -22,7 +22,7 @@ type UserUsecase interface {
 	GetTeamsByOwnerID(in uint) ([]model.TeamList, error)
 	GetNormalUserList() ([]model.NormalUserList, error)
 	GetNormalUser(id uint) (*model.NormalUserProfile, error)
-
+	GetNextMatch(id uint) ([]model.NextMatch, error)
 	UpdateMatch(id uint, updateMatch *model.UpdateMatch) error
 	JoinCompatition(in *model.JoinCompatition) error
 	CreateCompatition(in *model.CreateCompatition) error
@@ -31,6 +31,9 @@ type UserUsecase interface {
 	UpdateCompatition(id uint, in *model.UpdateCompatition) error
 	OpenApplicationCompatition(id uint) error
 	StartCompatition(id uint) error
+	FinishCompatition(id uint) error
+	RemoveNormalUserFormTeam(teamID uint, nomalUserID uint) error
+	CancelCompatition(id uint) error
 
 	UpdateCompatitionStatus(id uint, status string) error
 

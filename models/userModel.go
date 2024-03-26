@@ -76,7 +76,7 @@ type NormalUserStat struct {
 	Lose        int           `json:"lose"`
 	Draw        int           `json:"draw"`
 	Goals       int           `json:"goals"`
-	RecentMatch []RecentMatch `json:"recent_match"`
+	RecentMatch []RecentMatch `json:"recent_match"` // Last 20 matches
 }
 
 type NormalUserList struct {
@@ -92,6 +92,16 @@ type NormalUserList struct {
 	Position      string    `json:"position"`
 	Nationality   string    `json:"nationality"`
 	Description   string    `json:"description"`
+}
+
+type NextMatch struct {
+	RivalTeamID         uint      `json:"rival_team_id"`
+	RivalTeamName       string    `json:"rival_team_name"`
+	CompatitionsID      uint      `json:"compatition_id"`
+	CompatitionsName    string    `json:"compatition_name"`
+	CompatitionsAddress Address   `json:"compatition_address"`
+	MatchID             uint      `json:"match_id"`
+	MatchDateTime       time.Time `json:"match_date_time"`
 }
 
 type UpdateNormalUser struct {

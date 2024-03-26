@@ -40,11 +40,14 @@ type Handler interface {
 	SendAddMemberRequest(c *gin.Context)
 	AcceptAddMemberRequest(c *gin.Context)
 	IgnoreAddMemberRequest(c *gin.Context)
+	GetNextMatch(c *gin.Context)
+	GetMatchResult(c *gin.Context)
 
 	StartCompatition(c *gin.Context)
-	FinishCompatition(c *gin.Context)
 	OpenCompatition(c *gin.Context)
+	FinishCompatition(c *gin.Context)
 	CancelCompatition(c *gin.Context)
+	RemoveTeamMember(c *gin.Context)
 
 	// GetUserByPhone(c *gin.Context)
 }

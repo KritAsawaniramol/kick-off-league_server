@@ -118,6 +118,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	{
 		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
+		normalRouter.GET("/nextMatch/:normalUserID", userHttpHandler.GetNextMatch)
+		normalRouter.GET("/MatchResults/:normalUserID", userHttpHandler.GetMatchResult)
 		normalRouter.POST("/team", userHttpHandler.CreateTeam)
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
 		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
@@ -128,7 +130,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
 		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
 		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
-
+		normalRouter.DELETE("team/:teamID", userHttpHandler.RemoveTeamMember)
 		normalRouter.PUT("compatition/join", userHttpHandler.JoinCompatition)
 		// normalRouter.POST("/team")
 	}
