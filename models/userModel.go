@@ -5,13 +5,13 @@ import (
 )
 
 type OrganizersInfo struct {
-	ID               uint
-	Name             string
-	Phone            string
-	Description      string
-	Address          Address
-	ImageProfilePath string
-	ImageCoverPath   string
+	ID               uint    `json:"id"`
+	Name             string  `json:"name"`
+	Phone            string  `json:"phone"`
+	Description      string  `json:"description"`
+	Address          Address `json:"address"`
+	ImageProfilePath string  `json:"image_profile_path"`
+	ImageCoverPath   string  `json:"image_cover_path"`
 }
 
 // type MyNormalUser struct {
@@ -37,10 +37,10 @@ type User struct {
 }
 
 type NormalUser struct {
-	NormalUserInfo
-	Team        []Team     `json:"team"`
-	TeamCreated []Team     `json:"team_created"`
-	GoalRecord  GoalRecord `json:"goal_record"`
+	NormalUserInfo `json:"normal_user_info"`
+	Team           []Team     `json:"team"`
+	TeamCreated    []Team     `json:"team_created"`
+	GoalRecord     GoalRecord `json:"goal_record"`
 }
 
 type NormalUserInfo struct {
@@ -62,7 +62,7 @@ type NormalUserInfo struct {
 }
 
 type NormalUserProfile struct {
-	NormalUserInfo
+	NormalUserInfo   `json:"normal_user_info"`
 	UserID           uint   `json:"user_id"`
 	ImageProfilePath string `json:"image_profile_path"`
 	ImageCoverPath   string `json:"image_cover_path"`
@@ -70,13 +70,13 @@ type NormalUserProfile struct {
 }
 
 type NormalUserStat struct {
-	WinRate     float32       `json:"win_rate"`
-	TotalMatch  int           `json:"total_match"`
-	Win         int           `json:"win"`
-	Lose        int           `json:"lose"`
-	Draw        int           `json:"draw"`
-	Goals       int           `json:"goals"`
-	RecentMatch []RecentMatch `json:"recent_match"` // Last 20 matches
+	WinRate             float64       `json:"win_rate"`
+	TotalMatch          int           `json:"total_match"`
+	Win                 int           `json:"win"`
+	Lose                int           `json:"lose"`
+	Goals               int           `json:"goals"`
+	GoalsPerCompatition float64       `json:"goals_per_compatition"`
+	RecentMatch         []RecentMatch `json:"recent_match"` // Last 20 matches
 }
 
 type NormalUserList struct {

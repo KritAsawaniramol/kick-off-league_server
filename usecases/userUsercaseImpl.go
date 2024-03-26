@@ -1310,6 +1310,41 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 	if err != nil {
 		return nil, err
 	}
+
+	totalMatch := 0
+	win := 0
+	lose := 0
+	for _, compatition := range resultNormalUser.Compatitions {
+		teamID := compatition.TeamsID
+		for _, match := range compatition.Compatitions.Matchs {
+			if match.Team1ID == teamID && teamID != 0 && match.Result != "" {
+				totalMatch += 1
+				if match.Result == util.MatchsResult[0] {
+					win += 1
+				} else if match.Result == util.MatchsResult[1] {
+					lose += 1
+				}
+			} else if match.Team2ID == teamID && teamID != 0 && match.Result != "" {
+				totalMatch += 1
+				if match.Result == util.MatchsResult[1] {
+					win += 1
+				} else if match.Result == util.MatchsResult[0] {
+					lose += 1
+				}
+			}
+		}
+	}
+	winRate := float64(win) / float64(totalMatch)
+	goalPerCompatition := float64(len(resultNormalUser.GoalRecords)) / float64(len(resultNormalUser.Compatitions))
+
+	// Handling NaN value
+	if math.IsNaN(float64(goalPerCompatition)) {
+		goalPerCompatition = 0
+	}
+	if math.IsNaN(float64(winRate)) {
+		winRate = 0
+	}
+
 	normalUserProfile := &model.NormalUserProfile{
 		NormalUserInfo: model.NormalUserInfo{
 			ID:            resultNormalUser.ID,
@@ -1339,13 +1374,13 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 		ImageProfilePath: resultUser.ImageProfilePath,
 		ImageCoverPath:   resultUser.ImageCoverPath,
 		NormalUserStat: model.NormalUserStat{
-			WinRate:     0,
-			TotalMatch:  0,
-			Win:         0,
-			Lose:        0,
-			Draw:        0,
-			Goals:       0,
-			RecentMatch: []model.RecentMatch{},
+			WinRate:             winRate,
+			TotalMatch:          totalMatch,
+			Win:                 win,
+			Lose:                lose,
+			Goals:               len(resultNormalUser.GoalRecords),
+			GoalsPerCompatition: goalPerCompatition,
+			RecentMatch:         []model.RecentMatch{},
 		},
 	}
 	return normalUserProfile, nil
