@@ -1314,6 +1314,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 	totalMatch := 0
 	win := 0
 	lose := 0
+	recentMatch := []model.RecentMatch{}
 	for _, compatition := range resultNormalUser.Compatitions {
 		teamID := compatition.TeamsID
 		for _, match := range compatition.Compatitions.Matchs {
@@ -1324,6 +1325,17 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 				} else if match.Result == util.MatchsResult[1] {
 					lose += 1
 				}
+				vsTeam, err := u.userrepository.GetTeam(match.Team2ID)
+				if err != nil {
+					return nil, err
+				}
+				recentMatch = append(recentMatch, model.RecentMatch{
+					ID:         match.ID,
+					DateTime:   match.DateTime,
+					VsTeamName: vsTeam.Name,
+					Result:     match.Result,
+					Score:      fmt.Sprintf("%d - %d", match.Team1Goals, match.Team2Goals),
+				})
 			} else if match.Team2ID == teamID && teamID != 0 && match.Result != "" {
 				totalMatch += 1
 				if match.Result == util.MatchsResult[1] {
@@ -1331,6 +1343,17 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 				} else if match.Result == util.MatchsResult[0] {
 					lose += 1
 				}
+				vsTeam, err := u.userrepository.GetTeam(match.Team1ID)
+				if err != nil {
+					return nil, err
+				}
+				recentMatch = append(recentMatch, model.RecentMatch{
+					ID:         match.ID,
+					DateTime:   match.DateTime,
+					VsTeamName: vsTeam.Name,
+					Result:     match.Result,
+					Score:      fmt.Sprintf("%d - %d", match.Team2ID, match.Team1ID),
+				})
 			}
 		}
 	}
@@ -1380,7 +1403,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			Lose:                lose,
 			Goals:               len(resultNormalUser.GoalRecords),
 			GoalsPerCompatition: goalPerCompatition,
-			RecentMatch:         []model.RecentMatch{},
+			RecentMatch:         recentMatch,
 		},
 	}
 	return normalUserProfile, nil

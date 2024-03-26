@@ -256,7 +256,7 @@ type RecentMatch struct {
 	DateTime   time.Time `json:"date_time"`
 	VsTeamName string    `json:"vs_team_name"`
 	Result     string    `json:"result"`
-	Score      string    `json:"score"`
+	Score      string    `json:"score"` // 1 - 1, 3 - 1
 }
 
 type Match struct {
