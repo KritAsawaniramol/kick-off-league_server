@@ -252,11 +252,12 @@ type UpdateCompatition struct {
 }
 
 type RecentMatch struct {
-	ID         uint      `json:"id"`
-	DateTime   time.Time `json:"date_time"`
-	VsTeamName string    `json:"vs_team_name"`
-	Result     string    `json:"result"`
-	Score      string    `json:"score"` // 1 - 1, 3 - 1
+	ID             uint      `json:"id"`
+	DateTime       time.Time `json:"date_time"`
+	VsTeamName     string    `json:"vs_team_name"`
+	Result         string    `json:"result"`
+	Score          string    `json:"score"` // 1 - 1, 3 - 1
+	TournamentName string    `json:"tournament_name"`
 }
 
 type Match struct {

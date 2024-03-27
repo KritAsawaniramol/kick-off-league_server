@@ -1336,11 +1336,12 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 					return nil, err
 				}
 				recentMatch = append(recentMatch, model.RecentMatch{
-					ID:         match.ID,
-					DateTime:   match.DateTime,
-					VsTeamName: vsTeam.Name,
-					Result:     result,
-					Score:      fmt.Sprintf("%d - %d", match.Team1Goals, match.Team2Goals),
+					ID:             match.ID,
+					DateTime:       match.DateTime,
+					VsTeamName:     vsTeam.Name,
+					Result:         result,
+					Score:          fmt.Sprintf("%d - %d", match.Team1Goals, match.Team2Goals),
+					TournamentName: compatition.Compatitions.Name,
 				})
 			} else if match.Team2ID == teamID && teamID != 0 && match.Result != "" {
 				totalMatch += 1
@@ -1356,11 +1357,12 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 					return nil, err
 				}
 				recentMatch = append(recentMatch, model.RecentMatch{
-					ID:         match.ID,
-					DateTime:   match.DateTime,
-					VsTeamName: vsTeam.Name,
-					Result:     result,
-					Score:      fmt.Sprintf("%d - %d", match.Team2ID, match.Team1ID),
+					ID:             match.ID,
+					DateTime:       match.DateTime,
+					VsTeamName:     vsTeam.Name,
+					Result:         result,
+					Score:          fmt.Sprintf("%d - %d", match.Team2ID, match.Team1ID),
+					TournamentName: compatition.Compatitions.Name,
 				})
 			}
 		}
