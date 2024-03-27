@@ -197,28 +197,6 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 	return nil
 }
 
-// UpdateCompatitionStatus implements UserUsecase.
-func (u *userUsecaseImpl) UpdateCompatitionStatus(id uint, status string) error {
-	compatition := &entities.Compatitions{}
-	compatition.ID = id
-	compatition, err := u.userrepository.GetCompatition(compatition)
-	if err != nil {
-		return err
-	}
-
-	// if status == "coming soon" {
-	// 	return errors.New("can't update compatition status to \"coming soon\"")
-	// } else if status == "Application opening"
-
-	err = u.userrepository.UpdateCompatition(id, &entities.Compatitions{
-		Status: status,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // UpdateCompatition implements UserUsecase.
 func (u *userUsecaseImpl) UpdateCompatition(id uint, in *model.UpdateCompatition) error {
 	err := u.userrepository.UpdateCompatition(id, &entities.Compatitions{
@@ -1201,6 +1179,11 @@ func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser
 		Nationality:   inUpdateModel.Nationality,
 		Description:   inUpdateModel.Description,
 		Phone:         inUpdateModel.Phone,
+		Username:      inUpdateModel.Username,
+	}
+
+	if isUsernameAlreadyInUser(normalUser.Username, u.userrepository) {
+		return errors.New("this username is already in use")
 	}
 
 	normalUser.ID = inNormalUserID

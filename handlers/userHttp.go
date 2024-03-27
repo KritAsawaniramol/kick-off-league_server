@@ -661,31 +661,3 @@ func (h *httpHandler) StartCompatition(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Update compatition status to \"Started\" success"})
 }
-
-// UpdateCompatitionStatus implements Handler.
-func (h *httpHandler) UpdateCompatitionStatus(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	var status struct {
-		Status string `json:"status"`
-	}
-
-	err = c.BindJSON(&status)
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.UpdateCompatitionStatus(uint(compatitionID), status.Status)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Update compatition status success"})
-}

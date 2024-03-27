@@ -117,6 +117,7 @@ type UpdateNormalUser struct {
 	Position      string    `json:"position"`
 	Nationality   string    `json:"nationality"`
 	Description   string    `json:"description"`
+	Username      string    `json:"username"`
 }
 
 type AddMemberRequest struct {
