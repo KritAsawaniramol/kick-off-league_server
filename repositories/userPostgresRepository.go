@@ -48,7 +48,7 @@ func (u *userPostgresRepository) AppendGoalRecordsToMatch(id uint, goalRecords [
 func (u *userPostgresRepository) UpdateJoinCode(id uint, in *entities.JoinCode) error {
 	joinCode := &entities.JoinCode{}
 	joinCode.ID = id
-	if err := u.db.Model(joinCode).Updates(in).Error; err != nil {
+	if err := u.db.Where(joinCode).Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
@@ -58,7 +58,7 @@ func (u *userPostgresRepository) UpdateJoinCode(id uint, in *entities.JoinCode) 
 func (u *userPostgresRepository) UpdateMatch(id uint, in *entities.Matchs) error {
 	match := &entities.Matchs{}
 	match.ID = id
-	if err := u.db.Model(match).Updates(in).Error; err != nil {
+	if err := u.db.Where(match).Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
