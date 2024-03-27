@@ -283,7 +283,7 @@ func mockupData(u usecases.UserUsecase) {
 		Prize:                "Prize",
 		StartDate:            time.Now().AddDate(0, 0, -4),
 		EndDate:              time.Now(),
-		ApplicationType:      "free",
+		ApplicationType:      util.ApplicationType[1],
 		ImageBanner:          "",
 		AgeOver:              0,
 		AgeUnder:             0,

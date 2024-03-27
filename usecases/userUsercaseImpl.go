@@ -324,11 +324,13 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		}
 	}
 
-	err = u.userrepository.UpdateJoinCode(joinCodeID, &entities.JoinCode{
-		Status: util.JoinCodeStatus[1],
-	})
-	if err != nil {
-		return err
+	if compatition.ApplicationType == util.ApplicationType[1] && joinCodeID != 0 && validCode {
+		err = u.userrepository.UpdateJoinCode(joinCodeID, &entities.JoinCode{
+			Status: util.JoinCodeStatus[1],
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	err = u.userrepository.AppendTeamtoCompatition(compatition, team)
