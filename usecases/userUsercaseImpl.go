@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	"golang.org/x/crypto/bcrypt"
 	"kickoff-league.com/config"
@@ -22,6 +23,24 @@ import (
 
 type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
+}
+
+// CreateJoinCode implements UserUsecase.
+func (u *userUsecaseImpl) CreateJoinCode(compatitionID uint, n int) error {
+	codes := []entities.JoinCode{}
+	for i := 0; i < n; i++ {
+		code := uuid.New().String()
+		codes = append(codes, entities.JoinCode{
+			CompatitionsID: compatitionID,
+			Code:           code,
+			Status:         util.JoinCodeStatus[0],
+		})
+	}
+	err := u.userrepository.AppendJoinCodeToCompatition(compatitionID, codes)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // RemoveNormalUserFormTeam implements UserUsecase.
@@ -168,10 +187,7 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 			}
 		}
 
-		err = u.userrepository.UpdateMatch(nextMatch.ID, &entities.Matchs{
-			Team1ID: nextMatch.Team1ID,
-			Team2ID: nextMatch.Team2ID,
-		})
+		err = u.userrepository.UpdateMatch(nextMatch.ID, nextMatch)
 		if err != nil {
 			fmt.Printf("err: %v\n", err)
 			return err

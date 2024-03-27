@@ -16,6 +16,16 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// AppendJoinCodeToCompatition implements Userrepository.
+func (u *userPostgresRepository) AppendJoinCodeToCompatition(id uint, joinCodes []entities.JoinCode) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = id
+	if err := u.db.Model(compatition).Association("JoinCode").Append(joinCodes); err != nil {
+		return err
+	}
+	return nil
+}
+
 // DeleteTeamMember implements Userrepository.
 func (u *userPostgresRepository) DeleteTeamMember(nomalUserID uint, teamID uint) error {
 	if err := u.db.Where("normal_users_id = ?", nomalUserID).Where("teams_id = ?", teamID).Delete(&entities.TeamsMembers{}).Error; err != nil {

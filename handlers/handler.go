@@ -62,8 +62,3 @@ func NewhttpHandler(userUsercase usecases.UserUsecase) Handler {
 type httpHandler struct {
 	userUsercase usecases.UserUsecase
 }
-
-// CreateJoinCode implements Handler.
-func (*httpHandler) CreateJoinCode(c *gin.Context) {
-	panic("unimplemented")
-}

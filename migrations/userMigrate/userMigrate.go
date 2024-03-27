@@ -46,6 +46,8 @@ func main() {
 	// 	panic(err)
 	// }
 
+	// userUsercase.CreateJoinCode(1, 3)
+
 	mockupData(userUsercase)
 
 	// team := entities.Teams{}

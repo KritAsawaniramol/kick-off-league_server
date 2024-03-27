@@ -19,6 +19,28 @@ import (
 	"kickoff-league.com/util"
 )
 
+// CreateJoinCode implements Handler.
+func (h *httpHandler) CreateJoinCode(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	number := new(struct {
+		Number int `json:"number"`
+	})
+
+	err = c.BindJSON(number)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	}
+
+	h.userUsercase.CreateJoinCode(uint(compatitionID), number.Number)
+
+	c.JSON(http.StatusOK, gin.H{"message": "CreateJoinCode success"})
+}
+
 // RemoveTeamMember implements Handler.
 func (h *httpHandler) RemoveTeamMember(c *gin.Context) {
 	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
@@ -524,26 +546,6 @@ func (h *httpHandler) UpdateNormalUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Update normalUser success"})
 }
 
-// UpdateNormalUserPhone implements UserHandler.
-// func (h *httpHandler) UpdateNormalUserPhone(c *gin.Context) {
-// 	userID, err := strconv.ParseUint(c.Param("userID"), 10, 32)
-// 	if err != nil {
-// 		log.Errorf(err.Error())
-// 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-// 		return
-// 	}
-// 	phone := c.Param("phone")
-
-// 	err = h.userUsercase.UpdateNormalUserPhone(uint(userID), phone)
-// 	if err != nil {
-// 		log.Errorf(err.Error())
-// 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"message": "Update sucsses"})
-// }
-
 // GetUserByPhone implements UserHandler.
 func (h *httpHandler) GetUsers(c *gin.Context) {
 	normalUser, err := h.userUsercase.GetUsers()
@@ -552,18 +554,6 @@ func (h *httpHandler) GetUsers(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, normalUser)
 }
-
-// GetUsers implements UserHandler.
-// func (h *httpHandler) GetUserByPhone(c *gin.Context) {
-// 	phone := c.Param("phone")
-
-// 	user, err := h.userUsercase.GetUserByPhone(phone)
-// 	if err != nil {
-// 		response(c, http.StatusBadRequest, "Bad request")
-// 	}
-
-// 	c.JSON(http.StatusOK, user)
-// }
 
 // GetUser implements UserHandler.
 func (h *httpHandler) GetUser(c *gin.Context) {
