@@ -43,6 +43,7 @@ type Handler interface {
 	GetNextMatch(c *gin.Context)
 	GetMatchResult(c *gin.Context)
 
+	CreateJoinCode(c *gin.Context)
 	StartCompatition(c *gin.Context)
 	OpenCompatition(c *gin.Context)
 	FinishCompatition(c *gin.Context)
@@ -60,4 +61,9 @@ func NewhttpHandler(userUsercase usecases.UserUsecase) Handler {
 
 type httpHandler struct {
 	userUsercase usecases.UserUsecase
+}
+
+// CreateJoinCode implements Handler.
+func (*httpHandler) CreateJoinCode(c *gin.Context) {
+	panic("unimplemented")
 }

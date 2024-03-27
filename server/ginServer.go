@@ -95,12 +95,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 	}
 
-	adminRouter := s.app.Group("/admin")
-	adminRouter.Use(auth.AuthAdmin())
-	{
-
-	}
-
 	organizerRouter := s.app.Group("/organizer")
 	organizerRouter.Use(auth.AuthOrganizer())
 	{
@@ -111,6 +105,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		organizerRouter.PUT("/compatition/finish/:id", userHttpHandler.FinishCompatition)
 		organizerRouter.PUT("/compatition/cancel/:id", userHttpHandler.CancelCompatition)
 		organizerRouter.PUT("/match/:id", userHttpHandler.UpdateMatch)
+		organizerRouter.PUT("/compatition/joinCode/create/:compatitionID", userHttpHandler.CreateJoinCode)
 	}
 
 	normalRouter := s.app.Group("/user")

@@ -1378,6 +1378,10 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 	// Sorting the array using custom sort function
 	sort.Slice(recentMatch, sortByMatchDateTime)
 
+	if len(recentMatch) > 20 {
+		recentMatch = recentMatch[:20]
+	}
+
 	normalUserProfile := &model.NormalUserProfile{
 		NormalUserInfo: model.NormalUserInfo{
 			ID:            resultNormalUser.ID,
@@ -1413,7 +1417,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			Lose:                lose,
 			Goals:               len(resultNormalUser.GoalRecords),
 			GoalsPerCompatition: goalPerCompatition,
-			RecentMatch:         recentMatch[:20],
+			RecentMatch:         recentMatch,
 		},
 	}
 	return normalUserProfile, nil
