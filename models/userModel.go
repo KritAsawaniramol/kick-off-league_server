@@ -288,7 +288,7 @@ type UpdateMatch struct {
 type JoinCode struct {
 	ID        uint      `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	Code      string    `json:"Code"`
+	Code      string    `json:"code"`
 	Status    string    `json:"status"`
 }
 
