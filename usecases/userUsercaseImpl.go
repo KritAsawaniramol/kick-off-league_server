@@ -733,7 +733,6 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 		count := 0
 
 		for i := 0; i < numOfRound; i++ {
-
 			round := numOfRound - i
 			numOfMatchInRound := int(math.Pow(2, float64(round)) / 2)
 			for j := 0; j < int(numOfMatchInRound); j++ {
@@ -748,7 +747,6 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 					}
 				}
 				if i != 0 {
-					fmt.Printf("i: %v\n", i)
 					matchs[count].NextMatchIndex = len(matchs) + 1
 					matchs[count+1].NextMatchIndex = len(matchs) + 1
 					count += 2
@@ -757,7 +755,7 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 						match.Team1ID = compatition.Teams[j*2].ID
 					}
 					if (j*2)+1 < len(compatition.Teams) {
-						match.Team1ID = compatition.Teams[(j*2)+1].ID
+						match.Team2ID = compatition.Teams[(j*2)+1].ID
 					}
 				}
 				match.Index = len(matchs) + 1
@@ -774,10 +772,14 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 		for i := 0; i < len(matchs); i++ {
 			if int(matchs[i].Team1ID) != 0 && int(matchs[i].Team1ID) <= len(compatition.Teams) {
 				matchs[i].Team1ID = compatition.Teams[matchs[i].Team1ID-1].ID
+			} else {
+				matchs[i].Team1ID = 0
 			}
 
 			if int(matchs[i].Team2ID) != 0 && int(matchs[i].Team2ID) <= len(compatition.Teams) {
 				matchs[i].Team2ID = compatition.Teams[matchs[i].Team2ID-1].ID
+			} else {
+				matchs[i].Team2ID = 0
 			}
 		}
 	} else {
@@ -809,6 +811,7 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 }
 
 func roundRobin(n int) []entities.Matchs {
+
 	matchs := []entities.Matchs{}
 	lst := make([]int, n-1)
 	for i := 0; i < len(lst); i++ {

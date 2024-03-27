@@ -235,6 +235,7 @@ func (h *httpHandler) GetMatchResult(c *gin.Context) {
 func (h *httpHandler) GetNextMatch(c *gin.Context) {
 	normalUserID, err := strconv.ParseUint(c.Param("normalUserID"), 10, 64)
 	if err != nil {
+		fmt.Println("hello world")
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
@@ -311,7 +312,6 @@ func (h *httpHandler) JoinCompatition(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
-
 }
 
 // CreateCompatition implements UserHandler.
