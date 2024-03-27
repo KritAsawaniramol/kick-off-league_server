@@ -105,7 +105,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		organizerRouter.PUT("/compatition/finish/:id", userHttpHandler.FinishCompatition)
 		organizerRouter.PUT("/compatition/cancel/:id", userHttpHandler.CancelCompatition)
 		organizerRouter.PUT("/match/:id", userHttpHandler.UpdateMatch)
-		organizerRouter.PUT("/compatition/joinCode/create/:compatitionID", userHttpHandler.AddJoinCode)
+		organizerRouter.PUT("/compatition/joinCode/add/:compatitionID", userHttpHandler.AddJoinCode)
 	}
 
 	normalRouter := s.app.Group("/user")
