@@ -21,22 +21,22 @@ import (
 
 // CreateJoinCode implements Handler.
 func (h *httpHandler) CreateJoinCode(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
+	// compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	// 	return
+	// }
 
-	number := new(struct {
-		Number int `json:"number"`
-	})
+	// number := new(struct {
+	// 	Number int `json:"number"`
+	// })
 
-	err = c.BindJSON(number)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-	}
+	// err = c.BindJSON(number)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	// }
 
-	h.userUsercase.CreateJoinCode(uint(compatitionID), number.Number)
+	// h.userUsercase.CreateJoinCode(uint(compatitionID), number.Number)
 
 	c.JSON(http.StatusOK, gin.H{"message": "CreateJoinCode success"})
 }
@@ -291,7 +291,7 @@ func (h *httpHandler) UpdateMatch(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Create match success"})
+	c.JSON(http.StatusOK, gin.H{"message": "Update match success"})
 }
 
 // UpdateCompatition implements Handler.

@@ -26,7 +26,7 @@ type userUsecaseImpl struct {
 }
 
 // CreateJoinCode implements UserUsecase.
-func (u *userUsecaseImpl) CreateJoinCode(compatitionID uint, n int) error {
+func (u *userUsecaseImpl) AddJoinCode(compatitionID uint, n int) error {
 	codes := []entities.JoinCode{}
 	for i := 0; i < n; i++ {
 		code := uuid.New().String()
@@ -551,6 +551,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 			NextMatchSlot:  v.NextMatchSlot,
 			GoalRecords:    goalRecords,
 			Result:         v.Result,
+			VideoURL:       v.VideoURL,
 		})
 	}
 

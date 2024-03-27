@@ -273,6 +273,7 @@ type Match struct {
 	NextMatchSlot  string       `json:"next_match_slot"` //Team1 or Team2
 	GoalRecords    []GoalRecord `json:"goal_records"`
 	Result         string       `json:"result"`
+	VideoURL       string       `json:"video_url"`
 }
 
 type UpdateMatch struct {

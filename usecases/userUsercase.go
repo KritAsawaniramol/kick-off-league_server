@@ -35,7 +35,7 @@ type UserUsecase interface {
 	RemoveNormalUserFormTeam(teamID uint, nomalUserID uint) error
 	CancelCompatition(id uint) error
 	UpdateCompatitionStatus(id uint, status string) error
-	CreateJoinCode(compatitionID uint, n int) error
+	AddJoinCode(compatitionID uint, n int) error
 
 	CreateTeam(in *model.CreateTeam) error
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error
