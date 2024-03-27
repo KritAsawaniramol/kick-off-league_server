@@ -44,11 +44,21 @@ func (u *userPostgresRepository) AppendGoalRecordsToMatch(id uint, goalRecords [
 	return nil
 }
 
+// UpdateJoinCode implements Userrepository.
+func (u *userPostgresRepository) UpdateJoinCode(id uint, in *entities.JoinCode) error {
+	joinCode := &entities.JoinCode{}
+	joinCode.ID = id
+	if err := u.db.Model(joinCode).Updates(in).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdateMatch implements Userrepository.
-func (h *userPostgresRepository) UpdateMatch(id uint, in *entities.Matchs) error {
+func (u *userPostgresRepository) UpdateMatch(id uint, in *entities.Matchs) error {
 	match := &entities.Matchs{}
 	match.ID = id
-	if err := h.db.Model(match).Updates(in).Error; err != nil {
+	if err := u.db.Model(match).Updates(in).Error; err != nil {
 		return err
 	}
 	return nil

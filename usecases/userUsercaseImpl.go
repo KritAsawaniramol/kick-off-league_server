@@ -274,6 +274,25 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		return errors.New("unable to join. applications isn't opening")
 	}
 
+	validCode := false
+	var joinCodeID uint
+
+	if compatition.ApplicationType == util.ApplicationType[1] {
+		if in.Code == "" {
+			return errors.New("unable to join. required code to join")
+		}
+		for i := 0; i < len(compatition.JoinCode); i++ {
+			if compatition.JoinCode[i].Code == in.Code &&
+				compatition.JoinCode[i].Status == util.JoinCodeStatus[0] {
+				validCode = true
+				joinCodeID = compatition.JoinCode[i].ID
+			}
+		}
+		if !validCode {
+			return errors.New("unable to join. join code is used")
+		}
+	}
+
 	team, err := u.userrepository.GetTeamWithAllAssociationsByID(teamEntity)
 	if err != nil {
 		return err
@@ -321,6 +340,13 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	err = u.userrepository.UpdateJoinCode(joinCodeID, &entities.JoinCode{
+		Status: util.JoinCodeStatus[1],
+	})
+	if err != nil {
+		return err
 	}
 
 	err = u.userrepository.AppendTeamtoCompatition(compatition, team)

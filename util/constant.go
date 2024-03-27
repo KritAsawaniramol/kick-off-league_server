@@ -11,7 +11,10 @@ var CompetitionStatus = []string{
 	"Started",
 	"Finished",
 	"Cancelled",
-}                                          //"Coming soon", "Applications opening", "Started", "Finished", "Cancelled"
+} //"Coming soon", "Applications opening", "Started", "Finished", "Cancelled"
+
+var ApplicationType = []string{"free", "with code"} //"free", "with code"
+
 var Sport = []string{"Football", "Futsal"} //"Football", "Futsal"
 
 var JoinCodeStatus = []string{"not used", "used"} // "not used", "used"

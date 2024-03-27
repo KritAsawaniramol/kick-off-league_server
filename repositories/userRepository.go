@@ -26,6 +26,7 @@ type Userrepository interface {
 	GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error)
 	GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error)
 	AppendJoinCodeToCompatition(id uint, joinCodes []entities.JoinCode) error
+	UpdateJoinCode(id uint, in *entities.JoinCode) error
 
 	AppendGoalRecordsToMatch(id uint, goalRecords []entities.GoalRecords) error
 	UpdateMatch(uint, *entities.Matchs) error
