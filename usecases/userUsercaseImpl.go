@@ -282,14 +282,18 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 			return errors.New("unable to join. required code to join")
 		}
 		for i := 0; i < len(compatition.JoinCode); i++ {
-			if compatition.JoinCode[i].Code == in.Code &&
-				compatition.JoinCode[i].Status == util.JoinCodeStatus[0] {
+			if compatition.JoinCode[i].Code == in.Code {
 				validCode = true
+				if compatition.JoinCode[i].Status == util.JoinCodeStatus[0] {
+					return errors.New("unable to join. join code is used")
+				}
 				joinCodeID = compatition.JoinCode[i].ID
+				break
 			}
 		}
+
 		if !validCode {
-			return errors.New("unable to join. join code is used")
+			return errors.New("unable to join. code isn't valid")
 		}
 	}
 
