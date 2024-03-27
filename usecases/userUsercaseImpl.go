@@ -1360,7 +1360,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			}
 		}
 	}
-	winRate := float64(win) / float64(totalMatch)
+	winRate := (float64(win) / float64(totalMatch)) * 100
 	goalPerCompatition := float64(len(resultNormalUser.GoalRecords)) / float64(len(resultNormalUser.Compatitions))
 
 	// Handling NaN value
