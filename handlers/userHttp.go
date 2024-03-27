@@ -20,23 +20,26 @@ import (
 )
 
 // CreateJoinCode implements Handler.
-func (h *httpHandler) CreateJoinCode(c *gin.Context) {
-	// compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-	// 	return
-	// }
+func (h *httpHandler) AddJoinCode(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
 
-	// number := new(struct {
-	// 	Number int `json:"number"`
-	// })
+	number := new(struct {
+		Number int `json:"number"`
+	})
 
-	// err = c.BindJSON(number)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-	// }
+	err = c.BindJSON(number)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	}
 
-	// h.userUsercase.CreateJoinCode(uint(compatitionID), number.Number)
+	err = h.userUsercase.AddJoinCode(uint(compatitionID), number.Number)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServer"})
+	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "CreateJoinCode success"})
 }

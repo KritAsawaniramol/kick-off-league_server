@@ -43,7 +43,7 @@ type Handler interface {
 	GetNextMatch(c *gin.Context)
 	GetMatchResult(c *gin.Context)
 
-	CreateJoinCode(c *gin.Context)
+	AddJoinCode(c *gin.Context)
 	StartCompatition(c *gin.Context)
 	OpenCompatition(c *gin.Context)
 	FinishCompatition(c *gin.Context)
