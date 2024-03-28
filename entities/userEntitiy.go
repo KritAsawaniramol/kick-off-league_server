@@ -91,16 +91,20 @@ type (
 		OwnerID      uint
 		Description  string
 		TeamsMembers []TeamsMembers
-		Compatitions []Compatitions      `gorm:"many2many:compatition_teams;"`
+		Compatitions []CompatitionsTeams
 		RequestSends []AddMemberRequests `gorm:"foreignKey:teams_id;"`
 	}
 
 	CompatitionsTeams struct {
 		gorm.Model
 		TeamsID        uint
-		Teams          Teams
+		Teams          Teams `gorm:"foreignKey:TeamsID;references:ID"`
 		CompatitionsID uint
-		Compatitions   Compatitions
+		Compatitions   Compatitions `gorm:"foreignKey:CompatitionsID;references:ID"`
+		Rank           uint
+		Point          int
+		GoalsScored    uint
+		GoalsConceded  uint
 	}
 
 	Address struct {
@@ -135,10 +139,10 @@ type (
 		Description          string
 		Rule                 string
 		Prize                string
-		ContractType         string
-		Contract             string
+		ContactType          string
+		Contact              string
 		Status               string
-		Teams                []Teams `gorm:"many2many:compatition_teams;"`
+		Teams                []CompatitionsTeams
 		NumOfPlayerInTeamMin uint
 		NumOfPlayerInTeamMax uint
 		NormalUsers          []NormalUsersCompatitions

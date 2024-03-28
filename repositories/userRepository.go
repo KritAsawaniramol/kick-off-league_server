@@ -36,7 +36,10 @@ type Userrepository interface {
 	AppendMatchToCompatition(compatition *entities.Compatitions, matchs []entities.Matchs) error
 
 	InsertNormalUserCompatition(in *entities.NormalUsersCompatitions) error
+	InsertCompatitionsTeams(in *entities.CompatitionsTeams) error
+
 	AppendTeamtoCompatition(compatition *entities.Compatitions, newTeam *entities.Teams) error
+
 	UpdateCompatition(id uint, in *entities.Compatitions) error
 	InsertCompatition(in *entities.Compatitions) error
 	InsertMatchs(in []entities.Matchs) error

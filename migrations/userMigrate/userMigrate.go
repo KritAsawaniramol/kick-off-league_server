@@ -265,8 +265,8 @@ func mockupData(u usecases.UserUsecase) {
 	// 		PostalCode:  "PostalCode ",
 	// 		Country:     "Country    ",
 	// 	},
-	// 	ContractType: "facebook",
-	// 	Contract:     "facbook URL",
+	// 	ContactType: "facebook",
+	// 	Contact:     "facbook URL",
 	// })
 	// if err != nil {
 	// 	fmt.Printf("err: %v\n", err)
@@ -283,7 +283,7 @@ func mockupData(u usecases.UserUsecase) {
 		Prize:                "Prize",
 		StartDate:            time.Now().AddDate(0, 0, -4),
 		EndDate:              time.Now(),
-		ApplicationType:      util.ApplicationType[1],
+		ApplicationType:      util.ApplicationType[0],
 		ImageBanner:          "",
 		AgeOver:              0,
 		AgeUnder:             0,
@@ -301,8 +301,8 @@ func mockupData(u usecases.UserUsecase) {
 			PostalCode:  "PostalCode ",
 			Country:     "Country    ",
 		},
-		ContractType: "facebook",
-		Contract:     "facbook URL",
+		ContactType: "facebook",
+		Contact:     "facbook URL",
 	})
 	if err != nil {
 		fmt.Printf("err: %v\n", err)

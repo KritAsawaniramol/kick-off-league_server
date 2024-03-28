@@ -124,7 +124,13 @@ func (u *userPostgresRepository) GetUsers() ([]entities.Users, error) {
 // GetCompatitionByID implements Userrepository.
 func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error) {
 	compatition := &entities.Compatitions{}
-	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.TeamsMembers").First(&compatition).Error; err != nil {
+	// if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.TeamsMembers").First(&compatition).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, errors.New("record not found")
+	// 	}
+	// 	return nil, err
+	// }
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.Teams.TeamsMembers").First(&compatition).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -148,7 +154,13 @@ func (u *userPostgresRepository) GetMatch(in *entities.Matchs) (*entities.Matchs
 // GetTeamsWithCompatitionAndMatch implements Userrepository.
 func (u *userPostgresRepository) GetTeamsWithCompatitionAndMatch(in *entities.Teams) (*entities.Teams, error) {
 	team := &entities.Teams{}
-	if err := u.db.Where(in).Preload("Compatitions").Preload("Compatitions.Matchs").First(team).Error; err != nil {
+	// if err := u.db.Where(in).Preload("Compatitions").Preload("Compatitions.Matchs").First(team).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, errors.New("record not found")
+	// 	}
+	// 	return nil, err
+	// }
+	if err := u.db.Where(in).Preload("Compatitions.Compatitions").Preload("Compatitions.Compatitions.Matchs").First(team).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -173,7 +185,13 @@ func (u *userPostgresRepository) GetMatchs(in *entities.Matchs) ([]entities.Matc
 func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error) {
 	compatitions := []entities.Compatitions{}
 	util.PrintObjInJson(in)
-	if err := u.db.Where(&in).Preload("Organizers").Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
+	// if err := u.db.Where(&in).Preload("Organizers").Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, errors.New("record not found")
+	// 	}
+	// 	return nil, err
+	// }
+	if err := u.db.Where(&in).Preload("Teams.Teams").Preload("Organizers").Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -317,6 +335,30 @@ func (u *userPostgresRepository) InsertNormalUserCompatition(in *entities.Normal
 	return nil
 }
 
+// InsertCompatitionsTeams implements Userrepository.
+func (u *userPostgresRepository) InsertCompatitionsTeams(in *entities.CompatitionsTeams) error {
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		team := &entities.Teams{}
+		team.ID = in.TeamsID
+		if err := tx.First(team).Error; err != nil {
+			return err
+		}
+		compatition := &entities.Compatitions{}
+		compatition.ID = in.CompatitionsID
+		if err := tx.First(compatition).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(in).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetTeam implements Userrepository.
 func (u *userPostgresRepository) GetTeam(in uint) (*entities.Teams, error) {
 	team := &entities.Teams{}
@@ -372,7 +414,13 @@ func (u *userPostgresRepository) UpdateAddMemberRequestStatusAndSoftDelete(inReq
 
 func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*entities.Teams, error) {
 	team := entities.Teams{}
-	if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions").First(&team, in).Error; err != nil {
+	// if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions").First(&team, in).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, errors.New("record not found")
+	// 	}
+	// 	return nil, err
+	// }
+	if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions.Compatitions").First(&team, in).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

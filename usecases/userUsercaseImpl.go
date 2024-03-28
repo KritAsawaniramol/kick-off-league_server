@@ -69,8 +69,8 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 			return nil, err
 		}
 		for _, compatition := range resultTeam.Compatitions {
-			if compatition.Status == util.CompetitionStatus[2] {
-				for _, match := range compatition.Matchs {
+			if compatition.Compatitions.Status == util.CompetitionStatus[2] {
+				for _, match := range compatition.Compatitions.Matchs {
 					if match.Team1ID == t.ID && match.Team2ID != 0 && match.Result == "" {
 						rivalTeam, err := u.userrepository.GetTeam(match.Team2ID)
 						if err != nil {
@@ -80,14 +80,14 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							RivalTeamID:      match.Team2ID,
 							RivalTeamName:    rivalTeam.Name,
 							CompatitionsID:   compatition.ID,
-							CompatitionsName: compatition.Name,
+							CompatitionsName: compatition.Compatitions.Name,
 							CompatitionsAddress: model.Address{
-								HouseNumber: compatition.HouseNumber,
-								Village:     compatition.Village,
-								Subdistrict: compatition.Subdistrict,
-								District:    compatition.District,
-								PostalCode:  compatition.PostalCode,
-								Country:     compatition.Country,
+								HouseNumber: compatition.Compatitions.HouseNumber,
+								Village:     compatition.Compatitions.Village,
+								Subdistrict: compatition.Compatitions.Subdistrict,
+								District:    compatition.Compatitions.District,
+								PostalCode:  compatition.Compatitions.PostalCode,
+								Country:     compatition.Compatitions.Country,
 							},
 							MatchID:       match.ID,
 							MatchDateTime: match.DateTime,
@@ -101,14 +101,14 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							RivalTeamID:      match.Team1ID,
 							RivalTeamName:    rivalTeam.Name,
 							CompatitionsID:   compatition.ID,
-							CompatitionsName: compatition.Name,
+							CompatitionsName: compatition.Compatitions.Name,
 							CompatitionsAddress: model.Address{
-								HouseNumber: compatition.HouseNumber,
-								Village:     compatition.Village,
-								Subdistrict: compatition.Subdistrict,
-								District:    compatition.District,
-								PostalCode:  compatition.PostalCode,
-								Country:     compatition.Country,
+								HouseNumber: compatition.Compatitions.HouseNumber,
+								Village:     compatition.Compatitions.Village,
+								Subdistrict: compatition.Compatitions.Subdistrict,
+								District:    compatition.Compatitions.District,
+								PostalCode:  compatition.Compatitions.PostalCode,
+								Country:     compatition.Compatitions.Country,
 							},
 							MatchID:       match.ID,
 							MatchDateTime: match.DateTime,
@@ -218,8 +218,8 @@ func (u *userUsecaseImpl) UpdateCompatition(id uint, in *model.UpdateCompatition
 		Description:          in.Description,
 		Rule:                 in.Rule,
 		Prize:                in.Prize,
-		ContractType:         in.ContractType,
-		Contract:             in.Contract,
+		ContactType:          in.ContactType,
+		Contact:              in.Contact,
 		AgeOver:              in.AgeOver,
 		AgeUnder:             in.AgeUnder,
 		Sex:                  in.Sex,
@@ -303,7 +303,7 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		}
 
 		for _, teamJoined := range compatition.Teams {
-			for _, teamJoinedMember := range teamJoined.TeamsMembers {
+			for _, teamJoinedMember := range teamJoined.Teams.TeamsMembers {
 				if teamJoinedMember.NormalUsersID == member.NormalUsers.ID {
 					return errors.New("unable to join. your team already has members who have entered this competition")
 				}
@@ -333,7 +333,19 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		}
 	}
 
-	err = u.userrepository.AppendTeamtoCompatition(compatition, team)
+	// err = u.userrepository.AppendTeamtoCompatition(compatition, team)
+	// if err != nil {
+	// 	return err
+	// }
+
+	err = u.userrepository.InsertCompatitionsTeams(&entities.CompatitionsTeams{
+		TeamsID:        team.ID,
+		CompatitionsID: compatition.ID,
+		Rank:           0,
+		Point:          0,
+		GoalsScored:    0,
+		GoalsConceded:  0,
+	})
 	if err != nil {
 		return err
 	}
@@ -513,7 +525,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 
 	for _, v := range result.Teams {
 		members := []model.Member{}
-		for _, member := range v.TeamsMembers {
+		for _, member := range v.Teams.TeamsMembers {
 			members = append(members, model.Member{
 				ID:            member.ID,
 				UsersID:       member.NormalUsers.UsersID,
@@ -528,9 +540,9 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 
 		temes = append(temes, model.Team{
 			ID:          v.ID,
-			Name:        v.Name,
-			OwnerID:     v.OwnerID,
-			Description: v.Description,
+			Name:        v.Teams.Name,
+			OwnerID:     v.Teams.OwnerID,
+			Description: v.Teams.Description,
 			Members:     members,
 		})
 	}
@@ -605,8 +617,8 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		Description:          result.Description,
 		Rule:                 result.Rule,
 		Prize:                result.Prize,
-		ContractType:         result.ContractType,
-		Contract:             result.Contract,
+		ContactType:          result.ContactType,
+		Contact:              result.Contact,
 		AgeOver:              result.AgeOver,
 		AgeUnder:             result.AgeUnder,
 		Sex:                  result.Sex,
@@ -651,8 +663,8 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		District:             in.Address.District,
 		PostalCode:           in.Address.PostalCode,
 		Country:              in.Address.Country,
-		ContractType:         in.ContractType,
-		Contract:             in.Contract,
+		ContactType:          in.ContactType,
+		Contact:              in.Contact,
 		Status:               "Coming soon",
 	}
 
@@ -873,8 +885,16 @@ func checkNumberPowerOfTwo(n int) int {
 	return n & (n - 1)
 }
 
-func shuffleTeam(src []entities.Teams) []entities.Teams {
-	dest := make([]entities.Teams, len(src))
+//	func shuffleTeam(src []entities.Teams) []entities.Teams {
+//		dest := make([]entities.Teams, len(src))
+//		perm := rand.Perm(len(src))
+//		for i, v := range perm {
+//			dest[v] = src[i]
+//		}
+//		return dest
+//	}
+func shuffleTeam(src []entities.CompatitionsTeams) []entities.CompatitionsTeams {
+	dest := make([]entities.CompatitionsTeams, len(src))
 	perm := rand.Perm(len(src))
 	for i, v := range perm {
 		dest[v] = src[i]
@@ -965,18 +985,18 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 	for _, v := range selectedTeams.Compatitions {
 		compatition_model = append(compatition_model, model.CompatitionBasicInfo{
 			ID:           v.ID,
-			Name:         v.Name,
-			Format:       v.Format,
-			OrganizerID:  v.OrganizersID,
-			StartDate:    v.StartDate,
-			EndDate:      v.EndDate,
-			AgeOver:      v.AgeOver,
-			AgeUnder:     v.AgeUnder,
-			Sex:          v.Sex,
-			FieldSurface: v.FieldSurface,
-			Description:  v.Description,
-			Status:       v.Status,
-			NumberOfTeam: v.NumberOfTeam,
+			Name:         v.Compatitions.Name,
+			Format:       v.Compatitions.Format,
+			OrganizerID:  v.Compatitions.OrganizersID,
+			StartDate:    v.Compatitions.StartDate,
+			EndDate:      v.Compatitions.EndDate,
+			AgeOver:      v.Compatitions.AgeOver,
+			AgeUnder:     v.Compatitions.AgeUnder,
+			Sex:          v.Compatitions.Sex,
+			FieldSurface: v.Compatitions.FieldSurface,
+			Description:  v.Compatitions.Description,
+			Status:       v.Compatitions.Status,
+			NumberOfTeam: v.Compatitions.NumberOfTeam,
 		})
 	}
 
@@ -1241,10 +1261,11 @@ func (u *userUsecaseImpl) CreateTeam(in *model.CreateTeam) error {
 	}
 
 	team := entities.Teams{
-		Name:         in.Name,
-		OwnerID:      in.OwnerID,
-		Description:  in.Description,
-		Compatitions: []entities.Compatitions{},
+		Name:        in.Name,
+		OwnerID:     in.OwnerID,
+		Description: in.Description,
+		// Compatitions: []entities.Compatitions{},
+		Compatitions: []entities.CompatitionsTeams{},
 	}
 
 	if err := u.userrepository.InsertTeam(&team); err != nil {

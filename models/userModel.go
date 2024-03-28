@@ -213,8 +213,8 @@ type GetCompatition struct {
 	Description          string         `json:"description"`
 	Rule                 string         `json:"rule"`
 	Prize                string         `json:"prize"`
-	ContractType         string         `json:"contract_type"  binding:"required"`
-	Contract             string         `json:"contract"  binding:"required"`
+	ContactType          string         `json:"Contact_type"  binding:"required"`
+	Contact              string         `json:"Contact"  binding:"required"`
 	AgeOver              uint           `json:"age_over"`
 	AgeUnder             uint           `json:"age_under"`
 	Sex                  string         `json:"sex" binding:"required"`
@@ -242,8 +242,8 @@ type UpdateCompatition struct {
 	Description          string    `json:"description"`
 	Rule                 string    `json:"rule"`
 	Prize                string    `json:"prize"`
-	ContractType         string    `json:"contract_type" `
-	Contract             string    `json:"contract" `
+	ContactType          string    `json:"Contact_type" `
+	Contact              string    `json:"Contact" `
 	AgeOver              uint      `json:"age_over"`
 	AgeUnder             uint      `json:"age_under"`
 	Sex                  string    `json:"sex"`
@@ -321,8 +321,8 @@ type CreateCompatition struct {
 	OrganizerID  uint    `json:"organizer_id"`
 	Address      Address `json:"address" binding:"required"`
 
-	ContractType string `json:"contract_type"  binding:"required"`
-	Contract     string `json:"contract"  binding:"required"`
+	ContactType string `json:"Contact_type"  binding:"required"`
+	Contact     string `json:"Contact"  binding:"required"`
 }
 
 type Address struct {
