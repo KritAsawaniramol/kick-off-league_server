@@ -16,6 +16,26 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// ClearGoalRecordsOfMatch implements Userrepository.
+func (u *userPostgresRepository) ClearGoalRecordsOfMatch(matchID uint) error {
+	match := &entities.Matchs{}
+	match.ID = matchID
+	if err := u.db.Model(match).Association("GoalRecords").Unscoped().Clear(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ReplaceGoalRecordsOfMatch implements Userrepository.
+func (u *userPostgresRepository) ReplaceGoalRecordsOfMatch(matchID uint, goalRecords []entities.GoalRecords) error {
+	match := &entities.Matchs{}
+	match.ID = matchID
+	if err := u.db.Model(match).Association("GoalRecords").Replace(goalRecords); err != nil {
+		return err
+	}
+	return nil
+}
+
 // AppendJoinCodeToCompatition implements Userrepository.
 func (u *userPostgresRepository) AppendJoinCodeToCompatition(id uint, joinCodes []entities.JoinCode) error {
 	compatition := &entities.Compatitions{}

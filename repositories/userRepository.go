@@ -28,6 +28,8 @@ type Userrepository interface {
 	AppendJoinCodeToCompatition(id uint, joinCodes []entities.JoinCode) error
 	UpdateJoinCode(id uint, in *entities.JoinCode) error
 
+	ClearGoalRecordsOfMatch(matchID uint) error
+	ReplaceGoalRecordsOfMatch(matchID uint, goalRecords []entities.GoalRecords) error
 	AppendGoalRecordsToMatch(id uint, goalRecords []entities.GoalRecords) error
 	UpdateMatch(uint, *entities.Matchs) error
 	DeleteTeamMember(nomalUserID uint, teamID uint) error

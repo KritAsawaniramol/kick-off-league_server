@@ -36,12 +36,12 @@ type User struct {
 	ImageCoverPath   string          `json:"image_cover_path"`
 }
 
-type NormalUser struct {
-	NormalUserInfo `json:"normal_user_info"`
-	Team           []Team     `json:"team"`
-	TeamCreated    []Team     `json:"team_created"`
-	GoalRecord     GoalRecord `json:"goal_record"`
-}
+// type NormalUser struct {
+// 	NormalUserInfo `json:"normal_user_info"`
+// 	Team           []Team     `json:"team"`
+// 	TeamCreated    []Team     `json:"team_created"`
+// 	GoalRecord     GoalRecord `json:"goal_record"`
+// }
 
 type NormalUserInfo struct {
 	ID            uint      `json:"id"`

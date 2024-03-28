@@ -197,11 +197,22 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		return err
 	}
 
+	err = u.userrepository.ClearGoalRecordsOfMatch(id)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return err
+	}
+
 	err = u.userrepository.AppendGoalRecordsToMatch(id, goalRecords)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		return err
 	}
+	// err = u.userrepository.ReplaceGoalRecordsOfMatch(id, goalRecords)
+	// if err != nil {
+	// 	fmt.Printf("err: %v\n", err)
+	// 	return err
+	// }
 
 	util.PrintObjInJson(match.Compatitions)
 	// if match.Compatitions.Format == util.CompetitionType[0] {

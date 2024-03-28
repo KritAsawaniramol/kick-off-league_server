@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"kickoff-league.com/config"
@@ -10,7 +9,6 @@ import (
 	model "kickoff-league.com/models"
 	"kickoff-league.com/repositories"
 	"kickoff-league.com/usecases"
-	"kickoff-league.com/util"
 )
 
 func main() {
@@ -47,6 +45,8 @@ func main() {
 	// }
 
 	// userUsercase.CreateJoinCode(1, 3)
+
+	// userPostgresRepository.ClearGoalRecordsOfMatch(1)
 
 	mockupData(userUsercase)
 
@@ -182,7 +182,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	}
 	// }
 
-	// //Create team
+	// // Create team
 	// r := 'a'
 	// nOfTeam := 4
 	// for i := 1; i <= nOfNormalUser; i += nOfNormalUser / nOfTeam {
@@ -198,7 +198,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	r++
 	// }
 
-	// // Add member to each team
+	// // // Add member to each team
 	// teamID := 1
 	// ownerID := 1
 	// for i := 1; i <= nOfNormalUser; i++ {
@@ -223,7 +223,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	u.AcceptAddMemberRequest(uint(i), uint(i))
 	// }
 
-	// // Create Organizer
+	// // // Create Organizer
 	// nOfOrg := 2
 	// for i := 0; i < nOfOrg; i++ {
 	// 	u.RegisterOrganizer(&model.RegisterOrganizer{
@@ -236,7 +236,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	})
 	// }
 
-	// Create Compatition
+	// // Create Compatition
 	// err := u.CreateCompatition(&model.CreateCompatition{
 	// 	Name:                 "Football A",
 	// 	Sport:                "Football",
@@ -273,7 +273,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	panic(err)
 	// }
 
-	// err := u.CreateCompatition(&model.CreateCompatition{
+	// err = u.CreateCompatition(&model.CreateCompatition{
 	// 	Name:                 "Football B",
 	// 	Sport:                "Futsal",
 	// 	Type:                 util.CompetitionType[0],
@@ -283,7 +283,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	Prize:                "Prize",
 	// 	StartDate:            time.Now().AddDate(0, 0, -4),
 	// 	EndDate:              time.Now(),
-	// 	ApplicationType:      util.ApplicationType[1],
+	// 	ApplicationType:      util.ApplicationType[0],
 	// 	ImageBanner:          "",
 	// 	AgeOver:              0,
 	// 	AgeUnder:             0,
@@ -309,7 +309,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	panic(err)
 	// }
 
-	// // Open Application
+	// // // Open Application
 	// err = u.OpenApplicationCompatition(1)
 	// if err != nil {
 	// 	fmt.Printf("err: %v\n", err)
@@ -321,7 +321,7 @@ func mockupData(u usecases.UserUsecase) {
 	// 	panic(err)
 	// }
 
-	// join compatition
+	// // join compatition
 	// nOfTeam -= 1
 	// for i := 1; i <= nOfTeam; i++ {
 	// 	err := u.JoinCompatition(&model.JoinCompatition{
@@ -334,10 +334,10 @@ func mockupData(u usecases.UserUsecase) {
 	// 	}
 	// }
 
-	// Start compatition
+	// // Start compatition
 	// u.StartCompatition(1)
 
-	// UpdateMatch
+	// // UpdateMatch
 	// u.UpdateMatch(1, &model.UpdateMatch{
 	// 	DateTime:   time.Now().AddDate(0, 0, -1),
 	// 	Team1Goals: 2,
@@ -352,6 +352,28 @@ func mockupData(u usecases.UserUsecase) {
 	// 	},
 	// 	Result: "Team1Win",
 	// })
+
+	u.UpdateMatch(1, &model.UpdateMatch{
+		DateTime:   time.Now().AddDate(0, 0, -1),
+		Team1Goals: 2,
+		Team2Goals: 0,
+		GoalRecords: []model.GoalRecord{
+			model.GoalRecord{
+				MatchsID:   1,
+				TeamID:     4,
+				PlayerID:   5,
+				TimeScored: 45,
+			},
+			model.GoalRecord{
+				MatchsID:   1,
+				TeamID:     4,
+				PlayerID:   5,
+				TimeScored: 50,
+			},
+		},
+		Result: "Team1Win",
+	})
+
 	// Next Matcht
 	// nextMatchs, err := u.GetNextMatch(1)
 	// if err != nil {
