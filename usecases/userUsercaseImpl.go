@@ -132,6 +132,14 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) error {
 	goalRecords := []entities.GoalRecords{}
 
+	getMatch := &entities.Matchs{}
+	getMatch.ID = id
+	match, err := u.userrepository.GetMatch(getMatch)
+	if err != nil || match == nil {
+		fmt.Printf("err: %v\n", err)
+		return err
+	}
+
 	for _, goalRecord := range updateMatch.GoalRecords {
 		goalRecords = append(goalRecords, entities.GoalRecords{
 			MatchsID:   goalRecord.MatchsID,
@@ -141,7 +149,7 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		})
 	}
 
-	err := u.userrepository.UpdateMatch(id, &entities.Matchs{
+	err = u.userrepository.UpdateMatch(id, &entities.Matchs{
 		DateTime:   updateMatch.DateTime,
 		Team1Goals: updateMatch.Team1Goals,
 		Team2Goals: updateMatch.Team2Goals,
@@ -158,14 +166,7 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		return err
 	}
 
-	getMatch := &entities.Matchs{}
-	getMatch.ID = id
-	match, err := u.userrepository.GetMatch(getMatch)
-	if err != nil || match == nil {
-		fmt.Printf("err: %v\n", err)
-		return err
-	}
-
+	// assign team to next match (if there are)
 	if match.NextMatchIndex != 0 {
 		nextMatch, err := u.userrepository.GetMatch(&entities.Matchs{Index: match.NextMatchIndex})
 		if err != nil || match == nil {
@@ -1073,6 +1074,7 @@ func (u *userUsecaseImpl) GetTeamsByOwnerID(in uint) ([]model.TeamList, error) {
 			Name:           team.Name,
 			Description:    team.Description,
 			NumberOfMember: uint(u.userrepository.GetNumberOfTeamsMember(team.ID)),
+			OwnerID:        team.OwnerID,
 		})
 	}
 	return teamList, nil

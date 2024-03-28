@@ -384,6 +384,7 @@ type TeamList struct {
 	Name           string `json:"name"`
 	Description    string `json:"description"`
 	NumberOfMember uint   `json:"number_of_member"`
+	OwnerID        uint   `json:"owner_id"`
 	// img         string
 }
 

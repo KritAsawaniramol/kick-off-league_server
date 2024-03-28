@@ -18,3 +18,9 @@ var ApplicationType = []string{"free", "with code"} //"free", "with code"
 var Sport = []string{"Football", "Futsal"} //"Football", "Futsal"
 
 var JoinCodeStatus = []string{"not used", "used"} // "not used", "used"
+
+var RoundRobinPoint = map[string]int{
+	"win":  3,
+	"draw": 1,
+	"lose": 0,
+} // "win":  3, "draw": 1, "lose": 0,
