@@ -580,11 +580,13 @@ func (h *httpHandler) GetUser(c *gin.Context) {
 	if err != nil {
 		log.Errorf(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
 	}
 	user, err := h.userUsercase.GetUser(uint(userID))
 	if err != nil {
 		log.Errorf(err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"message": "Not Found"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -598,11 +600,13 @@ func (h *httpHandler) GetNormalUser(c *gin.Context) {
 	if err != nil {
 		log.Errorf(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
 	}
 	normalUser, err := h.userUsercase.GetNormalUser(uint(normalUserID))
 	if err != nil {
 		log.Errorf(err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"message": "Not Found"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

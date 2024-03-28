@@ -208,15 +208,22 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		fmt.Printf("err: %v\n", err)
 		return err
 	}
-	// err = u.userrepository.ReplaceGoalRecordsOfMatch(id, goalRecords)
-	// if err != nil {
-	// 	fmt.Printf("err: %v\n", err)
-	// 	return err
-	// }
 
-	util.PrintObjInJson(match.Compatitions)
 	// if match.Compatitions.Format == util.CompetitionType[0] {
 	// 	if updateMatch.Result == util.MatchsResult[0] {
+	// 		round, err := strconv.Atoi(strings.Split(match.Round, " ")[1])
+	// 		if err != nil {
+	// 			return err
+	// 		}
+
+	// 		numberOfTeamInRound := int(math.Pow(float64(round), 2))
+
+	// 		LoserRank := fmt.Sprintf("")
+
+	// 		u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
+	// 			TeamsID:        match.Team2ID,
+	// 			CompatitionsID: match.CompatitionsID,
+	// 		})
 
 	// 	} else if updateMatch.Result == util.MatchsResult[1] {
 

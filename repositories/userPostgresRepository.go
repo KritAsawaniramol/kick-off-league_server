@@ -16,6 +16,14 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// UpdateCompatitionsTeams implements Userrepository.
+func (u *userPostgresRepository) UpdateCompatitionsTeams(in *entities.CompatitionsTeams) error {
+	if err := u.db.Model(in).Updates(in).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // ClearGoalRecordsOfMatch implements Userrepository.
 func (u *userPostgresRepository) ClearGoalRecordsOfMatch(matchID uint) error {
 	match := &entities.Matchs{}
