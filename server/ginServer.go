@@ -124,9 +124,9 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
 		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
-		normalRouter.DELETE("image/profile", userHttpHandler.DeleteImageProfile)
-		normalRouter.DELETE("team/:teamID", userHttpHandler.RemoveTeamMember)
-		normalRouter.PUT("compatition/join", userHttpHandler.JoinCompatition)
+		normalRouter.DELETE("/image/profile", userHttpHandler.DeleteImageProfile)
+		normalRouter.DELETE("/team/:teamID", userHttpHandler.RemoveTeamMember)
+		normalRouter.PUT("/compatition/join", userHttpHandler.JoinCompatition)
 		// normalRouter.POST("/team")
 	}
 

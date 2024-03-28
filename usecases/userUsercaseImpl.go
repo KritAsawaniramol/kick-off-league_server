@@ -275,7 +275,7 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 		for i := 0; i < len(compatition.JoinCode); i++ {
 			if compatition.JoinCode[i].Code == in.Code {
 				validCode = true
-				if compatition.JoinCode[i].Status == util.JoinCodeStatus[0] {
+				if compatition.JoinCode[i].Status == util.JoinCodeStatus[1] {
 					return errors.New("unable to join. join code is used")
 				}
 				joinCodeID = compatition.JoinCode[i].ID
