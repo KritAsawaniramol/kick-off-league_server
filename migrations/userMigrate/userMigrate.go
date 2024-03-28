@@ -276,7 +276,7 @@ func mockupData(u usecases.UserUsecase) {
 	err := u.CreateCompatition(&model.CreateCompatition{
 		Name:                 "Football B",
 		Sport:                "Futsal",
-		Type:                 util.CompetitionFormat[0],
+		Type:                 util.CompetitionType[0],
 		Format:               "5vs5",
 		Description:          "Description",
 		Rule:                 "Rule",

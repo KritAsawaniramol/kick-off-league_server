@@ -130,7 +130,7 @@ func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*ent
 	// 	}
 	// 	return nil, err
 	// }
-	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.Teams.TeamsMembers").First(&compatition).Error; err != nil {
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("JoinCode").Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.Teams.TeamsMembers").First(&compatition).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -142,7 +142,7 @@ func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*ent
 // GetMatch implements Userrepository.
 func (u *userPostgresRepository) GetMatch(in *entities.Matchs) (*entities.Matchs, error) {
 	match := &entities.Matchs{}
-	if err := u.db.Where(in).Preload("GoalRecords").First(match).Error; err != nil {
+	if err := u.db.Where(in).Preload("GoalRecords").Preload("Compatitions").First(match).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

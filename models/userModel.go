@@ -388,11 +388,11 @@ type TeamList struct {
 	// img         string
 }
 
-// type CompetitionFormat string
+// type CompetitionType string
 
 // const (
-// 	Tournament CompetitionFormat = "Tournament"
-// 	RoundRobin CompetitionFormat = "Round Robin"
+// 	Tournament CompetitionType = "Tournament"
+// 	RoundRobin CompetitionType = "Round Robin"
 // )
 
 // type FieldSurfaces string
@@ -422,5 +422,5 @@ type TeamList struct {
 
 var SexType = []string{"Male", "Female", "Unisex"}
 var FieldSurfaces = []string{"NaturalGrass", "ArtificialTurf", "FlatSurface"}
-var CompetitionFormat = []string{"Tournament", "Round Robin"}
+var CompetitionType = []string{"Tournament", "Round Robin"}
 var MatchsResult = []string{"Team1Win", "Team2Win", "Draw"}

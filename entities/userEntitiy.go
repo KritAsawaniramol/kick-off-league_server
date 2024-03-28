@@ -168,6 +168,7 @@ type (
 		gorm.Model
 		Index          int //start with 1
 		CompatitionsID uint
+		Compatitions   Compatitions
 		DateTime       time.Time
 		Team1ID        uint `gorm:"foreignKey:TeamsID"`
 		Team2ID        uint `gorm:"foreignKey:TeamsID"`

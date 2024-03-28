@@ -166,6 +166,18 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		return err
 	}
 
+	util.PrintObjInJson(match.Compatitions)
+	if match.Compatitions.Format == util.CompetitionType[0] {
+		if updateMatch.Result == util.MatchsResult[0] {
+
+		} else if updateMatch.Result == util.MatchsResult[1] {
+
+		}
+
+	} else if match.Compatitions.Format == util.CompetitionType[1] {
+
+	}
+
 	// assign team to next match (if there are)
 	if match.NextMatchIndex != 0 {
 		nextMatch, err := u.userrepository.GetMatch(&entities.Matchs{Index: match.NextMatchIndex})
