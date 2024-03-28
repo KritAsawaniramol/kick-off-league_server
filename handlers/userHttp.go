@@ -19,6 +19,22 @@ import (
 	"kickoff-league.com/util"
 )
 
+// GetMatch implements Handler.
+func (h *httpHandler) GetMatch(c *gin.Context) {
+	matchID, err := strconv.ParseUint(c.Param("matchID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	match, err := h.userUsercase.GetMatch(uint(matchID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServer"})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"match": match})
+}
+
 // CreateJoinCode implements Handler.
 func (h *httpHandler) AddJoinCode(c *gin.Context) {
 	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)

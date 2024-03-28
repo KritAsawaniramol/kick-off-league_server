@@ -25,6 +25,43 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// GetMatch implements UserUsecase.
+func (u *userUsecaseImpl) GetMatch(id uint) (*model.Match, error) {
+	getMatch := &entities.Matchs{}
+	getMatch.ID = id
+	match, err := u.userrepository.GetMatch(getMatch)
+	if err != nil {
+		return nil, err
+	}
+
+	goalRecord := []model.GoalRecord{}
+	for _, v := range match.GoalRecords {
+		goalRecord = append(goalRecord, model.GoalRecord{
+			MatchsID:   v.MatchsID,
+			TeamID:     v.TeamsID,
+			PlayerID:   v.PlayerID,
+			TimeScored: v.TimeScored,
+		})
+	}
+
+	return &model.Match{
+		ID:             match.ID,
+		Index:          match.Index,
+		CompatitionsID: match.CompatitionsID,
+		GoalRecords:    goalRecord,
+		DateTime:       match.DateTime,
+		Team1ID:        match.Team1ID,
+		Team2ID:        match.Team2ID,
+		Team1Goals:     match.Team1Goals,
+		Team2Goals:     match.Team2Goals,
+		Round:          match.Round,
+		NextMatchIndex: match.NextMatchIndex,
+		NextMatchSlot:  match.NextMatchSlot,
+		Result:         match.Result,
+		VideoURL:       match.VideoURL,
+	}, nil
+}
+
 // CreateJoinCode implements UserUsecase.
 func (u *userUsecaseImpl) AddJoinCode(compatitionID uint, n int) error {
 	codes := []entities.JoinCode{}
@@ -167,16 +204,16 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 	}
 
 	util.PrintObjInJson(match.Compatitions)
-	if match.Compatitions.Format == util.CompetitionType[0] {
-		if updateMatch.Result == util.MatchsResult[0] {
+	// if match.Compatitions.Format == util.CompetitionType[0] {
+	// 	if updateMatch.Result == util.MatchsResult[0] {
 
-		} else if updateMatch.Result == util.MatchsResult[1] {
+	// 	} else if updateMatch.Result == util.MatchsResult[1] {
 
-		}
+	// 	}
 
-	} else if match.Compatitions.Format == util.CompetitionType[1] {
+	// } else if match.Compatitions.Format == util.CompetitionType[1] {
 
-	}
+	// }
 
 	// assign team to next match (if there are)
 	if match.NextMatchIndex != 0 {

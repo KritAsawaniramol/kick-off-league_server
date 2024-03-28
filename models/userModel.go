@@ -264,6 +264,7 @@ type RecentMatch struct {
 type Match struct {
 	ID             uint         `json:"id"`
 	Index          int          `json:"index"`
+	CompatitionsID uint         `json:"compatition_id"`
 	DateTime       time.Time    `json:"date_time"`
 	Team1ID        uint         `json:"team1_id"`
 	Team2ID        uint         `json:"team2_id"`
