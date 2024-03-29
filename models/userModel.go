@@ -145,12 +145,17 @@ type CreateTeam struct {
 }
 
 type Team struct {
-	ID           uint                   `json:"id"`
-	Name         string                 `json:"name" binding:"required"`
-	OwnerID      uint                   `json:"owner_id" binding:"required"`
-	Description  string                 `json:"description"`
-	Members      []Member               `json:"member"`
-	Compatitions []CompatitionBasicInfo `json:"compatitions,omitempty"`
+	ID            uint                   `json:"id"`
+	Name          string                 `json:"name" binding:"required"`
+	OwnerID       uint                   `json:"owner_id" binding:"required"`
+	Description   string                 `json:"description"`
+	Members       []Member               `json:"member"`
+	Compatitions  []CompatitionBasicInfo `json:"compatitions,omitempty"`
+	Rank          string                 `json:"rank"`
+	RankNumber    int                    `json:"rank_number"`
+	Point         int                    `json:"point"`
+	GoalsScored   int                    `json:"goals_scored"`
+	GoalsConceded int                    `json:"goals_conceded"`
 }
 
 type CompatitionBasicInfo struct {
@@ -283,7 +288,8 @@ type UpdateMatch struct {
 	Team1Goals  int          `json:"team1_goals"`
 	Team2Goals  int          `json:"team2_goals"`
 	GoalRecords []GoalRecord `json:"goal_records"`
-	Result      string       `json:"result"  binding:"required"`
+	VideoURL    string       `json:"video_url"`
+	Result      string       `json:"result"`
 }
 
 type JoinCode struct {

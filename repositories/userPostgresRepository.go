@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kickoff-league.com/entities"
-	"kickoff-league.com/util"
 )
 
 type userPostgresRepository struct {
@@ -18,7 +17,12 @@ type userPostgresRepository struct {
 
 // UpdateCompatitionsTeams implements Userrepository.
 func (u *userPostgresRepository) UpdateCompatitionsTeams(in *entities.CompatitionsTeams) error {
-	if err := u.db.Model(in).Updates(in).Error; err != nil {
+	compatitionTeam := &entities.CompatitionsTeams{
+		TeamsID:        in.TeamsID,
+		CompatitionsID: in.CompatitionsID,
+	}
+
+	if err := u.db.Where(compatitionTeam).Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
@@ -86,7 +90,7 @@ func (u *userPostgresRepository) UpdateJoinCode(id uint, in *entities.JoinCode) 
 func (u *userPostgresRepository) UpdateMatch(id uint, in *entities.Matchs) error {
 	match := &entities.Matchs{}
 	match.ID = id
-	if err := u.db.Where(match).Updates(in).Error; err != nil {
+	if err := u.db.Where(match).Select("*").Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
@@ -212,7 +216,6 @@ func (u *userPostgresRepository) GetMatchs(in *entities.Matchs) ([]entities.Matc
 // GetCompatitions implements Userrepository.
 func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error) {
 	compatitions := []entities.Compatitions{}
-	util.PrintObjInJson(in)
 	// if err := u.db.Where(&in).Preload("Organizers").Order(clause.OrderByColumn{Column: clause.Column{Name: orderString}, Desc: decs}).Offset(offset).Limit(limit).Find(&compatitions).Error; err != nil {
 	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
 	// 		return nil, errors.New("record not found")
@@ -454,7 +457,6 @@ func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*
 		}
 		return nil, err
 	}
-	util.PrintObjInJson(team)
 	return &team, nil
 }
 
@@ -493,7 +495,6 @@ func (u *userPostgresRepository) UpdateAddMemberRequestStatusByID(inID uint, inS
 
 // InsertAddMemberRequest implements Userrepository.
 func (u *userPostgresRepository) InsertAddMemberRequest(in *entities.AddMemberRequests) error {
-	util.PrintObjInJson(in)
 	result := u.db.Create(in)
 
 	if result.Error != nil {
@@ -523,7 +524,6 @@ func (u *userPostgresRepository) InsertTeam(in *entities.Teams) error {
 
 // InserrtCompatition implements Userrepository.
 func (u *userPostgresRepository) InsertCompatition(in *entities.Compatitions) error {
-	util.PrintObjInJson(in)
 	if err := u.db.Create(in).Error; err != nil {
 		return err
 	}
@@ -539,13 +539,11 @@ func (u *userPostgresRepository) InsertUserWihtOrganizerAndAddress(in_organizer 
 
 		address := &entities.Addresses{}
 		fmt.Println("address before: ")
-		util.PrintObjInJson(address)
 
 		if err := tx.Create(address).Error; err != nil {
 			return err
 		}
 		fmt.Println("address after: ")
-		util.PrintObjInJson(address)
 
 		in_organizer.UsersID = in_user.ID
 		in_organizer.AddressesID = address.ID

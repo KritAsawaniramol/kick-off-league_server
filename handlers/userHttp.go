@@ -209,8 +209,6 @@ func (*httpHandler) UploadImage(c *gin.Context) {
 		return
 	}
 
-	util.PrintObjInJson(in)
-
 	// generate new uuid for image name
 	uniqueID := uuid.New()
 
@@ -472,7 +470,6 @@ func (h *httpHandler) GetTeams(c *gin.Context) {
 	// 	return
 	// }
 
-	util.PrintObjInJson(reqBody)
 	teams, err := h.userUsercase.GetTeams(reqBody)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})

@@ -101,10 +101,9 @@ type (
 		Teams          Teams `gorm:"foreignKey:TeamsID;references:ID"`
 		CompatitionsID uint
 		Compatitions   Compatitions `gorm:"foreignKey:CompatitionsID;references:ID"`
-		Rank           uint
+		Rank           string
+		RankNumber     int
 		Point          int
-		GoalsScored    uint
-		GoalsConceded  uint
 	}
 
 	Address struct {
