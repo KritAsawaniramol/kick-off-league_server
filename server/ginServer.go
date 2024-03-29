@@ -88,7 +88,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 		viewRouter.GET("/normalUsers", userHttpHandler.GetNormalUsers)
 		viewRouter.GET("/normalUsers/:id", userHttpHandler.GetNormalUser)
-		viewRouter.GET("/organizer")
 
 		viewRouter.GET("/compatition", userHttpHandler.GetCompatitions)
 		viewRouter.GET("/compatition/:id", userHttpHandler.GetCompatition)
