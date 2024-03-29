@@ -1808,6 +1808,15 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 	if len(recentMatch) > 20 {
 		recentMatch = recentMatch[:20]
 	}
+	teamJoined := []model.Team{}
+	for _, team := range resultNormalUser.Teams {
+		teamJoined = append(teamJoined, model.Team{
+			ID:          team.Teams.ID,
+			Name:        team.Teams.Name,
+			OwnerID:     team.Teams.OwnerID,
+			Description: team.Teams.Description,
+		})
+	}
 
 	normalUserProfile := &model.NormalUserProfile{
 		NormalUserInfo: model.NormalUserInfo{
@@ -1825,6 +1834,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			Position:      resultNormalUser.Position,
 			Nationality:   resultNormalUser.Nationality,
 			Description:   resultNormalUser.Description,
+
 			Address: model.Address{
 				HouseNumber: resultNormalUser.Addresses.HouseNumber,
 				Village:     resultNormalUser.Addresses.Village,
@@ -1834,6 +1844,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 				Country:     resultNormalUser.Addresses.Country,
 			},
 		},
+
 		UserID:           resultUser.ID,
 		ImageProfilePath: resultUser.ImageProfilePath,
 		ImageCoverPath:   resultUser.ImageCoverPath,
@@ -1846,6 +1857,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 			GoalsPerCompatition: goalPerCompatition,
 			RecentMatch:         recentMatch,
 		},
+		TeamJoined: teamJoined,
 	}
 	return normalUserProfile, nil
 }

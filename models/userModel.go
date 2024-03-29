@@ -84,6 +84,7 @@ type NormalUserProfile struct {
 	UserID           uint   `json:"user_id"`
 	ImageProfilePath string `json:"image_profile_path"`
 	ImageCoverPath   string `json:"image_cover_path"`
+	TeamJoined       []Team
 	NormalUserStat   `json:"normal_user_stat"`
 }
 
