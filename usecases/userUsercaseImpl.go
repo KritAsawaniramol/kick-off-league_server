@@ -1628,7 +1628,9 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 					if err.Error() != "record not found" {
 						return nil, err
 					} else {
-						vsTeam.Name = ""
+						vsTeam = &entities.Teams{
+							Name: "",
+						}
 					}
 				}
 				recentMatch = append(recentMatch, model.RecentMatch{
@@ -1653,7 +1655,9 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 					if err.Error() != "record not found" {
 						return nil, err
 					} else {
-						vsTeam.Name = ""
+						vsTeam = &entities.Teams{
+							Name: "",
+						}
 					}
 				}
 				recentMatch = append(recentMatch, model.RecentMatch{
