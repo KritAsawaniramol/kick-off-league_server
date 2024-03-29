@@ -273,6 +273,8 @@ type Match struct {
 	DateTime       time.Time    `json:"date_time"`
 	Team1ID        uint         `json:"team1_id"`
 	Team2ID        uint         `json:"team2_id"`
+	Team1Name      string       `json:"team1_name"`
+	Team2Name      string       `json:"team2_name"`
 	Team1Goals     int          `json:"team1_goals"`
 	Team2Goals     int          `json:"team2_goals"`
 	Round          string       `json:"round"`

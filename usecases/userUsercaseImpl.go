@@ -34,6 +34,14 @@ func (u *userUsecaseImpl) GetMatch(id uint) (*model.Match, error) {
 	if err != nil {
 		return nil, err
 	}
+	team1, err := u.userrepository.GetTeam(match.Team1ID)
+	if err != nil {
+		return nil, err
+	}
+	team2, err := u.userrepository.GetTeam(match.Team2ID)
+	if err != nil {
+		return nil, err
+	}
 
 	goalRecord := []model.GoalRecord{}
 	for _, v := range match.GoalRecords {
@@ -53,6 +61,8 @@ func (u *userUsecaseImpl) GetMatch(id uint) (*model.Match, error) {
 		DateTime:       match.DateTime,
 		Team1ID:        match.Team1ID,
 		Team2ID:        match.Team2ID,
+		Team1Name:      team1.Name,
+		Team2Name:      team2.Name,
 		Team1Goals:     match.Team1Goals,
 		Team2Goals:     match.Team2Goals,
 		Round:          match.Round,
@@ -1636,7 +1646,11 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 				}
 				vsTeam, err := u.userrepository.GetTeam(match.Team1ID)
 				if err != nil {
-					return nil, err
+					if err.Error() != "record not found" {
+						return nil, err
+					} else {
+						vsTeam.Name = ""
+					}
 				}
 				recentMatch = append(recentMatch, model.RecentMatch{
 					ID:             match.ID,
