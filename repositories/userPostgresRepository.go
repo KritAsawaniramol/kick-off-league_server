@@ -90,7 +90,7 @@ func (u *userPostgresRepository) UpdateJoinCode(id uint, in *entities.JoinCode) 
 func (u *userPostgresRepository) UpdateOrganizer(id uint, in *entities.Organizers) error {
 	org := &entities.Organizers{}
 	org.ID = id
-	if err := u.db.Where(org).Select("*").Updates(in).Error; err != nil {
+	if err := u.db.Where(org).Select("*").Session(&gorm.Session{FullSaveAssociations: true}).Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
@@ -100,7 +100,7 @@ func (u *userPostgresRepository) UpdateOrganizer(id uint, in *entities.Organizer
 func (u *userPostgresRepository) UpdateMatch(id uint, in *entities.Matchs) error {
 	match := &entities.Matchs{}
 	match.ID = id
-	if err := u.db.Where(match).Select("*").Session(&gorm.Session{FullSaveAssociations: true}).Updates(in).Error; err != nil {
+	if err := u.db.Where(match).Select("*").Updates(in).Error; err != nil {
 		return err
 	}
 	return nil
