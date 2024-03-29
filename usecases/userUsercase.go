@@ -44,6 +44,7 @@ type UserUsecase interface {
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error
 	AcceptAddMemberRequest(inReqID uint, userID uint) error
 	IgnoreAddMemberRequest(inReqID uint, userID uint) error
+	UpdateOrganizer(orgID uint, in *model.UpdateOrganizer) error
 	UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error // OrganizerRegister(in *model.)
 	UpdateUser(in *model.User) error
 	// GetUserByPhone(in string) (model.NormalUser, error)

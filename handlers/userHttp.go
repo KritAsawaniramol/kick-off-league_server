@@ -30,6 +30,7 @@ func (h *httpHandler) GetMatch(c *gin.Context) {
 	match, err := h.userUsercase.GetMatch(uint(matchID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServer"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"match": match})
@@ -50,11 +51,13 @@ func (h *httpHandler) AddJoinCode(c *gin.Context) {
 	err = c.BindJSON(number)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
 	}
 
 	err = h.userUsercase.AddJoinCode(uint(compatitionID), number.Number)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServer"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "CreateJoinCode success"})
@@ -90,6 +93,7 @@ func (h *httpHandler) GetNormalUsers(c *gin.Context) {
 	normalUserList, err := h.userUsercase.GetNormalUserList()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, normalUserList)
 
@@ -100,6 +104,7 @@ func (h *httpHandler) DeleteImageProfile(c *gin.Context) {
 	normalUserID := c.GetUint("normal_user_id")
 	if err := h.userUsercase.RemoveImageProfile(normalUserID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
 }
@@ -139,6 +144,7 @@ func (h *httpHandler) UpdateImageCover(c *gin.Context) {
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 
 	if err := h.userUsercase.UpdateImageCover(userID, imagePath); err != nil {
@@ -172,6 +178,7 @@ func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 
 	if err := h.userUsercase.UpdateImageProfile(userID, imagePath); err != nil {
@@ -220,6 +227,7 @@ func (*httpHandler) UploadImage(c *gin.Context) {
 
 	if err := c.SaveUploadedFile(in, "./images/"+image); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "file upload complete!"})
 }
@@ -339,6 +347,7 @@ func (h *httpHandler) JoinCompatition(c *gin.Context) {
 	joinModel := &model.JoinCompatition{}
 	if err := c.BindJSON(joinModel); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
 	}
 	err := h.userUsercase.JoinCompatition(joinModel)
 	if err != nil {
@@ -429,6 +438,7 @@ func (h *httpHandler) GetMyPenddingAddMemberRequest(c *gin.Context) {
 	addMemberRequests, err := h.userUsercase.GetMyPenddingAddMemberRequest(c.GetUint("user_id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"add_member_requests": addMemberRequests})
 }
@@ -438,6 +448,7 @@ func (h *httpHandler) GetTeam(c *gin.Context) {
 	teamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
 	}
 	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(teamID))
 	if err != nil {
@@ -452,6 +463,7 @@ func (h *httpHandler) GetTeamByOwnerID(c *gin.Context) {
 	teamID, err := strconv.ParseUint(c.Param("ownerid"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
 	}
 	teams, err := h.userUsercase.GetTeamsByOwnerID(uint(teamID))
 	if err != nil {
@@ -511,6 +523,7 @@ func (h *httpHandler) IgnoreAddMemberRequest(c *gin.Context) {
 
 	if err := h.userUsercase.IgnoreAddMemberRequest(reqBody.ReqID, c.GetUint("user_id")); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "IgnoreAddMemberRequest success"})
@@ -567,6 +580,7 @@ func (h *httpHandler) GetUsers(c *gin.Context) {
 	normalUser, err := h.userUsercase.GetUsers()
 	if err != nil {
 		response(c, http.StatusBadRequest, "Bad request")
+		return
 	}
 	c.JSON(http.StatusOK, normalUser)
 }
@@ -624,6 +638,7 @@ func (h *httpHandler) CancelCompatition(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
 }
@@ -641,6 +656,7 @@ func (h *httpHandler) FinishCompatition(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "finish com"})
 }
@@ -658,6 +674,7 @@ func (h *httpHandler) OpenCompatition(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "open application for compatition success"})
 }
@@ -675,6 +692,7 @@ func (h *httpHandler) StartCompatition(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Update compatition status to \"Started\" success"})
 }
@@ -692,6 +710,7 @@ func (h *httpHandler) GetOrganizer(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"organizer": org})
@@ -703,6 +722,33 @@ func (h *httpHandler) GetOrganizers(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"organizer": org})
+}
+
+// UpdateOrganizer implements Handler.
+func (h *httpHandler) UpdateOrganizer(c *gin.Context) {
+	organizerID, err := strconv.ParseUint(c.Param("organizerID"), 10, 32)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	updateOrganizer := &model.UpdateOrganizer{}
+
+	err = c.BindJSON(updateOrganizer)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	err = h.userUsercase.UpdateOrganizer(uint(organizerID), updateOrganizer)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "UpdateOrganizer success"})
 }

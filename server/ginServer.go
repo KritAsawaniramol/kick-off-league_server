@@ -96,6 +96,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 		viewRouter.GET("/organizer", userHttpHandler.GetOrganizers)
 		viewRouter.GET("/organizer/:organizerID", userHttpHandler.GetOrganizer)
+		viewRouter.PUT("/organizer/:organizerID", userHttpHandler.UpdateOrganizer)
 	}
 
 	organizerRouter := s.app.Group("/organizer")

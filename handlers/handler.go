@@ -52,6 +52,7 @@ type Handler interface {
 	RemoveTeamMember(c *gin.Context)
 	GetOrganizers(c *gin.Context)
 	GetOrganizer(c *gin.Context)
+	UpdateOrganizer(c *gin.Context)
 	// GetUserByPhone(c *gin.Context)
 }
 

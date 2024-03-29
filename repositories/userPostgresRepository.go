@@ -86,6 +86,16 @@ func (u *userPostgresRepository) UpdateJoinCode(id uint, in *entities.JoinCode) 
 	return nil
 }
 
+// UpdateOrganizer implements Userrepository.
+func (u *userPostgresRepository) UpdateOrganizer(id uint, in *entities.Organizers) error {
+	org := &entities.Organizers{}
+	org.ID = id
+	if err := u.db.Where(org).Select("*").Updates(in).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdateMatch implements Userrepository.
 func (u *userPostgresRepository) UpdateMatch(id uint, in *entities.Matchs) error {
 	match := &entities.Matchs{}

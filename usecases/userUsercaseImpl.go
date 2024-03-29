@@ -26,6 +26,31 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// UpdateOrganizer implements UserUsecase.
+func (u *userUsecaseImpl) UpdateOrganizer(orgID uint, in *model.UpdateOrganizer) error {
+	getOrg := &entities.Organizers{}
+	getOrg.ID = orgID
+	org, err := u.userrepository.GetOrganizer(getOrg)
+	if err != nil {
+		return err
+	}
+	org.Name = in.Name
+	org.Phone = in.Phone
+	org.Description = in.Description
+	org.Addresses.HouseNumber = in.Address.HouseNumber
+	org.Addresses.Village = in.Address.Village
+	org.Addresses.Subdistrict = in.Address.Subdistrict
+	org.Addresses.District = in.Address.District
+	org.Addresses.PostalCode = in.Address.PostalCode
+	org.Addresses.Country = in.Address.Country
+
+	err = u.userrepository.UpdateOrganizer(orgID, org)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetOrganizers implements UserUsecase.
 func (u *userUsecaseImpl) GetOrganizers() ([]model.OrganizersInfo, error) {
 	org, err := u.userrepository.GetOrganizers()
