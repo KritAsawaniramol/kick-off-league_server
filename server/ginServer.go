@@ -96,7 +96,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 		viewRouter.GET("/organizer", userHttpHandler.GetOrganizers)
 		viewRouter.GET("/organizer/:organizerID", userHttpHandler.GetOrganizer)
-		viewRouter.PUT("/organizer/:organizerID", userHttpHandler.UpdateOrganizer)
 	}
 
 	organizerRouter := s.app.Group("/organizer")
@@ -110,6 +109,8 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		organizerRouter.PUT("/compatition/cancel/:id", userHttpHandler.CancelCompatition)
 		organizerRouter.PUT("/match/:id", userHttpHandler.UpdateMatch)
 		organizerRouter.PUT("/compatition/joinCode/add/:compatitionID", userHttpHandler.AddJoinCode)
+		organizerRouter.PUT("/organizer/:organizerID", userHttpHandler.UpdateOrganizer)
+
 	}
 
 	normalRouter := s.app.Group("/user")
