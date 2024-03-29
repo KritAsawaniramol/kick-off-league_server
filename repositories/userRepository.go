@@ -22,6 +22,7 @@ type Userrepository interface {
 	GetTeamMembersByTeamID(in uint, orderString string, decs bool, limit int, offset int) ([]entities.TeamsMembers, error)
 	GetOrganizerWithAddressByUserID(in uint) (*entities.Organizers, error)
 	GetOrganizer(*entities.Organizers) (*entities.Organizers, error)
+	GetOrganizers() ([]entities.Organizers, error)
 	GetAddMemberRequestByID(in *entities.AddMemberRequests) ([]entities.AddMemberRequests, error)
 	GetCompatitions(in *entities.Compatitions, orderString string, decs bool, limit int, offset int) ([]entities.Compatitions, error)
 	GetCompatition(in *entities.Compatitions) (*entities.Compatitions, error)

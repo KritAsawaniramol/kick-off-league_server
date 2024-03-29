@@ -50,7 +50,8 @@ type Handler interface {
 	FinishCompatition(c *gin.Context)
 	CancelCompatition(c *gin.Context)
 	RemoveTeamMember(c *gin.Context)
-
+	GetOrganizers(c *gin.Context)
+	GetOrganizer(c *gin.Context)
 	// GetUserByPhone(c *gin.Context)
 }
 

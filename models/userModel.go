@@ -14,6 +14,17 @@ type OrganizersInfo struct {
 	ImageCoverPath   string  `json:"image_cover_path"`
 }
 
+type GetOrganizer struct {
+	ID               uint              `json:"id"`
+	Name             string            `json:"name"`
+	Phone            string            `json:"phone"`
+	Description      string            `json:"description"`
+	Address          Address           `json:"address"`
+	ImageProfilePath string            `json:"image_profile_path"`
+	ImageCoverPath   string            `json:"image_cover_path"`
+	Compatition      []GetCompatitions `json:"compatiton"`
+}
+
 // type MyNormalUser struct {
 // 	NormalUser
 // }

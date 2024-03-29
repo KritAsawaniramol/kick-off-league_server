@@ -35,7 +35,6 @@ type (
 		AddressesID      uint `gorm:"unique"`
 		Addresses        Addresses
 		Compatitions     []Compatitions
-		ImageURL         string
 		ImageProfilePath string
 		ImageCoverPath   string
 	}

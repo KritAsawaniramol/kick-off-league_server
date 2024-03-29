@@ -15,6 +15,18 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// GetOrganizers implements Userrepository.
+func (u *userPostgresRepository) GetOrganizers() ([]entities.Organizers, error) {
+	org := []entities.Organizers{}
+	if err := u.db.Preload("Addresses").Find(org).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return org, nil
+}
+
 // UpdateCompatitionsTeams implements Userrepository.
 func (u *userPostgresRepository) UpdateCompatitionsTeams(in *entities.CompatitionsTeams) error {
 	compatitionTeam := &entities.CompatitionsTeams{
@@ -258,7 +270,7 @@ func (u *userPostgresRepository) GetTeams(in *entities.Teams, orderString string
 // GetOrganizer implements Userrepository.
 func (u *userPostgresRepository) GetOrganizer(in *entities.Organizers) (*entities.Organizers, error) {
 	org := new(entities.Organizers)
-	if err := u.db.Where(in).First(org).Error; err != nil {
+	if err := u.db.Where(in).Preload("Addresses").Preload("Compatitions").First(org).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

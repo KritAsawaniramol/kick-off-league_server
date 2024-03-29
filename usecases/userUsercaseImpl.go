@@ -26,6 +26,97 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// GetOrganizers implements UserUsecase.
+func (u *userUsecaseImpl) GetOrganizers() ([]model.OrganizersInfo, error) {
+	org, err := u.userrepository.GetOrganizers()
+	if err != nil {
+		if err.Error() != "record not found" {
+			return nil, err
+		} else {
+			return nil, nil
+		}
+	}
+	orgModel := []model.OrganizersInfo{}
+
+	for _, v := range org {
+		orgModel = append(orgModel, model.OrganizersInfo{
+			ID:          v.ID,
+			Name:        v.Name,
+			Phone:       v.Phone,
+			Description: v.Description,
+			Address: model.Address{
+				HouseNumber: v.Addresses.HouseNumber,
+				Village:     v.Addresses.Village,
+				Subdistrict: v.Addresses.Subdistrict,
+				District:    v.Addresses.District,
+				PostalCode:  v.Addresses.PostalCode,
+				Country:     v.Addresses.Country,
+			},
+			ImageProfilePath: v.ImageProfilePath,
+			ImageCoverPath:   v.ImageCoverPath,
+		})
+	}
+
+	return orgModel, err
+}
+
+// GetOrganizer implements UserUsecase.
+func (u *userUsecaseImpl) GetOrganizer(id uint) (*model.GetOrganizer, error) {
+	getOrganizer := &entities.Organizers{}
+	getOrganizer.ID = id
+	org, err := u.userrepository.GetOrganizer(getOrganizer)
+	if err != nil {
+		if err.Error() != "record not found" {
+			return nil, err
+		} else {
+			return nil, nil
+		}
+	}
+	getCompatitions := []model.GetCompatitions{}
+	for _, v := range org.Compatitions {
+		getCompatitions = append(getCompatitions, model.GetCompatitions{
+			ID:     v.ID,
+			Name:   v.Name,
+			Sport:  v.Sport,
+			Format: v.Format,
+			Address: model.Address{
+				HouseNumber: v.HouseNumber,
+				Village:     v.Village,
+				Subdistrict: v.Subdistrict,
+				District:    v.District,
+				PostalCode:  v.PostalCode,
+				Country:     v.Country,
+			},
+			Status:          v.Status,
+			ApplicationType: v.ApplicationType,
+			Sex:             v.Sex,
+			StartDate:       v.StartDate,
+			EndDate:         v.EndDate,
+			OrganizerID:     org.ID,
+			OrganizerName:   org.Name,
+			AgeOver:         v.AgeOver,
+			AgeUnder:        v.AgeUnder,
+		})
+	}
+	return &model.GetOrganizer{
+		ID:          org.ID,
+		Name:        org.Name,
+		Phone:       org.Phone,
+		Description: org.Description,
+		Address: model.Address{
+			HouseNumber: org.Addresses.HouseNumber,
+			Village:     org.Addresses.Village,
+			Subdistrict: org.Addresses.Subdistrict,
+			District:    org.Addresses.District,
+			PostalCode:  org.Addresses.PostalCode,
+			Country:     org.Addresses.Country,
+		},
+		ImageProfilePath: org.ImageProfilePath,
+		ImageCoverPath:   org.ImageCoverPath,
+		Compatition:      getCompatitions,
+	}, nil
+}
+
 // GetMatch implements UserUsecase.
 func (u *userUsecaseImpl) GetMatch(id uint) (*model.Match, error) {
 	getMatch := &entities.Matchs{}

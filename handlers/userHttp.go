@@ -678,3 +678,31 @@ func (h *httpHandler) StartCompatition(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Update compatition status to \"Started\" success"})
 }
+
+// GetOrganizer implements Handler.
+func (h *httpHandler) GetOrganizer(c *gin.Context) {
+	organizerID, err := strconv.ParseUint(c.Param("organizerID"), 10, 32)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	org, err := h.userUsercase.GetOrganizer(uint(organizerID))
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"organizer": org})
+}
+
+// GetOrganizers implements Handler.
+func (h *httpHandler) GetOrganizers(c *gin.Context) {
+	org, err := h.userUsercase.GetOrganizers()
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+	}
+	c.JSON(http.StatusOK, gin.H{"organizer": org})
+}

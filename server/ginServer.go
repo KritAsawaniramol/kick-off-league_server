@@ -94,6 +94,9 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		viewRouter.GET("/compatition/:id", userHttpHandler.GetCompatition)
 
 		viewRouter.GET("/match/:matchID", userHttpHandler.GetMatch)
+
+		viewRouter.GET("/organizer", userHttpHandler.GetOrganizers)
+		viewRouter.GET("/organizer/:organizerID", userHttpHandler.GetOrganizer)
 	}
 
 	organizerRouter := s.app.Group("/organizer")

@@ -37,6 +37,9 @@ type UserUsecase interface {
 	AddJoinCode(compatitionID uint, n int) error
 	GetMatch(id uint) (*model.Match, error)
 
+	GetOrganizer(id uint) (*model.GetOrganizer, error)
+	GetOrganizers() ([]model.OrganizersInfo, error)
+
 	CreateTeam(in *model.CreateTeam) error
 	SendAddMemberRequest(in *model.AddMemberRequest, userID uint) error
 	AcceptAddMemberRequest(inReqID uint, userID uint) error
