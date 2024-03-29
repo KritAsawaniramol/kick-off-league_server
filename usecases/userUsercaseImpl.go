@@ -1625,7 +1625,11 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 				}
 				vsTeam, err := u.userrepository.GetTeam(match.Team2ID)
 				if err != nil {
-					return nil, err
+					if err.Error() != "record not found" {
+						return nil, err
+					} else {
+						vsTeam.Name = ""
+					}
 				}
 				recentMatch = append(recentMatch, model.RecentMatch{
 					ID:             match.ID,
