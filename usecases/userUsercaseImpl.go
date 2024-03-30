@@ -1810,11 +1810,26 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 	}
 	teamJoined := []model.Team{}
 	for _, team := range resultNormalUser.Teams {
+		members := []model.Member{}
+		for _, member := range v.Teams.TeamsMembers {
+			members = append(members, model.Member{
+				ID:            member.ID,
+				UsersID:       member.NormalUsers.UsersID,
+				FirstNameThai: member.NormalUsers.FirstNameThai,
+				LastNameThai:  member.NormalUsers.LastNameThai,
+				FirstNameEng:  member.NormalUsers.FirstNameEng,
+				LastNameEng:   member.NormalUsers.LastNameEng,
+				Position:      member.NormalUsers.Position,
+				Sex:           member.NormalUsers.Sex,
+			})
+		}
+
 		teamJoined = append(teamJoined, model.Team{
 			ID:          team.Teams.ID,
 			Name:        team.Teams.Name,
 			OwnerID:     team.Teams.OwnerID,
 			Description: team.Teams.Description,
+			Members:     members,
 		})
 	}
 
