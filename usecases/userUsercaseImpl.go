@@ -1811,7 +1811,7 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 	teamJoined := []model.Team{}
 	for _, team := range resultNormalUser.Teams {
 		members := []model.Member{}
-		for _, member := range v.Teams.TeamsMembers {
+		for _, member := range team.Teams.TeamsMembers {
 			members = append(members, model.Member{
 				ID:            member.ID,
 				UsersID:       member.NormalUsers.UsersID,
