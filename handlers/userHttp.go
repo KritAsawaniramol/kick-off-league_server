@@ -99,10 +99,143 @@ func (h *httpHandler) GetNormalUsers(c *gin.Context) {
 
 }
 
+// DeleteTeamImageProfile implements Handler.
+func (h *httpHandler) DeleteTeamImageProfile(c *gin.Context) {
+	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+	if err := h.userUsercase.RemoveTeamImageProfile(uint(teamID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveTeamImageProfile fail"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "RemoveTeamImageProfile successs"})
+}
+
+// DeleteTeamImageCover implements Handler.
+func (h *httpHandler) DeleteTeamImageCover(c *gin.Context) {
+	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+	if err := h.userUsercase.RemoveTeamImageCover(uint(teamID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "DeleteTeamImageCover fail"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "DeleteTeamImageCover successs"})
+}
+
+// UpdateTeamImageCover implements Handler.
+func (h *httpHandler) UpdateTeamImageCover(c *gin.Context) {
+	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageCover fail"})
+		return
+	}
+
+	in, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageCover fail"})
+		return
+	}
+
+	// extract image extension from original file filename
+	isImage, fileExt := isImage(in)
+	if !isImage {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
+		return
+	}
+
+	imagePath := createImagePath(fileExt, "./images/cover")
+
+	if err := c.SaveUploadedFile(in, imagePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageCover fail"})
+		return
+	}
+
+	if err := h.userUsercase.UpdateTeamImageCover(uint(teamID), imagePath); err != nil {
+		if err := os.Remove(imagePath); err != nil {
+			fmt.Printf("Error removing file: %s\n", err)
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageCover fail"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "UpdateTeamImageCover success"})
+}
+
+// UpdateTeamImageProfile implements Handler.
+func (h *httpHandler) UpdateTeamImageProfile(c *gin.Context) {
+	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageProfile fail"})
+		return
+	}
+
+	in, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageProfile fail"})
+		return
+	}
+
+	// extract image extension from original file filename
+	isImage, fileExt := isImage(in)
+	if !isImage {
+		fmt.Println("error: is not image")
+
+		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
+		return
+	}
+
+	imagePath := createImagePath(fileExt, "./images/profile")
+
+	if err := c.SaveUploadedFile(in, imagePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageProfile fail"})
+		return
+	}
+
+	if err := h.userUsercase.UpdateTeamImageProfile(uint(teamID), imagePath); err != nil {
+		log.Errorf(err.Error())
+		if err := os.Remove(imagePath); err != nil {
+			fmt.Printf("Error removing file: %s\n", err)
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageProfile fail"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "UpdateTeamImageProfile success"})
+
+}
+
+// DeleteImageBanner implements Handler.
+func (h *httpHandler) DeleteImageBanner(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "RemoveImageBanner fail"})
+		return
+	}
+
+	if err := h.userUsercase.RemoveImageBanner(uint(compatitionID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveImageBanner fail"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageBanner successs"})
+}
+
+// DeleteImageCover implements Handler.
+func (h *httpHandler) DeleteImageCover(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	if err := h.userUsercase.RemoveImageProfile(userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
+}
+
 // DeleteImageProfile implements UserHandler.
 func (h *httpHandler) DeleteImageProfile(c *gin.Context) {
-	normalUserID := c.GetUint("normal_user_id")
-	if err := h.userUsercase.RemoveImageProfile(normalUserID); err != nil {
+	userID := c.GetUint("user_id")
+	if err := h.userUsercase.RemoveImageProfile(userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
@@ -121,6 +254,43 @@ func createImagePath(fileExt string, dst string) string {
 
 	imagePath := fmt.Sprintf("%s/%s", dst, image)
 	return imagePath
+}
+
+// UpdateImageBanner implements Handler.
+func (h *httpHandler) UpdateImageBanner(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	in, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest (image)"})
+		return
+	}
+
+	// extract image extension from original file filename
+	isImage, fileExt := isImage(in)
+	if !isImage {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
+		return
+	}
+
+	imagePath := createImagePath(fileExt, "./images/banner")
+
+	if err := c.SaveUploadedFile(in, imagePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateImageBanner fail"})
+		return
+	}
+	if err := h.userUsercase.UpdateImageBanner(uint(compatitionID), imagePath); err != nil {
+		if err := os.Remove(imagePath); err != nil {
+			fmt.Printf("Error removing file: %s\n", err)
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateImageBanner fail"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageBanner success"})
 }
 
 // UpdateImageCover implements UserHandler.
@@ -190,14 +360,6 @@ func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
 		return
 	}
 
-	// if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
-	// 	log.Errorf(err.Error())
-	// 	if err := os.Remove(imagePath); err != nil {
-	// 		fmt.Printf("Error removing file: %s\n", err)
-	// 	}
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-	// 	return
-	// }
 	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
 }
 

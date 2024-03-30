@@ -14,7 +14,6 @@ type UserUsecase interface {
 	// GetNormalUser(in uint) (model.NormalUser, error)
 	// GetTeam(in uint) (model.NormalUser, error)
 
-	RemoveImageProfile(normalUserID uint) error
 	GetMyPenddingAddMemberRequest(userID uint) ([]model.AddMemberRequest, error)
 	GetTeamMembers(id uint) (*model.Team, error)
 	GetTeamWithMemberAndCompatitionByID(id uint) (*model.Team, error)
@@ -46,9 +45,17 @@ type UserUsecase interface {
 	IgnoreAddMemberRequest(inReqID uint, userID uint) error
 	UpdateOrganizer(orgID uint, in *model.UpdateOrganizer) error
 	UpdateNormalUser(inUpdateModel *model.UpdateNormalUser, inNormalUserID uint) error // OrganizerRegister(in *model.)
-	UpdateUser(in *model.User) error
 	// GetUserByPhone(in string) (model.NormalUser, error)
 	UpdateNormalUserPhone(inUserID uint, newPhone string) error
 	UpdateImageCover(userID uint, newImagePath string) error
 	UpdateImageProfile(userID uint, newImagePath string) error
+	UpdateImageBanner(compatitionID uint, newImagePath string) error
+	UpdateTeamImageCover(teamID uint, newImagePath string) error
+	UpdateTeamImageProfile(teamID uint, newImagePath string) error
+
+	RemoveImageBanner(compatitionID uint) error
+	RemoveImageProfile(userID uint) error
+	RemoveImageCover(userID uint) error
+	RemoveTeamImageProfile(teamID uint) error
+	RemoveTeamImageCover(teamID uint) error
 }

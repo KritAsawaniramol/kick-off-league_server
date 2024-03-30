@@ -172,7 +172,7 @@ func (u *userPostgresRepository) GetCompatition(in *entities.Compatitions) (*ent
 	// 	}
 	// 	return nil, err
 	// }
-	if err := u.db.Where(&in).Preload(clause.Associations).Preload("JoinCode").Preload("Organizers.Addresses").Preload("Matchs.GoalRecords").Preload("Teams.Teams.TeamsMembers").First(&compatition).Error; err != nil {
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("JoinCode").Preload("Organizers.Addresses").Preload("Organizers.Users").Preload("Matchs.GoalRecords").Preload("Teams.Teams.TeamsMembers").First(&compatition).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -241,22 +241,10 @@ func (u *userPostgresRepository) GetCompatitions(in *entities.Compatitions, orde
 	return compatitions, nil
 }
 
-// GetOrganizers implements Userrepository.
-func (u *userPostgresRepository) GetOrganizers() ([]entities.Organizers, error) {
-	org := []entities.Organizers{}
-	if err := u.db.Where(&entities.Organizers{}).Preload("Addresses").Find(&org).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("record not found")
-		}
-		return nil, err
-	}
-	return org, nil
-}
-
 // GetNormalUsers implements Userrepository.
 func (u *userPostgresRepository) GetNormalUsers(in *entities.NormalUsers) ([]entities.NormalUsers, error) {
 	normalUsers := []entities.NormalUsers{}
-	if err := u.db.Where(&in).Find(&normalUsers).Error; err != nil {
+	if err := u.db.Where(&in).Preload("Users").Find(&normalUsers).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -277,10 +265,22 @@ func (u *userPostgresRepository) GetTeams(in *entities.Teams, orderString string
 	return teams, nil
 }
 
+// GetOrganizers implements Userrepository.
+func (u *userPostgresRepository) GetOrganizers() ([]entities.Organizers, error) {
+	org := []entities.Organizers{}
+	if err := u.db.Where(&entities.Organizers{}).Preload("Addresses").Preload("Users").Find(&org).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return org, nil
+}
+
 // GetOrganizer implements Userrepository.
 func (u *userPostgresRepository) GetOrganizer(in *entities.Organizers) (*entities.Organizers, error) {
 	org := new(entities.Organizers)
-	if err := u.db.Where(in).Preload("Addresses").Preload("Compatitions").First(org).Error; err != nil {
+	if err := u.db.Where(in).Preload("Addresses").Preload("Compatitions").Preload("Users").First(org).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}
@@ -467,13 +467,7 @@ func (u *userPostgresRepository) UpdateAddMemberRequestStatusAndSoftDelete(inReq
 
 func (u *userPostgresRepository) GetTeamWithMemberAndCompatitionByID(in uint) (*entities.Teams, error) {
 	team := entities.Teams{}
-	// if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions").First(&team, in).Error; err != nil {
-	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
-	// 		return nil, errors.New("record not found")
-	// 	}
-	// 	return nil, err
-	// }
-	if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("Compatitions.Compatitions").First(&team, in).Error; err != nil {
+	if err := u.db.Preload("TeamsMembers.NormalUsers").Preload("TeamsMembers.NormalUsers.Users").Preload("Compatitions.Compatitions").First(&team, in).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

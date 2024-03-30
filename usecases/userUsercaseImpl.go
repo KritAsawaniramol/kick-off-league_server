@@ -61,8 +61,8 @@ func (u *userUsecaseImpl) GetOrganizers() ([]model.OrganizersInfo, error) {
 			return nil, nil
 		}
 	}
-	orgModel := []model.OrganizersInfo{}
 
+	orgModel := []model.OrganizersInfo{}
 	for _, v := range org {
 		orgModel = append(orgModel, model.OrganizersInfo{
 			ID:          v.ID,
@@ -77,8 +77,8 @@ func (u *userUsecaseImpl) GetOrganizers() ([]model.OrganizersInfo, error) {
 				PostalCode:  v.Addresses.PostalCode,
 				Country:     v.Addresses.Country,
 			},
-			ImageProfilePath: v.ImageProfilePath,
-			ImageCoverPath:   v.ImageCoverPath,
+			ImageProfilePath: v.Users.ImageProfilePath,
+			ImageCoverPath:   v.Users.ImageCoverPath,
 		})
 	}
 
@@ -121,6 +121,7 @@ func (u *userUsecaseImpl) GetOrganizer(id uint) (*model.GetOrganizer, error) {
 			OrganizerName:   org.Name,
 			AgeOver:         v.AgeOver,
 			AgeUnder:        v.AgeUnder,
+			ImageBanner:     v.ImageBannerPath,
 		})
 	}
 	return &model.GetOrganizer{
@@ -136,8 +137,8 @@ func (u *userUsecaseImpl) GetOrganizer(id uint) (*model.GetOrganizer, error) {
 			PostalCode:  org.Addresses.PostalCode,
 			Country:     org.Addresses.Country,
 		},
-		ImageProfilePath: org.ImageProfilePath,
-		ImageCoverPath:   org.ImageCoverPath,
+		ImageProfilePath: org.Users.ImageProfilePath,
+		ImageCoverPath:   org.Users.ImageCoverPath,
 		Compatition:      getCompatitions,
 	}, nil
 }
@@ -241,10 +242,12 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							return nil, err
 						}
 						nextMatchs = append(nextMatchs, model.NextMatch{
-							RivalTeamID:      match.Team2ID,
-							RivalTeamName:    rivalTeam.Name,
-							CompatitionsID:   compatition.ID,
-							CompatitionsName: compatition.Compatitions.Name,
+							RivalTeamID:           match.Team2ID,
+							RivalTeamName:         rivalTeam.Name,
+							RivalTeamImageProfile: rivalTeam.ImageProfilePath,
+							RivalTeamImageCover:   rivalTeam.ImageCoverPath,
+							CompatitionsID:        compatition.ID,
+							CompatitionsName:      compatition.Compatitions.Name,
 							CompatitionsAddress: model.Address{
 								HouseNumber: compatition.Compatitions.HouseNumber,
 								Village:     compatition.Compatitions.Village,
@@ -262,10 +265,12 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							return nil, err
 						}
 						nextMatchs = append(nextMatchs, model.NextMatch{
-							RivalTeamID:      match.Team1ID,
-							RivalTeamName:    rivalTeam.Name,
-							CompatitionsID:   compatition.ID,
-							CompatitionsName: compatition.Compatitions.Name,
+							RivalTeamID:           match.Team1ID,
+							RivalTeamName:         rivalTeam.Name,
+							RivalTeamImageProfile: rivalTeam.ImageProfilePath,
+							RivalTeamImageCover:   rivalTeam.ImageCoverPath,
+							CompatitionsID:        compatition.ID,
+							CompatitionsName:      compatition.Compatitions.Name,
 							CompatitionsAddress: model.Address{
 								HouseNumber: compatition.Compatitions.HouseNumber,
 								Village:     compatition.Compatitions.Village,
@@ -533,7 +538,6 @@ func (u *userUsecaseImpl) UpdateCompatition(id uint, in *model.UpdateCompatition
 		District:             in.Address.District,
 		PostalCode:           in.Address.PostalCode,
 		Country:              in.Address.Country,
-		ImageBanner:          in.ImageBanner,
 		StartDate:            in.StartDate,
 		EndDate:              in.EndDate,
 		Description:          in.Description,
@@ -698,33 +702,60 @@ func (u *userUsecaseImpl) GetNormalUserList() ([]model.NormalUserList, error) {
 	normalUserList := []model.NormalUserList{}
 	for _, v := range normalUsers_entity {
 		normalUserList = append(normalUserList, model.NormalUserList{
-			ID:            v.ID,
-			FirstNameThai: v.FirstNameThai,
-			LastNameThai:  v.LastNameThai,
-			FirstNameEng:  v.FirstNameEng,
-			LastNameEng:   v.LastNameEng,
-			Born:          v.Born,
-			Height:        v.Height,
-			Weight:        v.Weight,
-			Sex:           v.Sex,
-			Position:      v.Position,
-			Nationality:   v.Nationality,
-			Description:   v.Description,
+			ID:               v.ID,
+			FirstNameThai:    v.FirstNameThai,
+			LastNameThai:     v.LastNameThai,
+			FirstNameEng:     v.FirstNameEng,
+			LastNameEng:      v.LastNameEng,
+			Born:             v.Born,
+			Height:           v.Height,
+			Weight:           v.Weight,
+			Sex:              v.Sex,
+			Position:         v.Position,
+			Nationality:      v.Nationality,
+			Description:      v.Description,
+			ImageProfilePath: v.Users.ImageProfilePath,
+			ImageCoverPath:   v.Users.ImageCoverPath,
 		})
 	}
 	return normalUserList, nil
 }
 
-// UpdateUser implements UserUsecase.
-func (*userUsecaseImpl) UpdateUser(in *model.User) error {
-	panic("unimplemented")
+// UpdateTeamImageCover implements UserUsecase.
+func (u *userUsecaseImpl) UpdateTeamImageCover(teamID uint, newImagePath string) error {
+	team := &entities.Compatitions{}
+	team.ID = teamID
+	if err := u.userrepository.UpdateSelectedFields(team, "ImageCoverPath", &entities.Teams{ImageCoverPath: newImagePath}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateTeamImageProfile implements UserUsecase.
+func (u *userUsecaseImpl) UpdateTeamImageProfile(teamID uint, newImagePath string) error {
+	team := &entities.Compatitions{}
+	team.ID = teamID
+	if err := u.userrepository.UpdateSelectedFields(team, "ImageProfilePath", &entities.Teams{ImageProfilePath: newImagePath}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateImageBanner implements UserUsecase.
+func (u *userUsecaseImpl) UpdateImageBanner(compatitionID uint, newImagePath string) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = compatitionID
+	if err := u.userrepository.UpdateSelectedFields(compatition, "ImageBannerPath", &entities.Compatitions{ImageBannerPath: newImagePath}); err != nil {
+		return err
+	}
+	return nil
 }
 
 // RemoveImageProfile implements UserUsecase.
 func (u *userUsecaseImpl) UpdateImageProfile(userID uint, newImagePath string) error {
 	user := &entities.Users{}
 	user.ID = userID
-	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: newImagePath}); err != nil {
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.Users{ImageProfilePath: newImagePath}); err != nil {
 		return err
 	}
 	return nil
@@ -734,7 +765,7 @@ func (u *userUsecaseImpl) UpdateImageProfile(userID uint, newImagePath string) e
 func (u *userUsecaseImpl) UpdateImageCover(userID uint, newImagePath string) error {
 	user := &entities.Users{}
 	user.ID = userID
-	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: newImagePath}); err != nil {
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageCoverPath", &entities.Users{ImageCoverPath: newImagePath}); err != nil {
 		return err
 	}
 	return nil
@@ -744,7 +775,7 @@ func (u *userUsecaseImpl) UpdateImageCover(userID uint, newImagePath string) err
 func (u *userUsecaseImpl) RemoveImageProfile(userID uint) error {
 	user := &entities.Users{}
 	user.ID = userID
-	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.NormalUsers{ImageProfilePath: "./images/default/defaultProfile.jpg"}); err != nil {
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.Users{ImageProfilePath: "./images/default/defaultProfile.jpg"}); err != nil {
 		return err
 	}
 	return nil
@@ -754,7 +785,36 @@ func (u *userUsecaseImpl) RemoveImageProfile(userID uint) error {
 func (u *userUsecaseImpl) RemoveImageCover(userID uint) error {
 	user := &entities.Users{}
 	user.ID = userID
-	if err := u.userrepository.UpdateSelectedFields(user, "ImageCoverPath", &entities.NormalUsers{ImageCoverPath: "./images/default/defaultCover.jpg"}); err != nil {
+	if err := u.userrepository.UpdateSelectedFields(user, "ImageCoverPath", &entities.Users{ImageCoverPath: "./images/default/defaultCover.jpg"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// RemoveTeamImageCover implements UserUsecase.
+func (u *userUsecaseImpl) RemoveTeamImageCover(teamID uint) error {
+	team := &entities.Teams{}
+	team.ID = teamID
+	if err := u.userrepository.UpdateSelectedFields(team, "ImageCoverPath", &entities.Teams{ImageCoverPath: "./images/default/defaultCover.jpg"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// RemoveTeamImageProfile implements UserUsecase.
+func (u *userUsecaseImpl) RemoveTeamImageProfile(teamID uint) error {
+	team := &entities.Teams{}
+	team.ID = teamID
+	if err := u.userrepository.UpdateSelectedFields(team, "ImageProfilePath", &entities.Users{ImageProfilePath: "./images/default/defaultProfile.jpg"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *userUsecaseImpl) RemoveImageBanner(compatitionID uint) error {
+	compatition := &entities.Compatitions{}
+	compatition.ID = compatitionID
+	if err := u.userrepository.UpdateSelectedFields(compatition, "ImageProfilePath", &entities.Compatitions{ImageBannerPath: "./images/default/defaultCover.jpg"}); err != nil {
 		return err
 	}
 	return nil
@@ -813,6 +873,7 @@ func (u *userUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model
 			ApplicationType: v.ApplicationType,
 			AgeOver:         v.AgeOver,
 			AgeUnder:        v.AgeUnder,
+			ImageBanner:     v.ImageBannerPath,
 		})
 	}
 	return compatitionsModel, nil
@@ -875,14 +936,16 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		}
 
 		temes = append(temes, model.Team{
-			ID:          v.ID,
-			Name:        v.Teams.Name,
-			OwnerID:     v.Teams.OwnerID,
-			Description: v.Teams.Description,
-			Members:     members,
-			Rank:        v.Rank,
-			RankNumber:  v.RankNumber,
-			Point:       v.Point,
+			ID:               v.ID,
+			Name:             v.Teams.Name,
+			OwnerID:          v.Teams.OwnerID,
+			Description:      v.Teams.Description,
+			Members:          members,
+			Rank:             v.Rank,
+			RankNumber:       v.RankNumber,
+			Point:            v.Point,
+			ImageProfilePath: v.Teams.ImageProfilePath,
+			ImageCoverPath:   v.Teams.ImageCoverPath,
 		})
 		goalsScored[v.TeamsID] = 0
 		goalsConceded[v.TeamsID] = 0
@@ -956,8 +1019,8 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 				PostalCode:  result.Organizers.Addresses.PostalCode,
 				Country:     result.Organizers.Addresses.Country,
 			},
-			ImageProfilePath: result.Organizers.ImageProfilePath,
-			ImageCoverPath:   result.Organizers.ImageCoverPath,
+			ImageProfilePath: result.Organizers.Users.ImageProfilePath,
+			ImageCoverPath:   result.Organizers.Users.ImageCoverPath,
 		},
 		FieldSurface:    string(result.FieldSurface),
 		ApplicationType: result.ApplicationType,
@@ -969,7 +1032,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 			PostalCode:  result.PostalCode,
 			Country:     result.Country,
 		},
-		ImageBanner:          result.ImageBanner,
+		ImageBanner:          result.ImageBannerPath,
 		StartDate:            result.StartDate,
 		EndDate:              result.EndDate,
 		JoinCode:             joinCode,
@@ -1007,7 +1070,7 @@ func (u *userUsecaseImpl) CreateCompatition(in *model.CreateCompatition) error {
 		StartDate:            in.StartDate,
 		EndDate:              in.EndDate,
 		ApplicationType:      in.ApplicationType,
-		ImageBanner:          in.ImageBanner,
+		ImageBannerPath:      "./images/default/defaultBanner.png",
 		AgeOver:              in.AgeOver,
 		AgeUnder:             in.AgeUnder,
 		Sex:                  in.Sex,
@@ -1291,11 +1354,12 @@ func (u *userUsecaseImpl) GetMyPenddingAddMemberRequest(userID uint) ([]model.Ad
 	addMemberRequestModelList := []model.AddMemberRequest{}
 	for _, v := range addMemberRequestList {
 		addMemberRequestModelList = append(addMemberRequestModelList, model.AddMemberRequest{
-			ID:       v.ID,
-			TeamID:   v.TeamsID,
-			TeamName: v.Teams.Name,
-			Role:     v.Role,
-			Status:   v.Status,
+			ID:               v.ID,
+			TeamID:           v.TeamsID,
+			TeamName:         v.Teams.Name,
+			TeamImageProfile: v.Teams.ImageProfilePath,
+			Role:             v.Role,
+			Status:           v.Status,
 		})
 	}
 
@@ -1326,15 +1390,17 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 	memberList := []model.Member{}
 	for _, member := range selectedTeams.TeamsMembers {
 		memberList = append(memberList, model.Member{
-			ID:            member.NormalUsers.ID,
-			UsersID:       member.NormalUsers.UsersID,
-			FirstNameThai: member.NormalUsers.FirstNameThai,
-			LastNameThai:  member.NormalUsers.LastNameThai,
-			FirstNameEng:  member.NormalUsers.FirstNameEng,
-			LastNameEng:   member.NormalUsers.LastNameEng,
-			Position:      member.NormalUsers.Position,
-			Sex:           member.NormalUsers.Sex,
-			Role:          member.Role,
+			ID:               member.NormalUsers.ID,
+			UsersID:          member.NormalUsers.UsersID,
+			FirstNameThai:    member.NormalUsers.FirstNameThai,
+			LastNameThai:     member.NormalUsers.LastNameThai,
+			FirstNameEng:     member.NormalUsers.FirstNameEng,
+			LastNameEng:      member.NormalUsers.LastNameEng,
+			Position:         member.NormalUsers.Position,
+			Sex:              member.NormalUsers.Sex,
+			Role:             member.Role,
+			ImageProfilePath: member.NormalUsers.Users.ImageProfilePath,
+			ImageCoverPath:   member.NormalUsers.Users.ImageCoverPath,
 		})
 	}
 
@@ -1355,6 +1421,7 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 			Description:  v.Compatitions.Description,
 			Status:       v.Compatitions.Status,
 			NumberOfTeam: v.Compatitions.NumberOfTeam,
+			ImageBanner:  v.Compatitions.ImageBannerPath,
 		})
 	}
 
@@ -1399,13 +1466,14 @@ func (u *userUsecaseImpl) GetTeams(in *model.GetTeamsReq) ([]model.TeamList, err
 	teamList := []model.TeamList{}
 	for _, team := range teams {
 		teamList = append(teamList, model.TeamList{
-			ID:             team.ID,
-			Name:           team.Name,
-			Description:    team.Description,
-			NumberOfMember: uint(u.userrepository.GetNumberOfTeamsMember(team.ID)),
+			ID:               team.ID,
+			Name:             team.Name,
+			Description:      team.Description,
+			NumberOfMember:   uint(u.userrepository.GetNumberOfTeamsMember(team.ID)),
+			ImageProfilePath: team.ImageProfilePath,
+			ImageCoverPath:   team.ImageCoverPath,
 		})
 	}
-
 	return teamList, nil
 }
 
@@ -1425,11 +1493,13 @@ func (u *userUsecaseImpl) GetTeamsByOwnerID(in uint) ([]model.TeamList, error) {
 	teamList := []model.TeamList{}
 	for _, team := range teams {
 		teamList = append(teamList, model.TeamList{
-			ID:             team.ID,
-			Name:           team.Name,
-			Description:    team.Description,
-			NumberOfMember: uint(u.userrepository.GetNumberOfTeamsMember(team.ID)),
-			OwnerID:        team.OwnerID,
+			ID:               team.ID,
+			Name:             team.Name,
+			Description:      team.Description,
+			NumberOfMember:   uint(u.userrepository.GetNumberOfTeamsMember(team.ID)),
+			OwnerID:          team.OwnerID,
+			ImageProfilePath: team.ImageProfilePath,
+			ImageCoverPath:   team.ImageCoverPath,
 		})
 	}
 	return teamList, nil
@@ -1616,11 +1686,12 @@ func (u *userUsecaseImpl) CreateTeam(in *model.CreateTeam) error {
 	}
 
 	team := entities.Teams{
-		Name:        in.Name,
-		OwnerID:     in.OwnerID,
-		Description: in.Description,
-		// Compatitions: []entities.Compatitions{},
-		Compatitions: []entities.CompatitionsTeams{},
+		Name:             in.Name,
+		OwnerID:          in.OwnerID,
+		Description:      in.Description,
+		Compatitions:     []entities.CompatitionsTeams{},
+		ImageProfilePath: "./images/default/defaultProfile.jpg",
+		ImageCoverPath:   "./images/default/defaultCover.jpg",
 	}
 
 	if err := u.userrepository.InsertTeam(&team); err != nil {
@@ -1683,11 +1754,11 @@ func (u *userUsecaseImpl) Login(in *model.LoginUser) (string, model.LoginRespons
 		if err != nil {
 			return "", model.LoginResponse{}, err
 		}
-		if normalUser.ImageProfilePath != "" {
-			normalUser.ImageProfilePath = normalUser.ImageProfilePath[1:]
+		if user.ImageProfilePath != "" {
+			user.ImageProfilePath = user.ImageProfilePath[1:]
 		}
-		if normalUser.ImageCoverPath != "" {
-			normalUser.ImageCoverPath = normalUser.ImageCoverPath[1:]
+		if user.ImageCoverPath != "" {
+			user.ImageCoverPath = user.ImageCoverPath[1:]
 		}
 		loginResponse.NormalUserID = normalUser.ID
 		claims["normal_user_id"] = normalUser.ID
@@ -1886,10 +1957,9 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 	}
 
 	userModel := model.User{
-		ID:    user.ID,
-		Email: user.Email,
-		Role:  user.Role,
-
+		ID:               user.ID,
+		Email:            user.Email,
+		Role:             user.Role,
 		ImageProfilePath: user.ImageProfilePath,
 		ImageCoverPath:   user.ImageCoverPath,
 	}
@@ -1945,7 +2015,6 @@ func (u *userUsecaseImpl) GetUser(in uint) (model.User, error) {
 				Country:     organizer.Addresses.Country,
 			},
 		}
-		// userModel.NormalUserInfo = model.NormalUserInfo{}
 
 	}
 	return userModel, nil
@@ -2063,7 +2132,6 @@ func (u *userUsecaseImpl) GetUsers() ([]model.User, error) {
 	users_model := []model.User{}
 	for _, e := range users_entity {
 		m := model.User{
-			NormalUserInfo:   &model.NormalUserInfo{},
 			ID:               e.ID,
 			Email:            e.Email,
 			Role:             e.Role,

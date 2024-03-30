@@ -28,42 +28,40 @@ type (
 
 	Organizers struct {
 		gorm.Model
-		UsersID          uint `gorm:"unique;not null"`
-		Name             string
-		Phone            string `gorm:"unique;not null"`
-		Description      string
-		AddressesID      uint `gorm:"unique"`
-		Addresses        Addresses
-		Compatitions     []Compatitions
-		ImageProfilePath string
-		ImageCoverPath   string
+		UsersID      uint `gorm:"unique;not null"`
+		Users        Users
+		Name         string
+		Phone        string `gorm:"unique;not null"`
+		Description  string
+		AddressesID  uint `gorm:"unique"`
+		Addresses    Addresses
+		Compatitions []Compatitions
 	}
 
 	NormalUsers struct {
 		gorm.Model
-		UsersID          uint   `gorm:"unique;not null"`
-		Username         string `gorm:"unique;not null"`
-		FirstNameThai    string
-		LastNameThai     string
-		FirstNameEng     string
-		LastNameEng      string
-		Born             time.Time
-		Height           uint
-		Weight           uint
-		Sex              string
-		Position         string
-		Nationality      string
-		Description      string
-		Phone            string
-		AddressesID      uint `gorm:"unique"`
-		Addresses        Addresses
-		Teams            []TeamsMembers
-		TeamsCreated     []Teams       `gorm:"foreignKey:OwnerID;references:users_id"`
-		GoalRecords      []GoalRecords `gorm:"foreignKey:PlayerID"`
-		Compatitions     []NormalUsersCompatitions
-		RequestReceives  []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
-		ImageProfilePath string
-		ImageCoverPath   string
+		UsersID         uint `gorm:"unique;not null"`
+		Users           Users
+		Username        string `gorm:"unique;not null"`
+		FirstNameThai   string
+		LastNameThai    string
+		FirstNameEng    string
+		LastNameEng     string
+		Born            time.Time
+		Height          uint
+		Weight          uint
+		Sex             string
+		Position        string
+		Nationality     string
+		Description     string
+		Phone           string
+		AddressesID     uint `gorm:"unique"`
+		Addresses       Addresses
+		Teams           []TeamsMembers
+		TeamsCreated    []Teams       `gorm:"foreignKey:OwnerID;references:users_id"`
+		GoalRecords     []GoalRecords `gorm:"foreignKey:PlayerID"`
+		Compatitions    []NormalUsersCompatitions
+		RequestReceives []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
 	}
 
 	TeamsMembers struct {
@@ -86,12 +84,14 @@ type (
 
 	Teams struct {
 		gorm.Model
-		Name         string
-		OwnerID      uint
-		Description  string
-		TeamsMembers []TeamsMembers
-		Compatitions []CompatitionsTeams
-		RequestSends []AddMemberRequests `gorm:"foreignKey:teams_id;"`
+		Name             string
+		OwnerID          uint
+		Description      string
+		TeamsMembers     []TeamsMembers
+		Compatitions     []CompatitionsTeams
+		RequestSends     []AddMemberRequests `gorm:"foreignKey:teams_id;"`
+		ImageProfilePath string
+		ImageCoverPath   string
 	}
 
 	CompatitionsTeams struct {
@@ -130,7 +130,6 @@ type (
 		District             string
 		PostalCode           string
 		Country              string
-		ImageBanner          string
 		StartDate            time.Time
 		EndDate              time.Time
 		JoinCode             []JoinCode
@@ -153,6 +152,8 @@ type (
 		NumOfRound   int
 		NumOfMatch   int
 		Matchs       []Matchs
+
+		ImageBannerPath string
 	}
 
 	JoinCode struct {

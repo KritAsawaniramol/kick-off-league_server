@@ -24,11 +24,21 @@ type Handler interface {
 	// uploadImage(c *gin.Context)
 	// UpdateNormalUserPhone(c *gin.Context)
 	DeleteImageProfile(c *gin.Context)
+	DeleteImageCover(c *gin.Context)
+	DeleteImageBanner(c *gin.Context)
+
+	DeleteTeamImageCover(c *gin.Context)
+	DeleteTeamImageProfile(c *gin.Context)
+	UpdateTeamImageCover(c *gin.Context)
+	UpdateTeamImageProfile(c *gin.Context)
+
 	UpdateImageCover(c *gin.Context)
 	UpdateImageProfile(c *gin.Context)
-	UploadImage(c *gin.Context)
-	CreateTeam(c *gin.Context)
+	UpdateImageBanner(c *gin.Context)
 
+	UploadImage(c *gin.Context)
+
+	CreateTeam(c *gin.Context)
 	CreateCompatition(c *gin.Context)
 	GetCompatition(c *gin.Context)
 	GetCompatitions(c *gin.Context)

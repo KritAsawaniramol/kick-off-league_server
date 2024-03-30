@@ -104,7 +104,15 @@ func (s *ginServer) initialzieUserHttpHandler() {
 	{
 		imageRouter.PUT("/profile", userHttpHandler.UpdateImageProfile)
 		imageRouter.PUT("/cover", userHttpHandler.UpdateImageCover)
-		// imageRouter.DELETE("/image/profile", userHttpHandler.DeleteImageProfile)
+		imageRouter.PUT("/banner/:compatitionID", userHttpHandler.UpdateImageBanner)
+		imageRouter.DELETE("/profile", userHttpHandler.DeleteImageProfile)
+		imageRouter.DELETE("/cover", userHttpHandler.DeleteImageCover)
+		imageRouter.DELETE("/banner/:compatitionID", userHttpHandler.DeleteImageBanner)
+
+		imageRouter.PUT("/team/profile/:teamID", userHttpHandler.UpdateTeamImageProfile)
+		imageRouter.PUT("/team/cover/:teamID", userHttpHandler.UpdateTeamImageCover)
+		imageRouter.DELETE("/team/profile/:teamID", userHttpHandler.DeleteTeamImageProfile)
+		imageRouter.DELETE("/team/cover/:teamID", userHttpHandler.DeleteTeamImageCover)
 	}
 
 	organizerRouter := s.app.Group("/organizer")

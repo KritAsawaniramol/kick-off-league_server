@@ -99,28 +99,32 @@ type NormalUserStat struct {
 }
 
 type NormalUserList struct {
-	ID            uint      `json:"id"`
-	FirstNameThai string    `json:"first_name_thai"`
-	LastNameThai  string    `json:"last_name_thai"`
-	FirstNameEng  string    `json:"first_name_eng"`
-	LastNameEng   string    `json:"last_name_eng"`
-	Born          time.Time `json:"born"`
-	Height        uint      `json:"height"`
-	Weight        uint      `json:"weight"`
-	Sex           string    `json:"sex"`
-	Position      string    `json:"position"`
-	Nationality   string    `json:"nationality"`
-	Description   string    `json:"description"`
+	ID               uint      `json:"id"`
+	FirstNameThai    string    `json:"first_name_thai"`
+	LastNameThai     string    `json:"last_name_thai"`
+	FirstNameEng     string    `json:"first_name_eng"`
+	LastNameEng      string    `json:"last_name_eng"`
+	Born             time.Time `json:"born"`
+	Height           uint      `json:"height"`
+	Weight           uint      `json:"weight"`
+	Sex              string    `json:"sex"`
+	Position         string    `json:"position"`
+	Nationality      string    `json:"nationality"`
+	Description      string    `json:"description"`
+	ImageProfilePath string    `json:"image_profile_path"`
+	ImageCoverPath   string    `json:"image_cover_path"`
 }
 
 type NextMatch struct {
-	RivalTeamID         uint      `json:"rival_team_id"`
-	RivalTeamName       string    `json:"rival_team_name"`
-	CompatitionsID      uint      `json:"compatition_id"`
-	CompatitionsName    string    `json:"compatition_name"`
-	CompatitionsAddress Address   `json:"compatition_address"`
-	MatchID             uint      `json:"match_id"`
-	MatchDateTime       time.Time `json:"match_date_time"`
+	RivalTeamID           uint      `json:"rival_team_id"`
+	RivalTeamName         string    `json:"rival_team_name"`
+	RivalTeamImageProfile string    `json:"rival_team_image_profile"`
+	RivalTeamImageCover   string    `json:"rival_team_image_cover"`
+	CompatitionsID        uint      `json:"compatition_id"`
+	CompatitionsName      string    `json:"compatition_name"`
+	CompatitionsAddress   Address   `json:"compatition_address"`
+	MatchID               uint      `json:"match_id"`
+	MatchDateTime         time.Time `json:"match_date_time"`
 }
 
 type UpdateNormalUser struct {
@@ -143,6 +147,7 @@ type AddMemberRequest struct {
 	ID               uint   `json:"id"`
 	TeamID           uint   `json:"team_id" binding:"required"`
 	TeamName         string `json:"team_name"`
+	TeamImageProfile string `json:"team_iamge_profile"`
 	ReceiverUsername string `json:"receiver_username" binding:"required"`
 	Role             string `json:"role" binding:"required"`
 	Status           string `json:"status"`
@@ -164,17 +169,19 @@ type CreateTeam struct {
 }
 
 type Team struct {
-	ID            uint                   `json:"id"`
-	Name          string                 `json:"name" binding:"required"`
-	OwnerID       uint                   `json:"owner_id" binding:"required"`
-	Description   string                 `json:"description"`
-	Members       []Member               `json:"member"`
-	Compatitions  []CompatitionBasicInfo `json:"compatitions,omitempty"`
-	Rank          string                 `json:"rank"`
-	RankNumber    int                    `json:"rank_number"`
-	Point         int                    `json:"point"`
-	GoalsScored   int                    `json:"goals_scored"`
-	GoalsConceded int                    `json:"goals_conceded"`
+	ID               uint                   `json:"id"`
+	Name             string                 `json:"name" binding:"required"`
+	OwnerID          uint                   `json:"owner_id" binding:"required"`
+	Description      string                 `json:"description"`
+	Members          []Member               `json:"member"`
+	Compatitions     []CompatitionBasicInfo `json:"compatitions,omitempty"`
+	Rank             string                 `json:"rank"`
+	RankNumber       int                    `json:"rank_number"`
+	Point            int                    `json:"point"`
+	GoalsScored      int                    `json:"goals_scored"`
+	GoalsConceded    int                    `json:"goals_conceded"`
+	ImageProfilePath string                 `json:"image_profile_path"`
+	ImageCoverPath   string                 `json:"image_cover_path"`
 }
 
 type CompatitionBasicInfo struct {
@@ -192,6 +199,7 @@ type CompatitionBasicInfo struct {
 	Status       string `json:"status"`
 	NumberOfTeam uint   `json:"number_of_team"`
 	OrganizerID  uint   `json:"organizer_id"`
+	ImageBanner  string `json:"image_banner"`
 }
 
 type Compatition struct {
@@ -217,6 +225,7 @@ type GetCompatitions struct {
 	OrganizerName   string    `json:"organizer_name"`
 	AgeOver         uint      `json:"age_over"`
 	AgeUnder        uint      `json:"age_under"`
+	ImageBanner     string    `json:"image_banner"`
 }
 
 type GetCompatition struct {
@@ -363,15 +372,17 @@ type Address struct {
 }
 
 type Member struct {
-	ID            uint   `json:"id"`
-	UsersID       uint   `json:"user_id"`
-	FirstNameThai string `json:"first_name_thai"`
-	LastNameThai  string `json:"last_name_thai"`
-	FirstNameEng  string `json:"first_name_eng"`
-	LastNameEng   string `json:"last_name_eng"`
-	Position      string `json:"position"`
-	Sex           string `json:"sex"`
-	Role          string `json:"role"`
+	ID               uint   `json:"id"`
+	UsersID          uint   `json:"user_id"`
+	FirstNameThai    string `json:"first_name_thai"`
+	LastNameThai     string `json:"last_name_thai"`
+	FirstNameEng     string `json:"first_name_eng"`
+	LastNameEng      string `json:"last_name_eng"`
+	Position         string `json:"position"`
+	Sex              string `json:"sex"`
+	Role             string `json:"role"`
+	ImageProfilePath string `json:"image_profile_path"`
+	ImageCoverPath   string `json:"image_cover_path"`
 }
 
 type JoinCompatition struct {
@@ -408,12 +419,13 @@ type CompatitionList struct {
 }
 
 type TeamList struct {
-	ID             uint   `json:"id"`
-	Name           string `json:"name"`
-	Description    string `json:"description"`
-	NumberOfMember uint   `json:"number_of_member"`
-	OwnerID        uint   `json:"owner_id"`
-	// img         string
+	ID               uint   `json:"id"`
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	NumberOfMember   uint   `json:"number_of_member"`
+	OwnerID          uint   `json:"owner_id"`
+	ImageProfilePath string `json:"image_profile_path"`
+	ImageCoverPath   string `json:"image_cover_path"`
 }
 
 // type CompetitionType string
