@@ -33,7 +33,11 @@ type Userrepository interface {
 	ReplaceGoalRecordsOfMatch(matchID uint, goalRecords []entities.GoalRecords) error
 	AppendGoalRecordsToMatch(id uint, goalRecords []entities.GoalRecords) error
 	UpdateMatch(uint, *entities.Matchs) error
+
 	DeleteTeamMember(nomalUserID uint, teamID uint) error
+	DeleteNormalUserCompatitionByTeamIDAndCompatitionID(compatitionID uint, teamID uint) error
+	DeleteCompatitionsTeam(compatitionID uint, teamID uint) error
+
 	GetMatch(in *entities.Matchs) (*entities.Matchs, error)
 	GetMatchs(in *entities.Matchs) ([]entities.Matchs, error)
 	AppendMatchToCompatition(compatition *entities.Compatitions, matchs []entities.Matchs) error

@@ -58,6 +58,22 @@ func (u *userPostgresRepository) AppendJoinCodeToCompatition(id uint, joinCodes 
 	return nil
 }
 
+// DeleteCompatitionsTeam implements Userrepository.
+func (u *userPostgresRepository) DeleteCompatitionsTeam(compatitionID uint, teamID uint) error {
+	if err := u.db.Where("compatitions_id = ?", compatitionID).Where("teams_id = ?", teamID).Delete(&entities.CompatitionsTeams{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteNormalUserCompatition implements Userrepository.
+func (u *userPostgresRepository) DeleteNormalUserCompatitionByTeamIDAndCompatitionID(compatitionID uint, teamID uint) error {
+	if err := u.db.Where("teams_id = ?", teamID).Where("compatitions_id = ?", compatitionID).Delete(&entities.NormalUsersCompatitions{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // DeleteTeamMember implements Userrepository.
 func (u *userPostgresRepository) DeleteTeamMember(nomalUserID uint, teamID uint) error {
 	if err := u.db.Where("normal_users_id = ?", nomalUserID).Where("teams_id = ?", teamID).Delete(&entities.TeamsMembers{}).Error; err != nil {

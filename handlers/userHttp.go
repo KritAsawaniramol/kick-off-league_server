@@ -63,6 +63,35 @@ func (h *httpHandler) AddJoinCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "CreateJoinCode success"})
 }
 
+// RemoveCompatitionTeam implements Handler.
+func (h *httpHandler) RemoveCompatitionTeam(c *gin.Context) {
+	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	teamID := new(struct {
+		TeamID uint `json:"team_id"`
+	})
+
+	err = c.BindJSON(teamID)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		return
+	}
+
+	if err := h.userUsercase.RemoveTeamFormCompatition(teamID.TeamID, uint(compatitionID)); err != nil {
+		fmt.Printf("err: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "RemoveTeamMember success"})
+
+}
+
 // RemoveTeamMember implements Handler.
 func (h *httpHandler) RemoveTeamMember(c *gin.Context) {
 	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)

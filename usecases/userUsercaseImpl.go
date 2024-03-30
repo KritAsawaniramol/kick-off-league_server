@@ -27,8 +27,16 @@ type userUsecaseImpl struct {
 }
 
 // RemoveTeamFormCompatition implements UserUsecase.
-func (*userUsecaseImpl) RemoveTeamFormCompatition(teamID uint, nomalUserID uint) error {
-	panic("unimplemented")
+func (u *userUsecaseImpl) RemoveTeamFormCompatition(teamID uint, compatitionID uint) error {
+	err := u.userrepository.DeleteNormalUserCompatitionByTeamIDAndCompatitionID(compatitionID, teamID)
+	if err != nil {
+		return err
+	}
+	err = u.userrepository.DeleteCompatitionsTeam(compatitionID, teamID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // UpdateOrganizer implements UserUsecase.
