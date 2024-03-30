@@ -3,5 +3,7 @@ config.yaml
 .json
 migrations/userMigrate
 migrations/userMigrate.go
-/images
+/images/profile
+/images/cover
+/images/banner
 migrations/userMigrate/userMigrate.go
