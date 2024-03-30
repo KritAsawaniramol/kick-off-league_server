@@ -96,6 +96,15 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 		viewRouter.GET("/organizer", userHttpHandler.GetOrganizers)
 		viewRouter.GET("/organizer/:organizerID", userHttpHandler.GetOrganizer)
+
+	}
+
+	imageRouter := s.app.Group("/image")
+	imageRouter.Use(auth.Auth())
+	{
+		imageRouter.PUT("/profile", userHttpHandler.UpdateImageProfile)
+		imageRouter.PUT("/cover", userHttpHandler.UpdateImageCover)
+		// imageRouter.DELETE("/image/profile", userHttpHandler.DeleteImageProfile)
 	}
 
 	organizerRouter := s.app.Group("/organizer")
@@ -110,7 +119,6 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		organizerRouter.PUT("/match/:id", userHttpHandler.UpdateMatch)
 		organizerRouter.PUT("/compatition/joinCode/add/:compatitionID", userHttpHandler.AddJoinCode)
 		organizerRouter.PUT("/organizer/:organizerID", userHttpHandler.UpdateOrganizer)
-
 	}
 
 	normalRouter := s.app.Group("/user")
@@ -122,14 +130,11 @@ func (s *ginServer) initialzieUserHttpHandler() {
 		normalRouter.GET("/MatchResults/:normalUserID", userHttpHandler.GetMatchResult)
 		normalRouter.POST("/team", userHttpHandler.CreateTeam)
 		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
-		normalRouter.PUT("/image/profile", userHttpHandler.UpdateImageProfile)
-		normalRouter.PUT("/image/cover", userHttpHandler.UpdateImageCover)
 		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
 		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)
 		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
 		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
 		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
-		normalRouter.DELETE("/image/profile", userHttpHandler.DeleteImageProfile)
 		normalRouter.DELETE("/team/:teamID", userHttpHandler.RemoveTeamMember)
 		normalRouter.PUT("/compatition/join", userHttpHandler.JoinCompatition)
 		// normalRouter.POST("/team")

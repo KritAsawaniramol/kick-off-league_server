@@ -305,7 +305,7 @@ func (u *userPostgresRepository) GetOrganizerWithAddressByUserID(in uint) (*enti
 // GetNormalUser implements Userrepository.
 func (u *userPostgresRepository) GetNormalUser(in *entities.NormalUsers) (*entities.NormalUsers, error) {
 	normalUser := new(entities.NormalUsers)
-	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Teams.Teams").Preload("Compatitions.Compatitions").Preload("Compatitions.Compatitions.Matchs").First(normalUser).Error; err != nil {
+	if err := u.db.Where(&in).Preload(clause.Associations).Preload("Teams.Teams").Preload("Teams.Team.TeamsMembers").Preload("Compatitions.Compatitions").Preload("Compatitions.Compatitions.Matchs").First(normalUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("record not found")
 		}

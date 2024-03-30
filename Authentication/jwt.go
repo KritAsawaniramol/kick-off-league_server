@@ -78,36 +78,6 @@ func (j *jwtAuthentication) validateJWT(c *gin.Context) error {
 	return nil
 }
 
-// AuthAdmin implements Authentication.
-func (j *jwtAuthentication) AuthAdmin() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		token, err := j.getToken(c)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-			return
-		}
-
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
-			return
-		}
-
-		userRole, ok := claims["role"].(string)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
-			return
-		}
-
-		if err != nil || !token.Valid || userRole != "admin" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-			return
-		}
-
-		c.Next()
-	}
-}
-
 // AuthNormalUser implements Authentication.
 func (j *jwtAuthentication) AuthNormalUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
