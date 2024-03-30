@@ -142,7 +142,7 @@ func (u *userPostgresRepository) UpdateCompatition(id uint, in *entities.Compati
 
 // AppendTeamtoCompatition implements Userrepository.
 func (u *userPostgresRepository) AppendTeamtoCompatition(compatition *entities.Compatitions, newTeam *entities.Teams) error {
-	if err := u.db.Model(compatition).Association("Teams").Append(newTeam); err != nil {
+	if err := u.db.Where(compatition).Association("Teams").Append(newTeam); err != nil {
 		return err
 	}
 	return nil
@@ -161,7 +161,7 @@ func (*userPostgresRepository) UpdateUser(inUser *entities.Users) error {
 // UpdateSelectedFields implements Userrepository.
 func (u *userPostgresRepository) UpdateSelectedFields(model interface{}, fieldname string, value interface{}) error {
 	//model.ID is required
-	if err := u.db.Model(model).Select(fieldname).Updates(value).Error; err != nil {
+	if err := u.db.Where(model).Select(fieldname).Updates(value).Error; err != nil {
 		return err
 	}
 	return nil

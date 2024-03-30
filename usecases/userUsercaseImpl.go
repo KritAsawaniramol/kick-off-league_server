@@ -768,6 +768,7 @@ func (u *userUsecaseImpl) UpdateImageBanner(compatitionID uint, newImagePath str
 func (u *userUsecaseImpl) UpdateImageProfile(userID uint, newImagePath string) error {
 	user := &entities.Users{}
 	user.ID = userID
+	util.PrintObjInJson(user)
 	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.Users{ImageProfilePath: newImagePath}); err != nil {
 		return err
 	}

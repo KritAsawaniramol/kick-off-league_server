@@ -358,6 +358,7 @@ func (h *httpHandler) UpdateImageCover(c *gin.Context) {
 
 func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
+	fmt.Printf("userID: %v\n", userID)
 	in, err := c.FormFile("image")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
@@ -368,7 +369,6 @@ func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
 	isImage, fileExt := isImage(in)
 	if !isImage {
 		fmt.Println("error: is not image")
-
 		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
 		return
 	}
