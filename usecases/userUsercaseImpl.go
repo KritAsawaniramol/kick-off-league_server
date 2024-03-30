@@ -1426,12 +1426,14 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 	}
 
 	return &model.Team{
-		ID:           selectedTeams.ID,
-		Name:         selectedTeams.Name,
-		OwnerID:      selectedTeams.OwnerID,
-		Members:      memberList,
-		Compatitions: compatition_model,
-		Description:  selectedTeams.Description,
+		ID:               selectedTeams.ID,
+		Name:             selectedTeams.Name,
+		OwnerID:          selectedTeams.OwnerID,
+		Members:          memberList,
+		Compatitions:     compatition_model,
+		Description:      selectedTeams.Description,
+		ImageCoverPath:   selectedTeams.ImageCoverPath,
+		ImageProfilePath: selectedTeams.ImageProfilePath,
 	}, nil
 }
 
