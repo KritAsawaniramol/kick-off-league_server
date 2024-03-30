@@ -828,7 +828,7 @@ func (u *userUsecaseImpl) RemoveTeamImageProfile(teamID uint) error {
 func (u *userUsecaseImpl) RemoveImageBanner(compatitionID uint) error {
 	compatition := &entities.Compatitions{}
 	compatition.ID = compatitionID
-	if err := u.userrepository.UpdateSelectedFields(compatition, "ImageProfilePath", &entities.Compatitions{ImageBannerPath: "./images/default/defaultCover.jpg"}); err != nil {
+	if err := u.userrepository.UpdateSelectedFields(compatition, "ImageBannerPath", &entities.Compatitions{ImageBannerPath: "./images/default/defaultBanner.png"}); err != nil {
 		return err
 	}
 	return nil

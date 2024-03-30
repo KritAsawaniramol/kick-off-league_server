@@ -254,7 +254,7 @@ func (h *httpHandler) DeleteImageBanner(c *gin.Context) {
 // DeleteImageCover implements Handler.
 func (h *httpHandler) DeleteImageCover(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	if err := h.userUsercase.RemoveImageProfile(userID); err != nil {
+	if err := h.userUsercase.RemoveImageCover(userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
 		return
 	}
