@@ -819,7 +819,7 @@ func (u *userUsecaseImpl) RemoveTeamImageCover(teamID uint) error {
 func (u *userUsecaseImpl) RemoveTeamImageProfile(teamID uint) error {
 	team := &entities.Teams{}
 	team.ID = teamID
-	if err := u.userrepository.UpdateSelectedFields(team, "ImageProfilePath", &entities.Users{ImageProfilePath: "./images/default/defaultProfile.jpg"}); err != nil {
+	if err := u.userrepository.UpdateSelectedFields(team, "ImageProfilePath", &entities.Teams{ImageProfilePath: "./images/default/defaultProfile.jpg"}); err != nil {
 		return err
 	}
 	return nil
