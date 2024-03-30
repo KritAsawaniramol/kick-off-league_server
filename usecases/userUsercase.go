@@ -32,6 +32,7 @@ type UserUsecase interface {
 	StartCompatition(id uint) error
 	FinishCompatition(id uint) error
 	RemoveNormalUserFormTeam(teamID uint, nomalUserID uint) error
+	RemoveTeamFormCompatition(teamID uint, nomalUserID uint) error
 	CancelCompatition(id uint) error
 	AddJoinCode(compatitionID uint, n int) error
 	GetMatch(id uint) (*model.Match, error)

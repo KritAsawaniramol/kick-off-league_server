@@ -337,7 +337,7 @@ func mockupData(u usecases.UserUsecase) {
 	}
 
 	// Start compatition
-	u.StartCompatition(1)
+	// u.StartCompatition(1)
 
 	// UpdateMatch
 	// u.UpdateMatch(1, &model.UpdateMatch{

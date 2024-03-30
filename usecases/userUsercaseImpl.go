@@ -26,6 +26,11 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// RemoveTeamFormCompatition implements UserUsecase.
+func (*userUsecaseImpl) RemoveTeamFormCompatition(teamID uint, nomalUserID uint) error {
+	panic("unimplemented")
+}
+
 // UpdateOrganizer implements UserUsecase.
 func (u *userUsecaseImpl) UpdateOrganizer(orgID uint, in *model.UpdateOrganizer) error {
 	getOrg := &entities.Organizers{}
@@ -1898,11 +1903,13 @@ func (u *userUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile, erro
 		}
 
 		teamJoined = append(teamJoined, model.Team{
-			ID:          team.Teams.ID,
-			Name:        team.Teams.Name,
-			OwnerID:     team.Teams.OwnerID,
-			Description: team.Teams.Description,
-			Members:     members,
+			ID:               team.Teams.ID,
+			Name:             team.Teams.Name,
+			OwnerID:          team.Teams.OwnerID,
+			Description:      team.Teams.Description,
+			Members:          members,
+			ImageProfilePath: team.Teams.ImageProfilePath,
+			ImageCoverPath:   team.Teams.ImageCoverPath,
 		})
 	}
 
