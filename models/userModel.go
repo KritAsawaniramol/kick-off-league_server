@@ -141,6 +141,7 @@ type UpdateNormalUser struct {
 	Nationality   string    `json:"nationality"`
 	Description   string    `json:"description"`
 	Username      string    `json:"username"`
+	Address       Address   `jsoon:"address"`
 }
 
 type AddMemberRequest struct {
@@ -200,6 +201,9 @@ type CompatitionBasicInfo struct {
 	NumberOfTeam uint   `json:"number_of_team"`
 	OrganizerID  uint   `json:"organizer_id"`
 	ImageBanner  string `json:"image_banner"`
+	Rank         string `json:"rank"`
+	RankNumber   int    `json:"rank_number"`
+	Sport        string `json:"sport"`
 }
 
 type Compatition struct {
@@ -311,6 +315,11 @@ type Match struct {
 	GoalRecords    []GoalRecord `json:"goal_records"`
 	Result         string       `json:"result"`
 	VideoURL       string       `json:"video_url"`
+	Team1Player    []Member     `json:"team1_player"`
+	Team2Player    []Member     `json:"team2_player"`
+}
+
+type GetNormalUsersCompatitions struct {
 }
 
 type UpdateMatch struct {

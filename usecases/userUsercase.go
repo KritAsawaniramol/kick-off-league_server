@@ -14,6 +14,8 @@ type UserUsecase interface {
 	// GetNormalUser(in uint) (model.NormalUser, error)
 	// GetTeam(in uint) (model.NormalUser, error)
 
+	// GetNormalUserCompatition(compatitionID uint, teamID uint) error
+
 	GetMyPenddingAddMemberRequest(userID uint) ([]model.AddMemberRequest, error)
 	GetTeamMembers(id uint) (*model.Team, error)
 	GetTeamWithMemberAndCompatitionByID(id uint) (*model.Team, error)

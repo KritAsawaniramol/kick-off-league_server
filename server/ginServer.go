@@ -91,6 +91,7 @@ func (s *ginServer) initialzieUserHttpHandler() {
 
 		viewRouter.GET("/compatition", userHttpHandler.GetCompatitions)
 		viewRouter.GET("/compatition/:id", userHttpHandler.GetCompatition)
+		// viewRouter.GET("/compatition/normalUser/:id", userHttpHandler.)
 
 		viewRouter.GET("/match/:matchID", userHttpHandler.GetMatch)
 

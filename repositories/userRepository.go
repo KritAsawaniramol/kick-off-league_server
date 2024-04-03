@@ -13,6 +13,8 @@ type Userrepository interface {
 	GetNumberOfTeamsMember(in uint) int64
 	GetNormalUsers(in *entities.NormalUsers) ([]entities.NormalUsers, error)
 
+	GetNormalUserCompatitions(in *entities.NormalUsersCompatitions) ([]entities.NormalUsersCompatitions, error)
+
 	GetTeamsWithCompatitionAndMatch(in *entities.Teams) (*entities.Teams, error)
 	GetTeamWithMemberAndRequestSendByID(in uint) (*entities.Teams, error)
 	GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error)

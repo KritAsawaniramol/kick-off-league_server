@@ -19,6 +19,11 @@ import (
 	"kickoff-league.com/util"
 )
 
+// GetNormalUserCompatition implements Handler.
+func (h *httpHandler) GetNormalUserCompatition(c *gin.Context) {
+	panic("unimplemented")
+}
+
 // GetMatch implements Handler.
 func (h *httpHandler) GetMatch(c *gin.Context) {
 	matchID, err := strconv.ParseUint(c.Param("matchID"), 10, 64)
@@ -542,13 +547,16 @@ func (h *httpHandler) JoinCompatition(c *gin.Context) {
 	}
 	err := h.userUsercase.JoinCompatition(joinModel)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "unable") {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		} else {
-			fmt.Printf("err: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		}
+		fmt.Printf("\"sldkfhasodfhaskdfjasdfasdfasdfsadfasdfasdkfasdfas:\": %v\n", "sldkfhasodfhaskdfjasdfasdfasdfsadfasdfasdkfasdfas:")
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
+		// if strings.HasPrefix(err.Error(), "unable") {
+		// 	c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		// } else {
+		// 	fmt.Printf("err: %v\n", err)
+		// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		// }
+		// return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
 }

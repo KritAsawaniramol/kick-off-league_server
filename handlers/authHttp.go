@@ -88,7 +88,7 @@ func (h *httpHandler) LoginUser(c *gin.Context) {
 
 	// Set cookie
 	fmt.Println("jwt", jwt)
-	c.SetCookie("token", jwt, 3600, "/", "localhost", false, true)
+	c.SetCookie("token", jwt, 360000, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login success",
 		"user":    user,

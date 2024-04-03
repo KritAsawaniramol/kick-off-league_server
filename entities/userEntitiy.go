@@ -85,7 +85,7 @@ type (
 	Teams struct {
 		gorm.Model
 		Name             string
-		OwnerID          uint
+		OwnerID          uint //userID
 		Description      string
 		TeamsMembers     []TeamsMembers
 		Compatitions     []CompatitionsTeams

@@ -15,6 +15,30 @@ type userPostgresRepository struct {
 	db *gorm.DB
 }
 
+// GetNormalUserCompatitions implements Userrepository.
+func (u *userPostgresRepository) GetNormalUserCompatitions(in *entities.NormalUsersCompatitions) ([]entities.NormalUsersCompatitions, error) {
+	normalUsersCompatitions := &entities.NormalUsersCompatitions{
+		TeamsID:        in.TeamsID,
+		CompatitionsID: in.CompatitionsID,
+	}
+	result := []entities.NormalUsersCompatitions{}
+	if err := u.db.Where(normalUsersCompatitions).Preload("NormalUsers").Preload("Compatitions").Find(&result).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("record not found")
+		}
+		return nil, err
+	}
+	return result, nil
+
+	// if err := u.db.Find(&users).Order("id DESC").Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, errors.New("record not found")
+	// 	}
+	// 	return nil, err
+	// }
+	// return users, nil
+}
+
 // UpdateCompatitionsTeams implements Userrepository.
 func (u *userPostgresRepository) UpdateCompatitionsTeams(in *entities.CompatitionsTeams) error {
 	compatitionTeam := &entities.CompatitionsTeams{
@@ -76,6 +100,8 @@ func (u *userPostgresRepository) DeleteNormalUserCompatitionByTeamIDAndCompatiti
 
 // DeleteTeamMember implements Userrepository.
 func (u *userPostgresRepository) DeleteTeamMember(nomalUserID uint, teamID uint) error {
+	fmt.Printf("nomalUserID: %v\n", nomalUserID)
+	fmt.Printf("teamID: %v\n", teamID)
 	if err := u.db.Where("normal_users_id = ?", nomalUserID).Where("teams_id = ?", teamID).Delete(&entities.TeamsMembers{}).Error; err != nil {
 		return err
 	}

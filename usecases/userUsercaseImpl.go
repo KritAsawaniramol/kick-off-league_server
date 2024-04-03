@@ -26,6 +26,22 @@ type userUsecaseImpl struct {
 	userrepository repositories.Userrepository
 }
 
+// // GetNormalUserCompatition implements UserUsecase.
+// func (u *userUsecaseImpl) GetNormalUserCompatition(compatitionID uint, teamID uint) error {
+// 	result, err := u.userrepository.GetNormalUserCompatitions(&entities.NormalUsersCompatitions{
+// 		CompatitionsID: compatitionID,
+// 		TeamsID:        teamID,
+// 	})
+
+// 	if err != nil {
+// 		if err.Error() != "record not found" {
+// 			return nil, err
+// 		} else {
+// 			return nil, nil
+// 		}
+// 	}
+// }
+
 // RemoveTeamFormCompatition implements UserUsecase.
 func (u *userUsecaseImpl) RemoveTeamFormCompatition(teamID uint, compatitionID uint) error {
 	err := u.userrepository.DeleteNormalUserCompatitionByTeamIDAndCompatitionID(compatitionID, teamID)
@@ -166,12 +182,82 @@ func (u *userUsecaseImpl) GetMatch(id uint) (*model.Match, error) {
 	}
 	team1, err := u.userrepository.GetTeam(match.Team1ID)
 	if err != nil {
-		return nil, err
+		if err.Error() != "record not found" {
+			return nil, err
+		} else {
+			team1 = &entities.Teams{}
+		}
 	}
 	team2, err := u.userrepository.GetTeam(match.Team2ID)
 	if err != nil {
-		return nil, err
+		if err.Error() != "record not found" {
+			return nil, err
+		} else {
+			team2 = &entities.Teams{}
+		}
 	}
+
+	team1PlayerInCompatition := []entities.NormalUsersCompatitions{}
+	team2PlayerInCompatition := []entities.NormalUsersCompatitions{}
+
+	if match.Team1ID != 0 {
+		team1PlayerInCompatition, err = u.userrepository.GetNormalUserCompatitions(&entities.NormalUsersCompatitions{
+			CompatitionsID: match.CompatitionsID,
+			TeamsID:        match.Team1ID,
+		})
+		if err != nil {
+			if err.Error() != "record not found" {
+				return nil, err
+			} else {
+				team1PlayerInCompatition = []entities.NormalUsersCompatitions{}
+			}
+		}
+	}
+
+	if match.Team2ID != 0 {
+		team2PlayerInCompatition, err = u.userrepository.GetNormalUserCompatitions(&entities.NormalUsersCompatitions{
+			CompatitionsID: match.CompatitionsID,
+			TeamsID:        match.Team2ID,
+		})
+		if err != nil {
+			if err.Error() != "record not found" {
+				return nil, err
+			} else {
+				team2PlayerInCompatition = []entities.NormalUsersCompatitions{}
+			}
+		}
+	}
+
+	team1PlayerModel := []model.Member{}
+	team2PlayerModel := []model.Member{}
+
+	for _, v := range team1PlayerInCompatition {
+		team1PlayerModel = append(team1PlayerModel, model.Member{
+			ID:            v.NormalUsers.ID,
+			UsersID:       v.NormalUsers.UsersID,
+			FirstNameThai: v.NormalUsers.FirstNameThai,
+			LastNameThai:  v.NormalUsers.LastNameThai,
+			FirstNameEng:  v.NormalUsers.FirstNameEng,
+			LastNameEng:   v.NormalUsers.LastNameEng,
+			Position:      v.NormalUsers.Position,
+			Sex:           v.NormalUsers.Sex,
+		})
+	}
+	for _, v := range team2PlayerInCompatition {
+		team2PlayerModel = append(team2PlayerModel, model.Member{
+			ID:            v.NormalUsers.ID,
+			UsersID:       v.NormalUsers.UsersID,
+			FirstNameThai: v.NormalUsers.FirstNameThai,
+			LastNameThai:  v.NormalUsers.LastNameThai,
+			FirstNameEng:  v.NormalUsers.FirstNameEng,
+			LastNameEng:   v.NormalUsers.LastNameEng,
+			Position:      v.NormalUsers.Position,
+			Sex:           v.NormalUsers.Sex,
+		})
+	}
+
+	util.PrintObjInJson(team1PlayerInCompatition)
+	util.PrintObjInJson(team2PlayerInCompatition)
 
 	goalRecord := []model.GoalRecord{}
 	for _, v := range match.GoalRecords {
@@ -200,6 +286,8 @@ func (u *userUsecaseImpl) GetMatch(id uint) (*model.Match, error) {
 		NextMatchSlot:  match.NextMatchSlot,
 		Result:         match.Result,
 		VideoURL:       match.VideoURL,
+		Team1Player:    team1PlayerModel,
+		Team2Player:    team2PlayerModel,
 	}, nil
 }
 
@@ -223,7 +311,9 @@ func (u *userUsecaseImpl) AddJoinCode(compatitionID uint, n int) error {
 
 // RemoveNormalUserFormTeam implements UserUsecase.
 func (u *userUsecaseImpl) RemoveNormalUserFormTeam(teamID uint, nomalUserID uint) error {
-	err := u.userrepository.DeleteTeamMember(teamID, nomalUserID)
+	fmt.Printf("teamID: %v\n", teamID)
+	fmt.Printf("nomalUserID: %v\n", nomalUserID)
+	err := u.userrepository.DeleteTeamMember(nomalUserID, teamID)
 	if err != nil {
 		return err
 	}
@@ -303,7 +393,7 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 
 	// Custom sort function
 	sortByMatchDateTime := func(i, j int) bool {
-		return nextMatchs[i].MatchDateTime.After(nextMatchs[j].MatchDateTime)
+		return nextMatchs[i].MatchDateTime.Before(nextMatchs[j].MatchDateTime)
 	}
 	// Sorting the array using custom sort function
 	sort.Slice(nextMatchs, sortByMatchDateTime)
@@ -312,6 +402,7 @@ func (u *userUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 
 // UpdateMatch implements UserUsecase.
 func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) error {
+	util.PrintObjInJson(updateMatch)
 	goalRecords := []entities.GoalRecords{}
 
 	getMatch := &entities.Matchs{}
@@ -369,9 +460,12 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 		if err != nil {
 			return err
 		}
-		if round == 1 {
+		util.PrintObjInJson(match)
+
+		if round == match.Compatitions.NumOfRound {
 			team1Rank := 0
 			team2Rank := 0
+
 			if updateMatch.Result == util.MatchsResult[0] {
 				team1Rank = 1
 				team2Rank = 2
@@ -379,6 +473,9 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 				team1Rank = 2
 				team2Rank = 1
 			}
+
+			fmt.Printf("team1Rank: %v\n", team1Rank)
+			fmt.Printf("team2Rank: %v\n", team2Rank)
 			err := u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
 				TeamsID:        match.Team1ID,
 				CompatitionsID: match.CompatitionsID,
@@ -398,7 +495,9 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 				return err
 			}
 		} else {
-			numberOfTeamInRound := int(math.Pow(float64(round), 2))
+			// numberOfTeamInRound := int(math.Pow(float64(round), 2))
+
+			numberOfTeamInRound := int(match.Compatitions.NumberOfTeam) / int(math.Pow(2, float64(round)-1))
 			loserRank := fmt.Sprintf("%d-%d", (numberOfTeamInRound/2)+1, numberOfTeamInRound)
 			if updateMatch.Result == util.MatchsResult[0] {
 				err := u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
@@ -422,27 +521,27 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 				}
 
 			} else if updateMatch.Result == util.MatchsResult[1] {
-				if updateMatch.Result == util.MatchsResult[0] {
-					err := u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
-						TeamsID:        match.Team1ID,
-						CompatitionsID: match.CompatitionsID,
-						Rank:           loserRank,
-						RankNumber:     numberOfTeamInRound,
-					})
-					if err != nil {
-						return err
-					}
-
-					err = u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
-						TeamsID:        match.Team2ID,
-						CompatitionsID: match.CompatitionsID,
-						Rank:           "",
-						RankNumber:     0,
-					})
-					if err != nil {
-						return err
-					}
+				// if updateMatch.Result == util.MatchsResult[0] {
+				err := u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
+					TeamsID:        match.Team1ID,
+					CompatitionsID: match.CompatitionsID,
+					Rank:           loserRank,
+					RankNumber:     numberOfTeamInRound,
+				})
+				if err != nil {
+					return err
 				}
+
+				err = u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
+					TeamsID:        match.Team2ID,
+					CompatitionsID: match.CompatitionsID,
+					Rank:           "",
+					RankNumber:     0,
+				})
+				if err != nil {
+					return err
+				}
+				// }
 			}
 		}
 	} else if match.Compatitions.Type == util.CompetitionType[1] {
@@ -456,35 +555,23 @@ func (u *userUsecaseImpl) UpdateMatch(id uint, updateMatch *model.UpdateMatch) e
 			return err
 		}
 		for _, m := range compatition.Matchs {
-			if m.Team1ID == match.Team1ID {
-				if m.Result == util.MatchsResult[0] {
-					team1Point += 3
-				} else if m.Result == util.MatchsResult[2] {
-					team1Point += 1
-				}
-			} else if m.Team1ID == match.Team2ID {
-				if m.Result == util.MatchsResult[1] {
-					team1Point += 3
-				} else if m.Result == util.MatchsResult[2] {
-					team1Point += 1
-				}
+
+			if match.Team1ID == m.Team1ID && m.Result == util.MatchsResult[0] {
+				team1Point += 3
+			} else if match.Team1ID == m.Team1ID && m.Result == util.MatchsResult[2] {
+				team1Point += 1
+			} else if match.Team1ID == m.Team2ID && m.Result == util.MatchsResult[1] {
+				team1Point += 3
 			}
-			if m.Team2ID == match.Team1ID {
-				if m.Result == util.MatchsResult[0] {
-					team2Point += 3
-				} else if m.Result == util.MatchsResult[2] {
-					team2Point += 1
-				}
-			} else if m.Team2ID == match.Team2ID {
-				if m.Result == util.MatchsResult[1] {
-					team2Point += 3
-				} else if m.Result == util.MatchsResult[2] {
-					team2Point += 1
-				}
+
+			if match.Team2ID == m.Team1ID && m.Result == util.MatchsResult[0] {
+				team2Point += 3
+			} else if match.Team2ID == m.Team1ID && m.Result == util.MatchsResult[2] {
+				team2Point += 1
+			} else if match.Team2ID == m.Team2ID && m.Result == util.MatchsResult[1] {
+				team2Point += 3
 			}
 		}
-
-		fmt.Printf("team2Point: %v\n", team2Point)
 
 		err = u.userrepository.UpdateCompatitionsTeams(&entities.CompatitionsTeams{
 			TeamsID:        match.Team1ID,
@@ -573,10 +660,12 @@ func (u *userUsecaseImpl) UpdateCompatition(id uint, in *model.UpdateCompatition
 
 // JoinCompatition implements UserUsecase.
 func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
+	util.PrintObjInJson(in)
 	compatitionsEntity := &entities.Compatitions{}
 	teamEntity := &entities.Teams{}
 	compatitionsEntity.ID = in.CompatitionID
 	teamEntity.ID = in.TeamID
+
 	compatition, err := u.userrepository.GetCompatition(compatitionsEntity)
 	if err != nil {
 		return err
@@ -593,6 +682,10 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 	validCode := false
 	var joinCodeID uint
 
+	if compatition.ApplicationType != util.ApplicationType[0] && compatition.ApplicationType != util.ApplicationType[1] {
+		return errors.New("ApplicationType is unexpected")
+	}
+
 	if compatition.ApplicationType == util.ApplicationType[1] {
 		if in.Code == "" {
 			return errors.New("unable to join. required code to join")
@@ -607,11 +700,32 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 				break
 			}
 		}
+		fmt.Printf("validCode: %v------------------------\n", validCode)
 
 		if !validCode {
 			return errors.New("unable to join. code isn't valid")
+		} else {
+			fmt.Printf("\"hello world\": %v\n", "hello world")
+			err = u.userrepository.UpdateJoinCode(joinCodeID, &entities.JoinCode{
+				Status: util.JoinCodeStatus[1],
+			})
+			if err != nil {
+				fmt.Printf("err: %v\n", err)
+				return err
+			}
+			fmt.Printf("\"hello world2\": %v\n", "hello world2")
+
 		}
 	}
+
+	// if validCode {
+	// 	err = u.userrepository.UpdateJoinCode(joinCodeID, &entities.JoinCode{
+	// 		Status: util.JoinCodeStatus[1],
+	// 	})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	team, err := u.userrepository.GetTeamWithAllAssociationsByID(teamEntity)
 	if err != nil {
@@ -628,11 +742,12 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 
 	for _, member := range team.TeamsMembers {
 		age := calculateAge(member.NormalUsers.Born)
-		if age < int(compatition.AgeOver) && age != 0 {
+
+		if age < int(compatition.AgeOver) && age != 0 && int(compatition.AgeOver) != 0 {
 			return errors.New("unable to join. your team has older members. or lower than specified")
 		}
 
-		if age > int(compatition.AgeUnder) && age != 0 {
+		if age > int(compatition.AgeUnder) && age != 0 && int(compatition.AgeUnder) != 0 {
 			return errors.New("unable to join. your team has older members. or lower than specified")
 		}
 
@@ -657,15 +772,6 @@ func (u *userUsecaseImpl) JoinCompatition(in *model.JoinCompatition) error {
 				TeamsID:        in.TeamID,
 			},
 		)
-		if err != nil {
-			return err
-		}
-	}
-
-	if compatition.ApplicationType == util.ApplicationType[1] && joinCodeID != 0 && validCode {
-		err = u.userrepository.UpdateJoinCode(joinCodeID, &entities.JoinCode{
-			Status: util.JoinCodeStatus[1],
-		})
 		if err != nil {
 			return err
 		}
@@ -768,7 +874,6 @@ func (u *userUsecaseImpl) UpdateImageBanner(compatitionID uint, newImagePath str
 func (u *userUsecaseImpl) UpdateImageProfile(userID uint, newImagePath string) error {
 	user := &entities.Users{}
 	user.ID = userID
-	util.PrintObjInJson(user)
 	if err := u.userrepository.UpdateSelectedFields(user, "ImageProfilePath", &entities.Users{ImageProfilePath: newImagePath}); err != nil {
 		return err
 	}
@@ -901,7 +1006,7 @@ func (o ByPoint) Less(i, j int) bool {
 	if o[i].Point == o[j].Point {
 		return (o[i].GoalsScored - o[i].GoalsConceded) < (o[j].GoalsScored - o[j].GoalsConceded)
 	} else {
-		return o[i].Point < o[j].Point
+		return o[i].Point > o[j].Point
 	}
 }
 
@@ -950,7 +1055,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		}
 
 		temes = append(temes, model.Team{
-			ID:               v.ID,
+			ID:               v.TeamsID,
 			Name:             v.Teams.Name,
 			OwnerID:          v.Teams.OwnerID,
 			Description:      v.Teams.Description,
@@ -965,15 +1070,6 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		goalsConceded[v.TeamsID] = 0
 	}
 
-	temesForSort := temes
-	if result.Type == util.CompetitionType[1] {
-		sort.Sort(ByPoint(temesForSort))
-		for i := 0; i < len(temesForSort); i++ {
-			temes[i].Rank = fmt.Sprint(i + 1)
-			temes[i].RankNumber = i + 1
-		}
-	}
-
 	for _, v := range result.Matchs {
 		goalRecords := []model.GoalRecord{}
 
@@ -985,7 +1081,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 			})
 		}
 
-		Matchs = append(Matchs, model.Match{
+		m := model.Match{
 			ID:             v.ID,
 			Index:          v.Index,
 			DateTime:       v.DateTime,
@@ -999,7 +1095,35 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 			GoalRecords:    goalRecords,
 			Result:         v.Result,
 			VideoURL:       v.VideoURL,
-		})
+		}
+
+		for i := 0; i < len(result.Teams); i++ {
+			if m.Team1ID == result.Teams[i].TeamsID {
+				m.Team1Name = result.Teams[i].Teams.Name
+			}
+			if m.Team2ID == result.Teams[i].TeamsID {
+				m.Team2Name = result.Teams[i].Teams.Name
+			}
+		}
+
+		// Matchs = append(Matchs, model.Match{
+		// 	ID:             v.ID,
+		// 	Index:          v.Index,
+		// 	DateTime:       v.DateTime,
+		// 	Team1ID:        v.Team1ID,
+		// 	Team2ID:        v.Team2ID,
+		// 	Team1Goals:     v.Team1Goals,
+		// 	Team2Goals:     v.Team2Goals,
+		// 	Round:          v.Round,
+		// 	NextMatchIndex: v.NextMatchIndex,
+		// 	NextMatchSlot:  v.NextMatchSlot,
+		// 	GoalRecords:    goalRecords,
+		// 	Result:         v.Result,
+		// 	VideoURL:       v.VideoURL,
+		// 	// Team1Name:      v,
+		// 	// Team2Name:      v.Team2Name,
+		// })
+		Matchs = append(Matchs, m)
 
 		goalsScored[v.Team1ID] += v.Team1Goals
 		goalsConceded[v.Team1ID] += v.Team2Goals
@@ -1008,9 +1132,61 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		goalsConceded[v.Team2ID] += v.Team1Goals
 	}
 
-	for _, t := range temes {
-		t.GoalsScored = goalsScored[t.ID]
-		t.GoalsConceded = goalsScored[t.ID]
+	// for _, t := range temes {
+	// 	fmt.Printf("t.ID: %v\n", t.ID)
+	// 	fmt.Printf("goalsScored[t.ID]: %v\n", goalsScored[t.ID])
+	// 	fmt.Printf("goalsConceded[t.ID]: %v\n", goalsConceded[t.ID])
+	// 	t.GoalsScored = goalsScored[t.ID]
+	// 	t.GoalsConceded = goalsConceded[t.ID]
+	// 	fmt.Printf("t.GoalsScored: %v\n", t.GoalsScored)
+	// 	fmt.Printf("t.GoalsConceded: %v\n", t.GoalsConceded)
+	// }
+
+	for i := 0; i < len(temes); i++ {
+		temes[i].GoalsScored = goalsScored[temes[i].ID]
+		temes[i].GoalsConceded = goalsConceded[temes[i].ID]
+	}
+
+	temesForSort := []model.Team{}
+	temesForSort = append(temesForSort, temes...)
+
+	if result.Type == util.CompetitionType[1] {
+		sort.Slice(temesForSort, func(i, j int) bool {
+			iv, jv := temesForSort[i], temesForSort[j]
+			switch {
+			case iv.Point != jv.Point:
+				return iv.Point > jv.Point
+				// case iv.Generation != jv.Generation:
+				// 	return iv.Generation < jv.Generation
+				// return (o[i].GoalsScored - o[i].GoalsConceded) < (o[j].GoalsScored - o[j].GoalsConceded)
+
+			default:
+
+				return (iv.GoalsScored - iv.GoalsConceded) > (jv.GoalsScored - jv.GoalsConceded)
+				// return iv.Time < jv.Time
+			}
+		})
+
+		// sort.Sort(ByPoint(temesForSort))
+		// for i := 0; i < len(temesForSort); i++ {
+		// 	fmt.Printf("temesForSort[i].Name: %v\n", temesForSort[i].Name)
+		// 	fmt.Printf("temes[i].Name: %v\n", temes[i].Name)
+		// }
+
+		// for i := 0; i < len(temesForSort); i++ {
+		// 	fmt.Printf("i: %v\n", i)
+		// 	temes[i].Rank = fmt.Sprint(i + 1)
+		// 	temes[i].RankNumber = i + 1
+		// }
+
+		for i := 0; i < len(temes); i++ {
+			for j := 0; j < len(temesForSort); j++ {
+				if temes[i].ID == temesForSort[j].ID {
+					temes[i].Rank = fmt.Sprint(j + 1)
+					temes[i].RankNumber = j + 1
+				}
+			}
+		}
 	}
 
 	getCompatitionModel := model.GetCompatition{
@@ -1067,6 +1243,7 @@ func (u *userUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error)
 		NumOfMatch:           result.NumOfMatch,
 		Matchs:               Matchs,
 	}
+
 	return &getCompatitionModel, nil
 }
 
@@ -1189,6 +1366,12 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 		return err
 	}
 
+	// util.PrintObjInJson(compatition.Teams)
+	// for _, v := range compatition.Teams {
+	// 	Teams.
+	// 	fmt.Printf("v.ID: %v\n", v.ID)
+	// }
+
 	if compatition.Status != "Applications opening" {
 		return fmt.Errorf("can't update compatition status to \"Stared\" (status now: %v)", compatition.Status)
 	}
@@ -1227,10 +1410,12 @@ func (u *userUsecaseImpl) StartCompatition(id uint) error {
 					count += 2
 				} else {
 					if j*2 < len(compatition.Teams) {
-						match.Team1ID = compatition.Teams[j*2].ID
+						match.Team1ID = compatition.Teams[j*2].TeamsID
+						fmt.Printf("match.Team1ID: %v---------------------------------\n", match.Team1ID)
 					}
 					if (j*2)+1 < len(compatition.Teams) {
-						match.Team2ID = compatition.Teams[(j*2)+1].ID
+						match.Team2ID = compatition.Teams[(j*2)+1].TeamsID
+						fmt.Printf("match.Team2ID: %v---------------------------------\n", match.Team2ID)
 					}
 				}
 				match.Index = len(matchs) + 1
@@ -1436,6 +1621,9 @@ func (u *userUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 			Status:       v.Compatitions.Status,
 			NumberOfTeam: v.Compatitions.NumberOfTeam,
 			ImageBanner:  v.Compatitions.ImageBannerPath,
+			Rank:         v.Rank,
+			RankNumber:   v.RankNumber,
+			Sport:        v.Compatitions.Sport,
 		})
 	}
 
@@ -1645,6 +1833,14 @@ func (u *userUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNormalUser
 		Description:   inUpdateModel.Description,
 		Phone:         inUpdateModel.Phone,
 		Username:      inUpdateModel.Username,
+		Addresses: entities.Addresses{
+			HouseNumber: inUpdateModel.Address.HouseNumber,
+			Village:     inUpdateModel.Address.Village,
+			Subdistrict: inUpdateModel.Address.Subdistrict,
+			District:    inUpdateModel.Address.District,
+			PostalCode:  inUpdateModel.Address.PostalCode,
+			Country:     inUpdateModel.Address.Country,
+		},
 	}
 
 	if isUsernameAlreadyInUser(normalUser.Username, u.userrepository) {

@@ -40,6 +40,8 @@ type Handler interface {
 
 	CreateTeam(c *gin.Context)
 	CreateCompatition(c *gin.Context)
+
+	GetNormalUserCompatition(c *gin.Context)
 	GetCompatition(c *gin.Context)
 	GetCompatitions(c *gin.Context)
 	JoinCompatition(c *gin.Context)
