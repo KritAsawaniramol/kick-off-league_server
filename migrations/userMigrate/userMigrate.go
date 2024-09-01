@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"kickoff-league.com/config"
@@ -9,7 +10,15 @@ import (
 	"kickoff-league.com/entities"
 	model "kickoff-league.com/models"
 	"kickoff-league.com/repositories"
-	"kickoff-league.com/usecases"
+	"kickoff-league.com/usecases/addMemberUsecase"
+	"kickoff-league.com/usecases/authUsecase"
+	"kickoff-league.com/usecases/competitionUsecase"
+	"kickoff-league.com/usecases/matchUsecase"
+	"kickoff-league.com/usecases/normalUserUsecase"
+	"kickoff-league.com/usecases/organizerUsecase"
+	"kickoff-league.com/usecases/teamUsecase"
+
+	"kickoff-league.com/usecases/userUsecase"
 	"kickoff-league.com/util"
 )
 
@@ -405,10 +414,38 @@ func main() {
 
 	db := database.NewPostgresDatabase(&cfg)
 
-	userPostgresRepository := repositories.NewUserPostgresRepository(db.GetDb())
+	repository := repositories.NewUserPostgresRepository(db.GetDb())
 
-	userUsercase := usecases.NewUserUsercaseImpl(
-		userPostgresRepository,
+	userUsecase := userUsecase.NewUserUsecaseImpl(
+		repository,
+	)
+
+	organizerUsecase := organizerUsecase.NewOrganizerUsecaseImpl(
+		repository,
+	)
+
+	teamUsecase := teamUsecase.NewTeamUsecaseImpl(
+		repository,
+	)
+
+	authUsecase := authUsecase.NewAuthUsecaseImpl(
+		repository,
+	)
+
+	addMemberUsecase := addMemberUsecase.NewAddMemberUsecaseImpl(
+		repository,
+	)
+
+	competitionUsecase := competitionUsecase.NewCompetitionUsecaseImpl(
+		repository,
+	)
+
+	normalUserUsecase := normalUserUsecase.NewNormalUserUsecaseImpl(
+		repository,
+	)
+
+	matchUsecase := matchUsecase.NewMatchUsecaseImpl(
+		repository,
 	)
 	// c := &entities.Compatitions{}
 	// c.ID = 3
@@ -437,7 +474,16 @@ func main() {
 
 	// userPostgresRepository.ClearGoalRecordsOfMatch(1)
 
-	mockupData(userUsercase)
+	mockupData(
+		userUsecase,
+		organizerUsecase,
+		authUsecase,
+		normalUserUsecase,
+		teamUsecase,
+		addMemberUsecase,
+		competitionUsecase,
+		matchUsecase,
+	)
 
 	// team := entities.Teams{}
 	// db.GetDb().Preload("TeamsMembers").First(&team, 1)
@@ -523,7 +569,7 @@ func main() {
 	// server.NewGinServer(&CFG, db.GetDb()).Start()
 }
 
-func TestGetTeams(u usecases.UserUsecase, normalUserID uint, teamID uint) *entities.Teams {
+func TestGetTeams(normalUserID uint, teamID uint) *entities.Teams {
 	team := &entities.Teams{
 		OwnerID: normalUserID,
 	}
@@ -531,14 +577,23 @@ func TestGetTeams(u usecases.UserUsecase, normalUserID uint, teamID uint) *entit
 	return team
 }
 
-func mockupData(u usecases.UserUsecase) {
+func mockupData(
+	userUsercase userUsecase.UserUsecase,
+	organizerUsecase organizerUsecase.OrganizerUsecase,
+	authUsecase authUsecase.AuthUsecase,
+	normalUserUsecase normalUserUsecase.NormalUserUsecase,
+	teamUsecase teamUsecase.TeamUsecase,
+	addMemberUsecase addMemberUsecase.AddMemberUsecase,
+	competitionUsecase competitionUsecase.CompetitionUsecase,
+	matchUsecase matchUsecase.MatchUsecase,
+) {
 	// Create NormalUser
 	nOfNormalUser := 40
 	for i := 1; i <= nOfNormalUser; i++ {
 		email := fmt.Sprintf("normal%d@gmail.com", i)
 		password := "1234"
 		username := fmt.Sprintf("normal%d", i)
-		if err := u.RegisterNormaluser(
+		if err := authUsecase.RegisterNormaluser(
 			&model.RegisterNormaluser{
 				RegisterUser: model.RegisterUser{
 					Email:    email,
@@ -569,7 +624,7 @@ func mockupData(u usecases.UserUsecase) {
 		// 	fmt.Printf("err: %v\n", err)
 		// 	panic(err.Error())
 		// }
-		if err := u.UpdateNormalUser(&model.UpdateNormalUser{
+		if err := normalUserUsecase.UpdateNormalUser(&model.UpdateNormalUser{
 			FirstNameThai: ThaiFirstNames[i],
 			LastNameThai:  ThaiLastNames[i],
 			FirstNameEng:  FirstNames[i],
@@ -587,7 +642,7 @@ func mockupData(u usecases.UserUsecase) {
 			panic(err.Error())
 		}
 
-		err := u.UpdateImageProfile(uint(i), fmt.Sprintf("./images/profile/%d.jpg", i))
+		err := userUsercase.UpdateImageProfile(uint(i), fmt.Sprintf("./images/profile/%d.jpg", i))
 		if err != nil {
 			panic(err)
 		}
@@ -600,7 +655,7 @@ func mockupData(u usecases.UserUsecase) {
 	nOfTeam := 8
 	for i := 1; i <= nOfNormalUser; i += nOfNormalUser / nOfTeam {
 		// teamName := fmt.Sprintf("Team%d", i)
-		if err := u.CreateTeam(&model.CreateTeam{
+		if err := teamUsecase.CreateTeam(&model.CreateTeam{
 			Name:        TeamNames[i],
 			OwnerID:     uint(i),
 			Description: TeamDescriptions[i],
@@ -608,7 +663,7 @@ func mockupData(u usecases.UserUsecase) {
 			fmt.Printf("err: %v\n", err)
 			panic(err)
 		}
-		err := u.UpdateTeamImageProfile(uint(count), fmt.Sprintf("images/profile/%s.png", Clubs[count]))
+		err := teamUsecase.UpdateTeamImageProfile(uint(count), fmt.Sprintf("images/profile/%s.png", Clubs[count]), uint(i))
 		if err != nil {
 			panic(err)
 		}
@@ -621,7 +676,7 @@ func mockupData(u usecases.UserUsecase) {
 	ownerID := 1
 	for i := 1; i <= nOfNormalUser; i++ {
 		fmt.Printf("i: %v\n", i)
-		err := u.SendAddMemberRequest(&model.AddMemberRequest{
+		err := addMemberUsecase.SendAddMemberRequest(&model.AddMemberRequest{
 			TeamID:           uint(teamID),
 			ReceiverUsername: fmt.Sprintf("normal%d", i),
 			Role:             "player",
@@ -638,24 +693,27 @@ func mockupData(u usecases.UserUsecase) {
 
 	// Accept request
 	for i := 1; i <= nOfNormalUser; i++ {
-		u.AcceptAddMemberRequest(uint(i), uint(i))
+		addMemberUsecase.AcceptAddMemberRequest(uint(i), uint(i))
 	}
 
 	// // Create Organizer
 	nOfOrg := 2
 	for i := 0; i < nOfOrg; i++ {
-		u.RegisterOrganizer(&model.RegisterOrganizer{
+		err := authUsecase.RegisterOrganizer(&model.RegisterOrganizer{
 			RegisterUser: model.RegisterUser{
 				Email:    fmt.Sprintf("organizer%d@gmail.com", i),
 				Password: "1234",
 			},
-			Phone:         "00000000000" + fmt.Sprintf("%d", i),
+			Phone:         fmt.Sprintf("%d", i) + "00000000000",
 			OrganizerName: fmt.Sprintf("org%d", i),
 		})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// Create Compatition
-	err := u.CreateCompatition(&model.CreateCompatition{
+	err := competitionUsecase.CreateCompetition(&model.CreateCompetition{
 		Name:                 "Football A CUP",
 		Sport:                "Football",
 		Type:                 "Round Robin",
@@ -691,7 +749,7 @@ func mockupData(u usecases.UserUsecase) {
 		panic(err)
 	}
 
-	err = u.CreateCompatition(&model.CreateCompatition{
+	err = competitionUsecase.CreateCompetition(&model.CreateCompetition{
 		Name:                 "Football B",
 		Sport:                util.Sport[0],
 		Type:                 util.CompetitionType[0],
@@ -710,7 +768,7 @@ func mockupData(u usecases.UserUsecase) {
 		NumOfPlayerInTeamMin: 0,
 		NumOfPlayerInTeamMax: 0,
 		FieldSurface:         "NaturalGrass",
-		OrganizerID:          1,
+		OrganizerID:          2,
 		Address: model.Address{
 			HouseNumber: "HouseNumber",
 			Village:     "Village    ",
@@ -727,7 +785,7 @@ func mockupData(u usecases.UserUsecase) {
 		panic(err)
 	}
 
-	err = u.CreateCompatition(&model.CreateCompatition{
+	err = competitionUsecase.CreateCompetition(&model.CreateCompetition{
 		Name:                 "Football B CUP",
 		Sport:                util.Sport[1],
 		Type:                 util.CompetitionType[1],
@@ -763,7 +821,7 @@ func mockupData(u usecases.UserUsecase) {
 		panic(err)
 	}
 
-	err = u.CreateCompatition(&model.CreateCompatition{
+	err = competitionUsecase.CreateCompetition(&model.CreateCompetition{
 		Name:                 "Football C CUP",
 		Sport:                util.Sport[1],
 		Type:                 util.CompetitionType[1],
@@ -800,13 +858,13 @@ func mockupData(u usecases.UserUsecase) {
 	}
 
 	// Open Application
-	err = u.OpenApplicationCompatition(1)
+	err = competitionUsecase.OpenApplicationCompetition(1, 1)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		panic(err)
 	}
 
-	err = u.OpenApplicationCompatition(2)
+	err = competitionUsecase.OpenApplicationCompetition(2, 2)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		panic(err)
@@ -820,10 +878,10 @@ func mockupData(u usecases.UserUsecase) {
 	// join compatition
 	// nOfTeam -= 1
 	for i := 1; i <= nOfTeam; i++ {
-		err := u.JoinCompatition(&model.JoinCompatition{
-			CompatitionID: 1,
+		err := competitionUsecase.JoinCompetition(&model.JoinCompetition{
+			CompetitionID: 1,
 			TeamID:        uint(i),
-		})
+		}, uint(i+((i-1)*4)))
 		if err != nil {
 			fmt.Printf("nOfTeam: %v\n", nOfTeam)
 			fmt.Printf("err: %v\n", err)
@@ -834,10 +892,10 @@ func mockupData(u usecases.UserUsecase) {
 	// join compatition
 	// nOfTeam -= 1
 	for i := 1; i <= nOfTeam; i++ {
-		err := u.JoinCompatition(&model.JoinCompatition{
-			CompatitionID: 2,
+		err := competitionUsecase.JoinCompetition(&model.JoinCompetition{
+			CompetitionID: 2,
 			TeamID:        uint(i),
-		})
+		}, uint(i+((i-1)*4)))
 		if err != nil {
 			fmt.Printf("err: %v\n", err)
 			panic(err)

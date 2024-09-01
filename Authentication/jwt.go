@@ -14,27 +14,6 @@ type jwtAuthentication struct {
 	secretKey string
 }
 
-// fetch user details from the token
-// func (j *jwtAuthentication) CurrentUser(c *gin.Context) (*model.User, error) {
-// 	err := j.validateJWT(c)
-// 	if err != nil {
-// 		return &model.User{}, err
-// 	}
-
-// 	token, err := j.getToken(c)
-// 	if err != nil {
-// 		return &model.User{}, err
-// 	}
-
-// 	claims, err := token.Claims(jwt.MapClaims)
-// 	if err != nil {
-// 		return &model.User{}, err
-// 	}
-
-// 	userId := uint(claims["user_id"].(float64))
-
-// }
-
 func (j *jwtAuthentication) getToken(c *gin.Context) (*jwt.Token, error) {
 	cookie, err := c.Cookie("token")
 	if err != nil {
@@ -52,22 +31,21 @@ func (j *jwtAuthentication) Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := j.getToken(c)
 		if err != nil {
+			fmt.Printf("err: %v\n", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
-
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			log.Print("token can't claims")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
-
-		if err != nil || !token.Valid {
+		if !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
-
+		
 		userID, ok := claims["user_id"]
 		if !ok {
 			log.Print("user_id not found in token", claims)
@@ -75,7 +53,6 @@ func (j *jwtAuthentication) Auth() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("JWT userID: %v\n", userID)
 		c.Set("user_id", uint(userID.(float64)))
 		c.Next()
 	}

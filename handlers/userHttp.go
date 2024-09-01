@@ -15,201 +15,44 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
-	model "kickoff-league.com/models"
-	"kickoff-league.com/util"
 )
 
-// GetNormalUserCompatition implements Handler.
-func (h *httpHandler) GetNormalUserCompatition(c *gin.Context) {
-	panic("unimplemented")
-}
-
-// GetMatch implements Handler.
-func (h *httpHandler) GetMatch(c *gin.Context) {
-	matchID, err := strconv.ParseUint(c.Param("matchID"), 10, 64)
+// GetUser implements UserHandler.
+func (h *httpHandler) GetUser(c *gin.Context) {
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		log.Printf("error: GetUser: %s\n", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": "error: get user failed"})
+		return
+	}
+	user, err := h.userUsercase.GetUser(uint(userID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	match, err := h.userUsercase.GetMatch(uint(matchID))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServer"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"match": match})
-}
-
-// CreateJoinCode implements Handler.
-func (h *httpHandler) AddJoinCode(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	number := new(struct {
-		Number int `json:"number"`
+	c.JSON(http.StatusOK, gin.H{
+		"user": user,
 	})
-
-	err = c.BindJSON(number)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.AddJoinCode(uint(compatitionID), number.Number)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServer"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "CreateJoinCode success"})
 }
 
-// RemoveCompatitionTeam implements Handler.
-func (h *httpHandler) RemoveCompatitionTeam(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
+
+// GetUserByPhone implements UserHandler.
+func (h *httpHandler) GetUsers(c *gin.Context) {
+	normalUser, err := h.userUsercase.GetUsers()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		response(c, http.StatusBadRequest, "Bad request")
 		return
 	}
-
-	teamID := new(struct {
-		TeamID uint `json:"team_id"`
-	})
-
-	err = c.BindJSON(teamID)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	if err := h.userUsercase.RemoveTeamFormCompatition(teamID.TeamID, uint(compatitionID)); err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "RemoveTeamMember success"})
-
+	c.JSON(http.StatusOK, normalUser)
 }
 
-// RemoveTeamMember implements Handler.
-func (h *httpHandler) RemoveTeamMember(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
 
-	normalUserID := new(struct {
-		NormalUserID uint `json:"normal_user_id"`
-	})
-
-	err = c.BindJSON(normalUserID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	if err := h.userUsercase.RemoveNormalUserFormTeam(uint(teamID), normalUserID.NormalUserID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "RemoveTeamMember success"})
-}
-
-// GetNormalUsers implements Handler.
-func (h *httpHandler) GetNormalUsers(c *gin.Context) {
-	normalUserList, err := h.userUsercase.GetNormalUserList()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, normalUserList)
-
-}
-
-// DeleteTeamImageProfile implements Handler.
-func (h *httpHandler) DeleteTeamImageProfile(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	if err := h.userUsercase.RemoveTeamImageProfile(uint(teamID)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveTeamImageProfile fail"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "RemoveTeamImageProfile successs"})
-}
-
-// DeleteTeamImageCover implements Handler.
-func (h *httpHandler) DeleteTeamImageCover(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	if err := h.userUsercase.RemoveTeamImageCover(uint(teamID)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "DeleteTeamImageCover fail"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "DeleteTeamImageCover successs"})
-}
-
-// UpdateTeamImageCover implements Handler.
-func (h *httpHandler) UpdateTeamImageCover(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageCover fail"})
-		return
-	}
-
+func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
+	
 	in, err := c.FormFile("image")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageCover fail"})
-		return
-	}
-
-	// extract image extension from original file filename
-	isImage, fileExt := isImage(in)
-	if !isImage {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
-		return
-	}
-
-	imagePath := createImagePath(fileExt, "./images/cover")
-
-	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageCover fail"})
-		return
-	}
-
-	if err := h.userUsercase.UpdateTeamImageCover(uint(teamID), imagePath); err != nil {
-		if err := os.Remove(imagePath); err != nil {
-			fmt.Printf("Error removing file: %s\n", err)
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageCover fail"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "UpdateTeamImageCover success"})
-}
-
-// UpdateTeamImageProfile implements Handler.
-func (h *httpHandler) UpdateTeamImageProfile(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("teamID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageProfile fail"})
-		return
-	}
-
-	in, err := c.FormFile("image")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "UpdateTeamImageProfile fail"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "update image profile failed"})
 		return
 	}
 
@@ -217,7 +60,6 @@ func (h *httpHandler) UpdateTeamImageProfile(c *gin.Context) {
 	isImage, fileExt := isImage(in)
 	if !isImage {
 		fmt.Println("error: is not image")
-
 		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
 		return
 	}
@@ -225,106 +67,20 @@ func (h *httpHandler) UpdateTeamImageProfile(c *gin.Context) {
 	imagePath := createImagePath(fileExt, "./images/profile")
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageProfile fail"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "update image profile failed"})
 		return
 	}
 
-	if err := h.userUsercase.UpdateTeamImageProfile(uint(teamID), imagePath); err != nil {
+	if err := h.userUsercase.UpdateImageProfile(c.GetUint("user_id"), imagePath); err != nil {
 		log.Errorf(err.Error())
 		if err := os.Remove(imagePath); err != nil {
 			fmt.Printf("Error removing file: %s\n", err)
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateTeamImageProfile fail"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "UpdateTeamImageProfile success"})
-
-}
-
-// DeleteImageBanner implements Handler.
-func (h *httpHandler) DeleteImageBanner(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "RemoveImageBanner fail"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	if err := h.userUsercase.RemoveImageBanner(uint(compatitionID)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "RemoveImageBanner fail"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageBanner successs"})
-}
-
-// DeleteImageCover implements Handler.
-func (h *httpHandler) DeleteImageCover(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	if err := h.userUsercase.RemoveImageCover(userID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
-}
-
-// DeleteImageProfile implements UserHandler.
-func (h *httpHandler) DeleteImageProfile(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	if err := h.userUsercase.RemoveImageProfile(userID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "RemoveImageProfile successs"})
-}
-
-func createImagePath(fileExt string, dst string) string {
-	// generate new uuid for image name
-	uniqueID := uuid.New()
-
-	// remove "- from imageName"
-	filename := strings.Replace(uniqueID.String(), "-", "", -1)
-
-	// generate image from filename and extension
-	image := fmt.Sprintf("%s.%s", filename, fileExt)
-
-	imagePath := fmt.Sprintf("%s/%s", dst, image)
-	return imagePath
-}
-
-// UpdateImageBanner implements Handler.
-func (h *httpHandler) UpdateImageBanner(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	in, err := c.FormFile("image")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest (image)"})
-		return
-	}
-
-	// extract image extension from original file filename
-	isImage, fileExt := isImage(in)
-	if !isImage {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
-		return
-	}
-
-	imagePath := createImagePath(fileExt, "./images/banner")
-
-	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateImageBanner fail"})
-		return
-	}
-	if err := h.userUsercase.UpdateImageBanner(uint(compatitionID), imagePath); err != nil {
-		if err := os.Remove(imagePath); err != nil {
-			fmt.Printf("Error removing file: %s\n", err)
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "UpdateImageBanner fail"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageBanner success"})
+	c.JSON(http.StatusOK, gin.H{"message": "update image profile success"})
 }
 
 // UpdateImageCover implements UserHandler.
@@ -333,7 +89,7 @@ func (h *httpHandler) UpdateImageCover(c *gin.Context) {
 
 	in, err := c.FormFile("image")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "update cover image failed"})
 		return
 	}
 
@@ -347,86 +103,49 @@ func (h *httpHandler) UpdateImageCover(c *gin.Context) {
 	imagePath := createImagePath(fileExt, "./images/cover")
 
 	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "update cover image failed"})
 		return
 	}
 
 	if err := h.userUsercase.UpdateImageCover(userID, imagePath); err != nil {
 		if err := os.Remove(imagePath); err != nil {
-			fmt.Printf("Error removing file: %s\n", err)
+			log.Printf("Error removing file: %s\n", err)
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
+	c.JSON(http.StatusOK, gin.H{"message": "update cover image success"})
 }
 
-func (h *httpHandler) UpdateImageProfile(c *gin.Context) {
+// DeleteImageProfile implements UserHandler.
+func (h *httpHandler) DeleteImageProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	fmt.Printf("userID: %v\n", userID)
-	in, err := c.FormFile("image")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+	if err := h.userUsercase.RemoveImageProfile(userID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-
-	// extract image extension from original file filename
-	isImage, fileExt := isImage(in)
-	if !isImage {
-		fmt.Println("error: is not image")
-		c.JSON(http.StatusBadRequest, gin.H{"message": "file is not an image(png, jpeg)"})
-		return
-	}
-
-	imagePath := createImagePath(fileExt, "./images/profile")
-
-	if err := c.SaveUploadedFile(in, imagePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-
-	if err := h.userUsercase.UpdateImageProfile(userID, imagePath); err != nil {
-		log.Errorf(err.Error())
-		if err := os.Remove(imagePath); err != nil {
-			fmt.Printf("Error removing file: %s\n", err)
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "UpdateImageProfile success"})
+	c.JSON(http.StatusOK, gin.H{"message": "remove image profile successs"})
 }
 
-// UploadFile implements UserHandler.
-func (*httpHandler) UploadImage(c *gin.Context) {
-	in, err := c.FormFile("image")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+
+// DeleteImageCover implements Handler.
+func (h *httpHandler) DeleteImageCover(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	if err := h.userUsercase.RemoveImageCover(userID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-
-	// extract image extension from original file filename
-	isImage, fileExt := isImage(in)
-	if !isImage {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "File is not an image(png, jpeg)"})
-		return
-	}
-
-	// generate new uuid for image name
-	uniqueID := uuid.New()
-
-	// remove "- from imageName"
-	filename := strings.Replace(uniqueID.String(), "-", "", -1)
-
-	// generate image from filename and extension
-	image := fmt.Sprintf("%s.%s", filename, fileExt)
-
-	if err := c.SaveUploadedFile(in, "./images/"+image); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "file upload complete!"})
+	c.JSON(http.StatusOK, gin.H{"message": "remove cover image successs"})
 }
+
+
+// ==========================================================================================================
+// ==========================================================================================================
+// ==========================================================================================================
+// ==========================================================================================================
+// ==========================================================================================================
+
+
 
 func isImage(fileHeader *multipart.FileHeader) (bool, string) {
 	file, err := fileHeader.Open()
@@ -450,504 +169,16 @@ func isImage(fileHeader *multipart.FileHeader) (bool, string) {
 	}
 }
 
-func (h *httpHandler) CreateTeam(c *gin.Context) {
-	reqBody := new(model.CreateTeam)
-	if err := c.BindJSON(reqBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	reqBody.OwnerID = c.GetUint("user_id")
-	if err := h.userUsercase.CreateTeam(reqBody); err != nil {
-		switch err.(type) {
-		case *util.CreateTeamError:
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		default:
-			c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		}
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "CreateTeam success"})
-}
+func createImagePath(fileExt string, dst string) string {
+	// generate new uuid for image name
+	uniqueID := uuid.New()
 
-// GetMatchResult implements Handler.
-func (h *httpHandler) GetMatchResult(c *gin.Context) {
+	// remove "- from imageName"
+	filename := strings.Replace(uniqueID.String(), "-", "", -1)
 
-}
+	// generate image from filename and extension
+	image := fmt.Sprintf("%s.%s", filename, fileExt)
 
-// GetNextMatch implements Handler.
-func (h *httpHandler) GetNextMatch(c *gin.Context) {
-	normalUserID, err := strconv.ParseUint(c.Param("normalUserID"), 10, 64)
-	if err != nil {
-		fmt.Println("hello world")
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	nextMatchs, err := h.userUsercase.GetNextMatch(uint(normalUserID))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"next_match": nextMatchs})
-}
-
-// UpdateMatch implements Handler.
-func (h *httpHandler) UpdateMatch(c *gin.Context) {
-	matchID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	updateMatch := &model.UpdateMatch{}
-	err = c.BindJSON(updateMatch)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.UpdateMatch(uint(matchID), updateMatch)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Update match success"})
-}
-
-// UpdateCompatition implements Handler.
-func (h *httpHandler) UpdateCompatition(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	updateCompatition := &model.UpdateCompatition{}
-	err = c.BindJSON(updateCompatition)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.UpdateCompatition(uint(compatitionID), updateCompatition)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
-}
-
-// JoinCompatition implements Handler.
-func (h *httpHandler) JoinCompatition(c *gin.Context) {
-	joinModel := &model.JoinCompatition{}
-	if err := c.BindJSON(joinModel); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	err := h.userUsercase.JoinCompatition(joinModel)
-	if err != nil {
-		fmt.Printf("\"sldkfhasodfhaskdfjasdfasdfasdfsadfasdfasdkfasdfas:\": %v\n", "sldkfhasodfhaskdfjasdfasdfasdfsadfasdfasdkfasdfas:")
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-		// if strings.HasPrefix(err.Error(), "unable") {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		// } else {
-		// 	fmt.Printf("err: %v\n", err)
-		// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		// }
-		// return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
-}
-
-// CreateCompatition implements UserHandler.
-func (h *httpHandler) CreateCompatition(c *gin.Context) {
-	organizerID := c.GetUint("organizer_id")
-	reqBody := new(model.CreateCompatition)
-	if err := c.BindJSON(reqBody); err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	reqBody.OrganizerID = organizerID
-
-	if err := h.userUsercase.CreateCompatition(reqBody); err != nil {
-		if err.Error() == "number of Team for create competition(tounament) is not power of 2" ||
-			err.Error() == "number of Team have to morn than 1" ||
-			err.Error() == "undefined compatition type" {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Create compatition success"})
-}
-
-// GetCompatition implements Handler.
-func (h *httpHandler) GetCompatition(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	result, err := h.userUsercase.GetCompatition(uint(teamID))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"compatition": result})
-}
-
-// GetCompatitions implements Handler.
-func (h *httpHandler) GetCompatitions(c *gin.Context) {
-
-	organizerID, err := strconv.ParseUint(c.Query("organizerID"), 10, 64)
-	if c.Query("organizerID") != "" && err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	normalUserID, err := strconv.ParseUint(c.Query("normalUserID"), 10, 64)
-	if c.Query("normalUserID") != "" && err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	teamID, err := strconv.ParseUint(c.Query("teamID"), 10, 64)
-	if c.Query("teamID") != "" && err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-
-	compatitions, err := h.userUsercase.GetCompatitions(&model.GetCompatitionsReq{
-		NormalUserID: uint(normalUserID),
-		TeamID:       uint(teamID),
-		OrganizerID:  uint(organizerID),
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"compatition": compatitions})
-}
-
-// GetMyPenddingAddMemberRequest implements UserHandler.
-func (h *httpHandler) GetMyPenddingAddMemberRequest(c *gin.Context) {
-	addMemberRequests, err := h.userUsercase.GetMyPenddingAddMemberRequest(c.GetUint("user_id"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"add_member_requests": addMemberRequests})
-}
-
-// GetTeam implements UserHandler.
-func (h *httpHandler) GetTeam(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	teams, err := h.userUsercase.GetTeamWithMemberAndCompatitionByID(uint(teamID))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"teams": teams})
-}
-
-// GetTeamByOwnerID implements Handler.
-func (h *httpHandler) GetTeamByOwnerID(c *gin.Context) {
-	teamID, err := strconv.ParseUint(c.Param("ownerid"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	teams, err := h.userUsercase.GetTeamsByOwnerID(uint(teamID))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"teams": teams})
-}
-
-// GetTeamList implements UserHandler.
-func (h *httpHandler) GetTeams(c *gin.Context) {
-	reqBody := new(model.GetTeamsReq)
-	// if err := c.BindJSON(reqBody); err != nil {
-	// 	log.Errorf("Error binding request body: %v", err)
-	// 	response(c, http.StatusBadRequest, "Bad request")
-	// 	return
-	// }
-
-	teams, err := h.userUsercase.GetTeams(reqBody)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"teams": teams})
-}
-
-// AcceptAddMemberRequest implements UserHandler.
-func (h *httpHandler) AcceptAddMemberRequest(c *gin.Context) {
-	reqBody := new(struct {
-		ReqID uint `json:"requestID"`
-	})
-	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	if err := h.userUsercase.AcceptAddMemberRequest(reqBody.ReqID, c.GetUint("user_id")); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "AcceptAddMemberRequest success"})
-}
-
-// IgnoreAddMemberRequest implements UserHandler.
-func (h *httpHandler) IgnoreAddMemberRequest(c *gin.Context) {
-	reqBody := new(struct {
-		ReqID uint `json:"requestID"`
-	})
-	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	if err := h.userUsercase.IgnoreAddMemberRequest(reqBody.ReqID, c.GetUint("user_id")); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "IgnoreAddMemberRequest success"})
-}
-
-// SendAddMemberRequest implements UserHandler.
-func (h *httpHandler) SendAddMemberRequest(c *gin.Context) {
-
-	//Get userID
-	userID := c.GetUint("user_id")
-
-	reqBody := new(model.AddMemberRequest)
-	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	if err := h.userUsercase.SendAddMemberRequest(reqBody, userID); err != nil {
-		if err_str := err.Error(); err_str == "this user isn't owner's team" ||
-			err_str == "this user already invited" ||
-			err_str == "this user already in team" {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Create AddMemberRequest failed"})
-		}
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Create AddMemberRequest success"})
-}
-
-// UpdateNormalUser implements UserHandler.
-func (h *httpHandler) UpdateNormalUser(c *gin.Context) {
-	//Get userID
-	normalUserID := c.GetUint("normal_user_id")
-
-	reqBody := new(model.UpdateNormalUser)
-	if err := c.BindJSON(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	if err := h.userUsercase.UpdateNormalUser(reqBody, normalUserID); err != nil {
-		log.Errorf(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Update normalUser failed"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Update normalUser success"})
-}
-
-// GetUserByPhone implements UserHandler.
-func (h *httpHandler) GetUsers(c *gin.Context) {
-	normalUser, err := h.userUsercase.GetUsers()
-	if err != nil {
-		response(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-	c.JSON(http.StatusOK, normalUser)
-}
-
-// GetUser implements UserHandler.
-func (h *httpHandler) GetUser(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	user, err := h.userUsercase.GetUser(uint(userID))
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusNotFound, gin.H{"message": "Not Found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"user": user,
-	})
-}
-
-// GetNormalUser implements Handler.
-func (h *httpHandler) GetNormalUser(c *gin.Context) {
-	normalUserID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-	normalUser, err := h.userUsercase.GetNormalUser(uint(normalUserID))
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusNotFound, gin.H{"message": "Not Found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"normalUser": normalUser,
-	})
-}
-
-// CancelCompatition implements Handler.
-func (h *httpHandler) CancelCompatition(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.CancelCompatition(uint(compatitionID))
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "hello world"})
-}
-
-// FinishCompatition implements Handler.
-func (h *httpHandler) FinishCompatition(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.FinishCompatition(uint(compatitionID))
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "finish com"})
-}
-
-// OpenCompatition implements Handler.
-func (h *httpHandler) OpenCompatition(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.OpenApplicationCompatition(uint(compatitionID))
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "open application for compatition success"})
-}
-
-// StartCompatition implements Handler.
-func (h *httpHandler) StartCompatition(c *gin.Context) {
-	compatitionID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		log.Errorf(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.StartCompatition(uint(compatitionID))
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Update compatition status to \"Started\" success"})
-}
-
-// GetOrganizer implements Handler.
-func (h *httpHandler) GetOrganizer(c *gin.Context) {
-	organizerID, err := strconv.ParseUint(c.Param("organizerID"), 10, 32)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	org, err := h.userUsercase.GetOrganizer(uint(organizerID))
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"organizer": org})
-}
-
-// GetOrganizers implements Handler.
-func (h *httpHandler) GetOrganizers(c *gin.Context) {
-	org, err := h.userUsercase.GetOrganizers()
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"organizer": org})
-}
-
-// UpdateOrganizer implements Handler.
-func (h *httpHandler) UpdateOrganizer(c *gin.Context) {
-	organizerID, err := strconv.ParseUint(c.Param("organizerID"), 10, 32)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	updateOrganizer := &model.UpdateOrganizer{}
-
-	err = c.BindJSON(updateOrganizer)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
-		return
-	}
-
-	err = h.userUsercase.UpdateOrganizer(uint(organizerID), updateOrganizer)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "UpdateOrganizer success"})
+	imagePath := fmt.Sprintf("%s/%s", dst, image)
+	return imagePath
 }

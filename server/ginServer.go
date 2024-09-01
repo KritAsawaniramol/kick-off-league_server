@@ -1,15 +1,31 @@
 package server
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	authentication "kickoff-league.com/Authentication"
+	"kickoff-league.com/authentication"
 	"kickoff-league.com/config"
 	"kickoff-league.com/handlers"
 	"kickoff-league.com/repositories"
-	"kickoff-league.com/usecases"
+	"kickoff-league.com/usecases/addMemberUsecase"
+	"kickoff-league.com/usecases/authUsecase"
+	"kickoff-league.com/usecases/competitionUsecase"
+	"kickoff-league.com/usecases/matchUsecase"
+	"kickoff-league.com/usecases/normalUserUsecase"
+	"kickoff-league.com/usecases/organizerUsecase"
+	"kickoff-league.com/usecases/teamUsecase"
+	"kickoff-league.com/usecases/userUsecase"
 )
 
 type ginServer struct {
@@ -19,6 +35,7 @@ type ginServer struct {
 }
 
 func NewGinServer(cfg *config.Config, db *gorm.DB) Server {
+
 	return &ginServer{
 		app: gin.New(),
 		db:  db,
@@ -28,125 +45,212 @@ func NewGinServer(cfg *config.Config, db *gorm.DB) Server {
 
 func (s *ginServer) Start() {
 	// Initialzie routers here
-	s.initialzieUserHttpHandler()
+	s.InitialzieHttpHandler()
+
+	// serverUrl := fmt.Sprintf(":%d", s.cfg.App.Port)
+	// s.app.Run(serverUrl)
 
 	serverUrl := fmt.Sprintf(":%d", s.cfg.App.Port)
-	s.app.Run(serverUrl)
+	srv := &http.Server{
+		Addr:    serverUrl,
+		Handler: s.app,
+	}
+
+	go func() {
+		// Wait for interrupt signal to gracefully shutdown the server with
+		// a timeout of 5 seconds.
+		quit := make(chan os.Signal, 1)
+		// kill (no param) default send syscall.SIGTERM
+		// kill -2 is syscall.SIGINT
+		// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		log.Println("Shutdown Server ...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatal("Server Shutdown:", err)
+		}
+		// catching ctx.Done(). timeout of 5 seconds.
+		<-ctx.Done()
+		log.Println("timeout of 5 seconds.")
+	}()
+
+	// service connections
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("listen: %s\n", err)
+	}
+	log.Println("Server exiting")
+
 }
 
-func (s *ginServer) initialzieUserHttpHandler() {
+func (s *ginServer) InitialzieHttpHandler() {
+
 	// Initialize all layers
+	repository := repositories.NewUserPostgresRepository(s.db)
 
-	userPostgresRepository := repositories.NewUserPostgresRepository(s.db)
+	userUsecase := userUsecase.NewUserUsecaseImpl(
+		repository,
+	)
 
-	userUsercase := usecases.NewUserUsercaseImpl(
-		userPostgresRepository,
+	organizerUsecase := organizerUsecase.NewOrganizerUsecaseImpl(
+		repository,
+	)
+
+	teamUsecase := teamUsecase.NewTeamUsecaseImpl(
+		repository,
+	)
+
+	authUsecase := authUsecase.NewAuthUsecaseImpl(
+		repository,
+	)
+
+	addMemberUsecase := addMemberUsecase.NewAddMemberUsecaseImpl(
+		repository,
+	)
+
+	competitionUsecase := competitionUsecase.NewCompetitionUsecaseImpl(
+		repository,
+	)
+
+	normalUserUsecase := normalUserUsecase.NewNormalUserUsecaseImpl(
+		repository,
+	)
+
+	matchUsecase := matchUsecase.NewMatchUsecaseImpl(
+		repository,
 	)
 
 	auth := authentication.NewJwtAuthentication(s.cfg.JwtSecretKey)
 
-	userHttpHandler := handlers.NewhttpHandler(userUsercase)
+	httpHandler := handlers.NewhttpHandler(
+		userUsecase,
+		organizerUsecase,
+		authUsecase,
+		normalUserUsecase,
+		teamUsecase,
+		addMemberUsecase,
+		competitionUsecase,
+		matchUsecase,
+	)
 
 	s.app.Use(gin.Logger())
 	s.app.Use(gin.Recovery())
 	s.app.Static("/images", "./images")
 
-	// Add CORS middleware
+	// Define your allowed origins
+	allowedOrigins := []string{
+		"http://localhost:5173",
+	}
 
-	s.app.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(200)
-			return
-		}
-		c.Next()
-	})
-
-	s.app.POST("/upload", userHttpHandler.UploadImage)
-
-	// s.app.GET("/user/phone/:phone", userHttpHandler.GetUserByPhone)
-	// s.app.PUT("/user/phone/:userID/:phone", userHttpHandler.UpdateNormalUserPhone)
+	// Configure CORS middleware with multiple allowed origins
+	config := cors.Config{
+		AllowOrigins:     allowedOrigins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+	// Apply the CORS middleware to the Gin router
+	s.app.Use(cors.New(config))
 
 	//Routers
 	authRouter := s.app.Group("/auth")
 	{
-		authRouter.POST("/register/normal", userHttpHandler.RegisterNormaluser)
-		authRouter.POST("/register/organizer", userHttpHandler.RegisterOrganizer)
-		authRouter.POST("/login", userHttpHandler.LoginUser)
-		authRouter.POST("/logout", auth.Auth(), userHttpHandler.LogoutUser)
+		authRouter.POST("/register/organizer", httpHandler.RegisterOrganizer)
+		authRouter.POST("/login", httpHandler.LoginUser)
+		authRouter.POST("/register/normal", httpHandler.RegisterNormaluser)
+		authRouter.POST("/logout", auth.Auth(), httpHandler.LogoutUser)
+		// ========================================================================
+		// ========================================================================
+		// ========================================================================
+
 	}
 
 	viewRouter := s.app.Group("/view")
 	{
-		viewRouter.GET("/teams", userHttpHandler.GetTeams)
-		viewRouter.GET("/teams/:id", userHttpHandler.GetTeam)
-		viewRouter.GET("/users", userHttpHandler.GetUsers)
-		viewRouter.GET("/users/:id", userHttpHandler.GetUser)
+		viewRouter.GET("/competition/:id", httpHandler.GetCompetition)
+		viewRouter.GET("/competition", httpHandler.GetCompetitions)
+		viewRouter.GET("/match/:matchID", httpHandler.GetMatch)
+		viewRouter.GET("/normalUsers", httpHandler.GetNormalUsers)
+		viewRouter.GET("/normalUsers/:id", httpHandler.GetNormalUser)
+		viewRouter.GET("/organizer", httpHandler.GetOrganizers)
+		viewRouter.GET("/organizer/:organizerID", httpHandler.GetOrganizer)
+		viewRouter.GET("/teams", httpHandler.GetTeams)
+		viewRouter.GET("/teams/:id", httpHandler.GetTeam)
+		viewRouter.GET("/users/:id", httpHandler.GetUser)
+		viewRouter.GET("/users", httpHandler.GetUsers)
 
-		viewRouter.GET("/normalUsers", userHttpHandler.GetNormalUsers)
-		viewRouter.GET("/normalUsers/:id", userHttpHandler.GetNormalUser)
+		// ========================================================================
+		// ========================================================================
+		// ========================================================================
 
-		viewRouter.GET("/compatition", userHttpHandler.GetCompatitions)
-		viewRouter.GET("/compatition/:id", userHttpHandler.GetCompatition)
 		// viewRouter.GET("/compatition/normalUser/:id", userHttpHandler.)
-
-		viewRouter.GET("/match/:matchID", userHttpHandler.GetMatch)
-
-		viewRouter.GET("/organizer", userHttpHandler.GetOrganizers)
-		viewRouter.GET("/organizer/:organizerID", userHttpHandler.GetOrganizer)
 
 	}
 
 	imageRouter := s.app.Group("/image")
 	imageRouter.Use(auth.Auth())
 	{
-		imageRouter.PUT("/profile", userHttpHandler.UpdateImageProfile)
-		imageRouter.PUT("/cover", userHttpHandler.UpdateImageCover)
-		imageRouter.PUT("/banner/:compatitionID", userHttpHandler.UpdateImageBanner)
-		imageRouter.DELETE("/profile", userHttpHandler.DeleteImageProfile)
-		imageRouter.DELETE("/cover", userHttpHandler.DeleteImageCover)
-		imageRouter.DELETE("/banner/:compatitionID", userHttpHandler.DeleteImageBanner)
+		imageRouter.DELETE("/banner/:compatitionID", auth.AuthOrganizer(), httpHandler.DeleteImageBanner)
+		imageRouter.PATCH("/banner/:compatitionID", auth.AuthOrganizer(), httpHandler.UpdateImageBanner)
+		imageRouter.DELETE("/team/profile/:teamID", httpHandler.DeleteTeamImageProfile)
+		imageRouter.DELETE("/team/cover/:teamID", httpHandler.DeleteTeamImageCover)
+		imageRouter.PATCH("/team/cover/:teamID", httpHandler.UpdateTeamImageCover)
+		imageRouter.PATCH("/team/profile/:teamID", httpHandler.UpdateTeamImageProfile)
+		imageRouter.PATCH("/profile", httpHandler.UpdateImageProfile)
+		imageRouter.PATCH("/cover", httpHandler.UpdateImageCover)
+		imageRouter.DELETE("/profile", httpHandler.DeleteImageProfile)
+		imageRouter.DELETE("/cover", httpHandler.DeleteImageCover)
 
-		imageRouter.PUT("/team/profile/:teamID", userHttpHandler.UpdateTeamImageProfile)
-		imageRouter.PUT("/team/cover/:teamID", userHttpHandler.UpdateTeamImageCover)
-		imageRouter.DELETE("/team/profile/:teamID", userHttpHandler.DeleteTeamImageProfile)
-		imageRouter.DELETE("/team/cover/:teamID", userHttpHandler.DeleteTeamImageCover)
+		// ========================================================================
+		// ========================================================================
+		// ========================================================================
+
 	}
 
 	organizerRouter := s.app.Group("/organizer")
 	organizerRouter.Use(auth.AuthOrganizer())
 	{
-		organizerRouter.POST("/compatition", userHttpHandler.CreateCompatition)
-		organizerRouter.PUT("/compatition/:id", userHttpHandler.UpdateCompatition)
-		organizerRouter.PUT("/compatition/start/:id", userHttpHandler.StartCompatition)
-		organizerRouter.PUT("/compatition/open/:id", userHttpHandler.OpenCompatition)
-		organizerRouter.PUT("/compatition/finish/:id", userHttpHandler.FinishCompatition)
-		organizerRouter.PUT("/compatition/cancel/:id", userHttpHandler.CancelCompatition)
-		organizerRouter.PUT("/match/:id", userHttpHandler.UpdateMatch)
-		organizerRouter.PUT("/compatition/joinCode/add/:compatitionID", userHttpHandler.AddJoinCode)
-		organizerRouter.PUT("/organizer/:organizerID", userHttpHandler.UpdateOrganizer)
-		organizerRouter.DELETE("/compatition/:compatitionID", userHttpHandler.RemoveCompatitionTeam)
+		organizerRouter.POST("/competition", httpHandler.CreateCompetition)
+		organizerRouter.PATCH("/competition/finish/:id", httpHandler.FinishCompetition)
+		organizerRouter.PATCH("/competition/cancel/:id", httpHandler.CancelCompetition)
+		organizerRouter.PATCH("/competition/open/:id", httpHandler.OpenApplicationCompetition)
+		organizerRouter.PATCH("/competition/start/:id", httpHandler.StartCompetition)
+		organizerRouter.PATCH("/competition/:id", httpHandler.UpdateCompetition)
+		organizerRouter.PUT("/competition/joinCode/add/:compatitionID", httpHandler.AddJoinCode)
+		organizerRouter.PUT("/match/:id", httpHandler.UpdateMatch)
+		organizerRouter.PUT("", httpHandler.UpdateOrganizer)
+		organizerRouter.DELETE("/competition/:competitionID", httpHandler.RemoveCompatitionTeam)
+
+		// ========================================================================
+		// ========================================================================
+		// ========================================================================
 	}
 
 	normalRouter := s.app.Group("/user")
 	normalRouter.Use(auth.AuthNormalUser())
 	{
+
+		normalRouter.POST("/competition/join", httpHandler.JoinCompetition)
+		normalRouter.GET("/nextMatch", httpHandler.GetNextMatch)
+		normalRouter.PATCH("/normalUser", httpHandler.UpdateNormalUser)
+		normalRouter.GET("/teams", httpHandler.GetTeamByOwnerID)
+		normalRouter.POST("/team", httpHandler.CreateTeam)
+		normalRouter.DELETE("/team/:teamID", httpHandler.RemoveTeamMember)
+		normalRouter.POST("/sendAddMemberRequest", httpHandler.SendAddMemberRequest)
+		normalRouter.PATCH("/acceptAddMemberRequest", httpHandler.AcceptAddMemberRequest)
+		normalRouter.PATCH("/ignoreAddMemberRequest", httpHandler.IgnoreAddMemberRequest)
+		normalRouter.GET("/requests", httpHandler.GetMyPenddingAddMemberRequest)
+
+		// ========================================================================
+		// ========================================================================
+		// ========================================================================
+
 		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
 		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
-		normalRouter.GET("/nextMatch/:normalUserID", userHttpHandler.GetNextMatch)
-		normalRouter.GET("/MatchResults/:normalUserID", userHttpHandler.GetMatchResult)
-		normalRouter.POST("/team", userHttpHandler.CreateTeam)
-		normalRouter.GET("/requests", userHttpHandler.GetMyPenddingAddMemberRequest)
-		normalRouter.POST("/sendAddMemberRequest", userHttpHandler.SendAddMemberRequest)
-		normalRouter.PUT("/acceptAddMemberRequest", userHttpHandler.AcceptAddMemberRequest)
-		normalRouter.PUT("/ignoreAddMemberRequest", userHttpHandler.IgnoreAddMemberRequest)
-		normalRouter.PUT("/normalUser", userHttpHandler.UpdateNormalUser)
-		normalRouter.GET("/teams/:ownerid", userHttpHandler.GetTeamByOwnerID)
-		normalRouter.DELETE("/team/:teamID", userHttpHandler.RemoveTeamMember)
-		normalRouter.PUT("/compatition/join", userHttpHandler.JoinCompatition)
 		// normalRouter.POST("/team")
 	}
 

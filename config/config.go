@@ -34,7 +34,6 @@ func GetConfig() Config {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./")
-
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %v", err))
@@ -54,5 +53,6 @@ func GetConfig() Config {
 			SSLMode:  viper.GetString("database.sslmode"),
 			TimeZone: viper.GetString("database.timezone"),
 		},
+		JwtSecretKey: viper.GetString("jwt.secret"),
 	}
 }

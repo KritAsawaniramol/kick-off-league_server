@@ -10,14 +10,14 @@ import (
 func Migration(db database.Database) {
 
 	err := db.GetDb().AutoMigrate(
-		&entities.NormalUsersCompatitions{},
+		&entities.NormalUsersCompetitions{},
 		&entities.Users{},
 		&entities.TeamsMembers{},
 		&entities.Teams{},
 		&entities.NormalUsers{},
 		&entities.Organizers{},
-		&entities.CompatitionsTeams{},
-		&entities.Compatitions{},
+		&entities.CompetitionsTeams{},
+		&entities.Competitions{},
 		&entities.Addresses{},
 		&entities.Matchs{},
 		&entities.GoalRecords{},

@@ -35,7 +35,7 @@ type (
 		Description  string
 		AddressesID  uint `gorm:"unique"`
 		Addresses    Addresses
-		Compatitions []Compatitions
+		Competitions []Competitions
 	}
 
 	NormalUsers struct {
@@ -60,7 +60,7 @@ type (
 		Teams           []TeamsMembers
 		TeamsCreated    []Teams       `gorm:"foreignKey:OwnerID;references:users_id"`
 		GoalRecords     []GoalRecords `gorm:"foreignKey:PlayerID"`
-		Compatitions    []NormalUsersCompatitions
+		Competitions    []NormalUsersCompetitions
 		RequestReceives []AddMemberRequests `gorm:"foreignKey:receiver_id;references:users_id"`
 	}
 
@@ -73,12 +73,12 @@ type (
 		Role          string
 	}
 
-	NormalUsersCompatitions struct {
+	NormalUsersCompetitions struct {
 		gorm.Model
 		NormalUsersID  uint
 		NormalUsers    NormalUsers `gorm:"foreignKey:NormalUsersID;references:ID"`
-		CompatitionsID uint
-		Compatitions   Compatitions `gorm:"foreignKey:CompatitionsID;references:ID"`
+		CompetitionsID uint
+		Competitions   Competitions `gorm:"foreignKey:CompetitionsID;references:ID"`
 		TeamsID        uint
 	}
 
@@ -88,18 +88,18 @@ type (
 		OwnerID          uint //userID
 		Description      string
 		TeamsMembers     []TeamsMembers
-		Compatitions     []CompatitionsTeams
+		Competitions     []CompetitionsTeams
 		RequestSends     []AddMemberRequests `gorm:"foreignKey:teams_id;"`
 		ImageProfilePath string
 		ImageCoverPath   string
 	}
 
-	CompatitionsTeams struct {
+	CompetitionsTeams struct {
 		gorm.Model
 		TeamsID        uint
 		Teams          Teams `gorm:"foreignKey:TeamsID;references:ID"`
-		CompatitionsID uint
-		Compatitions   Compatitions `gorm:"foreignKey:CompatitionsID;references:ID"`
+		CompetitionsID uint
+		Competitions   Competitions `gorm:"foreignKey:CompetitionsID;references:ID"`
 		Rank           string
 		RankNumber     int
 		Point          int
@@ -114,7 +114,7 @@ type (
 		Country     string
 	}
 
-	Compatitions struct {
+	Competitions struct {
 		gorm.Model
 		Name                 string
 		Sport                string //football or futsal
@@ -139,10 +139,10 @@ type (
 		ContactType          string
 		Contact              string
 		Status               string
-		Teams                []CompatitionsTeams
+		Teams                []CompetitionsTeams
 		NumOfPlayerInTeamMin uint
 		NumOfPlayerInTeamMax uint
-		NormalUsers          []NormalUsersCompatitions
+		NormalUsers          []NormalUsersCompetitions
 
 		AgeOver  uint
 		AgeUnder uint
@@ -158,7 +158,7 @@ type (
 
 	JoinCode struct {
 		gorm.Model
-		CompatitionsID uint
+		CompetitionsID uint
 		Code           string
 		Status         string //used, unused
 	}
@@ -166,8 +166,8 @@ type (
 	Matchs struct {
 		gorm.Model
 		Index          int //start with 1
-		CompatitionsID uint
-		Compatitions   Compatitions
+		CompetitionsID uint
+		Competitions   Competitions
 		DateTime       time.Time
 		Team1ID        uint `gorm:"foreignKey:TeamsID"`
 		Team2ID        uint `gorm:"foreignKey:TeamsID"`
