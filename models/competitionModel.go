@@ -3,24 +3,23 @@ package model
 import "time"
 
 type CompatitionBasicInfo struct {
-	ID          uint      `json:"id"`
-	Name        string    `json:"name"`
-	Format      string    `json:"format"`
-	Description string    `json:"description"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-
-	AgeOver      uint   `json:"age_over"`
-	AgeUnder     uint   `json:"age_under"`
-	Sex          string `json:"sex"`
-	FieldSurface string `json:"field_surface"`
-	Status       string `json:"status"`
-	NumberOfTeam uint   `json:"number_of_team"`
-	OrganizerID  uint   `json:"organizer_id"`
-	ImageBanner  string `json:"image_banner"`
-	Rank         string `json:"rank"`
-	RankNumber   int    `json:"rank_number"`
-	Sport        string `json:"sport"`
+	ID           uint      `json:"id"`
+	Name         string    `json:"name"`
+	Format       string    `json:"format"`
+	Description  string    `json:"description"`
+	StartDate    time.Time `json:"start_date"`
+	EndDate      time.Time `json:"end_date"`
+	AgeOver      uint      `json:"age_over"`
+	AgeUnder     uint      `json:"age_under"`
+	Sex          string    `json:"sex"`
+	FieldSurface string    `json:"field_surface"`
+	Status       string    `json:"status"`
+	NumberOfTeam uint      `json:"number_of_team"`
+	OrganizerID  uint      `json:"organizer_id"`
+	ImageBanner  string    `json:"image_banner"`
+	Rank         string    `json:"rank"`
+	RankNumber   int       `json:"rank_number"`
+	Sport        string    `json:"sport"`
 }
 
 type Compatition struct {
@@ -82,8 +81,6 @@ type GetCompatition struct {
 	Matchs               []Match        `json:"match"`
 }
 
-
-
 type UpdateCompatition struct {
 	Name                 string    `json:"name"`
 	Sport                string    `json:"sport"`
@@ -144,11 +141,9 @@ type CreateCompetition struct {
 	OrganizerID  uint    `json:"organizer_id"`
 	Address      Address `json:"address" binding:"required"`
 
-	ContactType string `json:"Contact_type"  binding:"required"`
-	Contact     string `json:"Contact"  binding:"required"`
+	ContactType string `json:"contact_type"  binding:"required"`
+	Contact     string `json:"contact"  binding:"required"`
 }
-
-
 
 type JoinCompetition struct {
 	CompetitionID uint   `json:"compatition_id" binding:"required"`

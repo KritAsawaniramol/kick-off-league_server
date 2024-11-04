@@ -5,10 +5,10 @@ import (
 )
 
 type CompetitionUsecase interface {
-	GetCompatition(in uint) (*model.GetCompatition, error)
-	GetCompatitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error)
+	GetCompetition(in uint) (*model.GetCompatition, error)
+	GetCompetitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error)
 	CreateCompetition(in *model.CreateCompetition) error
-	UpdateCompatition(id uint, orgID uint, in *model.UpdateCompatition) error
+	UpdateCompetition(id uint, orgID uint, in *model.UpdateCompatition) error
 	FinishCompetition(id uint, orgID uint) error
 	JoinCompetition(in *model.JoinCompetition, userID uint) error
 	AddJoinCode(compatitionID uint, orgID uint, n int) error

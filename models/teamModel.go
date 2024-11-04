@@ -15,6 +15,7 @@ type Team struct {
 	Description      string                 `json:"description"`
 	Members          []Member               `json:"member,omitempty"`
 	Compatitions     []CompatitionBasicInfo `json:"compatitions,omitempty"`
+	NumberOfMember   int                   `json:"number_of_member"`
 	Rank             string                 `json:"rank"`
 	RankNumber       int                    `json:"rank_number"`
 	Point            int                    `json:"point"`

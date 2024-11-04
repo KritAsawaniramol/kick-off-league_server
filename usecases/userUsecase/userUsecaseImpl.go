@@ -115,8 +115,7 @@ func (u *userUsecaseImpl) GetUsers() ([]model.User, error) {
 
 // UpdateImageProfile implements UserUsecase.
 func (u *userUsecaseImpl) UpdateImageProfile(userID uint, newImagePath string) error {
-	// user := &entities.Users{}
-	// user.ID = userID
+
 
 	user, err := u.repository.GetUserByID(userID)
 	if err != nil {

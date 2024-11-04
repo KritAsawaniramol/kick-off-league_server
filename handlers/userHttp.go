@@ -154,7 +154,6 @@ func isImage(fileHeader *multipart.FileHeader) (bool, string) {
 	}
 	defer file.Close()
 	_, format, err := image.Decode(file)
-	fmt.Println("format", format)
 	if err != nil {
 		log.Error(err)
 		return false, ""

@@ -10,5 +10,5 @@ type CreateTeamError struct {
 }
 
 func (e *CreateTeamError) Error() string {
-	return fmt.Sprintf("Please fill in the required information to create a team." + strings.Join(e.RequiredData, ","))
+	return fmt.Sprintf("Please fill in the required information to create a team. [" + strings.Join(e.RequiredData, ",") + "]")
 }

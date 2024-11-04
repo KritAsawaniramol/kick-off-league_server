@@ -88,7 +88,7 @@ func (s *ginServer) Start() {
 func (s *ginServer) InitialzieHttpHandler() {
 
 	// Initialize all layers
-	repository := repositories.NewUserPostgresRepository(s.db)
+	repository := repositories.NewPostgresRepository(s.db)
 
 	userUsecase := userUsecase.NewUserUsecaseImpl(
 		repository,
@@ -141,7 +141,7 @@ func (s *ginServer) InitialzieHttpHandler() {
 
 	// Define your allowed origins
 	allowedOrigins := []string{
-		"http://localhost:5173",
+		"http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176",
 	}
 
 	// Configure CORS middleware with multiple allowed origins
@@ -171,8 +171,8 @@ func (s *ginServer) InitialzieHttpHandler() {
 
 	viewRouter := s.app.Group("/view")
 	{
-		viewRouter.GET("/competition/:id", httpHandler.GetCompetition)
 		viewRouter.GET("/competition", httpHandler.GetCompetitions)
+		viewRouter.GET("/competition/:id", httpHandler.GetCompetition)
 		viewRouter.GET("/match/:matchID", httpHandler.GetMatch)
 		viewRouter.GET("/normalUsers", httpHandler.GetNormalUsers)
 		viewRouter.GET("/normalUsers/:id", httpHandler.GetNormalUser)
@@ -186,9 +186,6 @@ func (s *ginServer) InitialzieHttpHandler() {
 		// ========================================================================
 		// ========================================================================
 		// ========================================================================
-
-		// viewRouter.GET("/compatition/normalUser/:id", userHttpHandler.)
-
 	}
 
 	imageRouter := s.app.Group("/image")
@@ -248,12 +245,5 @@ func (s *ginServer) InitialzieHttpHandler() {
 		// ========================================================================
 		// ========================================================================
 		// ========================================================================
-
-		// normalRouter.GET("/addMemberRequest", userHttpHandler.SendAddMemberRequest)
-		// normalRouter.GET("/team", userHttpHandler.SendAddMemberRequest)
-		// normalRouter.POST("/team")
 	}
-
-	// publicRouter := s.app.Group("/api/view")
-
 }

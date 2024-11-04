@@ -8,13 +8,14 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kickoff-league.com/entities"
+	"kickoff-league.com/util"
 )
 
 type postgresRepository struct {
 	db *gorm.DB
 }
 
-func NewUserPostgresRepository(db *gorm.DB) Repository {
+func NewPostgresRepository(db *gorm.DB) Repository {
 	return &postgresRepository{db: db}
 }
 
@@ -595,8 +596,8 @@ func (u *postgresRepository) UpdateAddmemberRequestAndInsertTeamsMembers(
 	err := u.db.Transaction(func(tx *gorm.DB) error {
 
 		result := tx.Model(&entities.AddMemberRequests{}).
-		Where("id = ?", memberReqID).
-		Update("status", memberReqStatus)
+			Where("id = ?", memberReqID).
+			Update("status", memberReqStatus)
 		if result.Error != nil {
 			return result.Error
 		}
@@ -623,11 +624,9 @@ func (u *postgresRepository) UpdateAddmemberRequestAndInsertTeamsMembers(
 	return nil
 }
 
-
 // GetAddMemberRequestByID implements Userrepository.
 func (u *postgresRepository) GetAddMemberRequestByID(in *entities.AddMemberRequests) ([]entities.AddMemberRequests, error) {
 	addMemberRequests := []entities.AddMemberRequests{}
-	log.Print(in)
 	if err := u.db.Where(in).Preload("Teams").Find(&addMemberRequests).Error; err != nil {
 		log.Printf("Error: GetAddMemberRequestByID: %s\n", err.Error())
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -674,11 +673,12 @@ func (u *postgresRepository) GetNumberOfTeamsMember(in uint) int64 {
 
 // UpdateCompetitionsTeams implements Userrepository.
 func (u *postgresRepository) UpdateCompetitionsTeams(in *entities.CompetitionsTeams) error {
+	util.PrintObjInJson(in)
 	competitionTeam := &entities.CompetitionsTeams{
 		TeamsID:        in.TeamsID,
 		CompetitionsID: in.CompetitionsID,
 	}
-	if err := u.db.Where(competitionTeam).Updates(in).Error; err != nil {
+	if err := u.db.Select("*").Where(competitionTeam).Updates(in).Error; err != nil {
 		log.Printf("Error: UpdateCompetitionsTeams: %s\n", err.Error())
 		return errors.New("error: update competitionTeams failed")
 	}
@@ -695,6 +695,7 @@ func (u *postgresRepository) ClearGoalRecordsOfMatch(matchID uint) error {
 		log.Printf("Error: ClearGoalRecordsOfMatch: %s\n", err.Error())
 		return errors.New("error: clear goal recoreds of this match failed")
 	}
+	
 	return nil
 }
 
@@ -704,7 +705,7 @@ func (u *postgresRepository) ReplaceGoalRecordsOfMatch(matchID uint, goalRecords
 	match.ID = matchID
 	if err := u.db.Model(match).Association("GoalRecords").Replace(goalRecords); err != nil {
 		log.Printf("Error: ReplaceGoalRecordsOfMatch: %s\n", err.Error())
-		return errors.New("error: replace goal recoreds of this match failed")	
+		return errors.New("error: replace goal recoreds of this match failed")
 	}
 	return nil
 }
@@ -715,11 +716,10 @@ func (u *postgresRepository) AppendGoalRecordsToMatch(id uint, goalRecords []ent
 	match.ID = id
 	if err := u.db.Model(match).Association("GoalRecords").Append(goalRecords); err != nil {
 		log.Printf("Error: AppendGoalRecordsToMatch: %s\n", err.Error())
-		return errors.New("error: append goal recoreds of this match failed")	
+		return errors.New("error: append goal recoreds of this match failed")
 	}
 	return nil
 }
-
 
 // GetTeamsWithCompetitionAndMatch implements Userrepository.
 func (u *postgresRepository) GetTeamsWithCompetitionAndMatch(in *entities.Teams) (*entities.Teams, error) {
@@ -753,8 +753,6 @@ func (u *postgresRepository) GetMatchs(in *entities.Matchs) ([]entities.Matchs, 
 	return match, nil
 }
 
-
-
 // GetTeam implements Userrepository.
 func (u *postgresRepository) GetTeamWithAllAssociationsByID(in *entities.Teams) (*entities.Teams, error) {
 	team := new(entities.Teams)
@@ -767,5 +765,3 @@ func (u *postgresRepository) GetTeamWithAllAssociationsByID(in *entities.Teams) 
 	}
 	return team, nil
 }
-
-

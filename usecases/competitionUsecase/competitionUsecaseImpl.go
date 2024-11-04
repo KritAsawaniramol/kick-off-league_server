@@ -106,8 +106,8 @@ func (c *competitionUsecaseImpl) CreateCompetition(in *model.CreateCompetition) 
 	return nil
 }
 
-// GetCompatition implements CompetitionUsecase.
-func (c *competitionUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition, error) {
+// GetCompetition implements CompetitionUsecase.
+func (c *competitionUsecaseImpl) GetCompetition(in uint) (*model.GetCompatition, error) {
 	compatitionEntity := &entities.Competitions{}
 	compatitionEntity.ID = in
 	result, err := c.repository.GetCompetitionDetails(compatitionEntity)
@@ -136,19 +136,6 @@ func (c *competitionUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition,
 	temes := []model.Team{}
 
 	for _, v := range result.Teams {
-		// members := []model.Member{}
-		// for _, member := range v.Teams.TeamsMembers {
-		// 	members = append(members, model.Member{
-		// 		ID:            member.ID,
-		// 		UsersID:       member.NormalUsers.UsersID,
-		// 		FirstNameThai: member.NormalUsers.FirstNameThai,
-		// 		LastNameThai:  member.NormalUsers.LastNameThai,
-		// 		FirstNameEng:  member.NormalUsers.FirstNameEng,
-		// 		LastNameEng:   member.NormalUsers.LastNameEng,
-		// 		Position:      member.NormalUsers.Position,
-		// 		Sex:           member.NormalUsers.Sex,
-		// 	})
-		// }
 
 		temes = append(temes, model.Team{
 			ID:               v.TeamsID,
@@ -161,6 +148,7 @@ func (c *competitionUsecaseImpl) GetCompatition(in uint) (*model.GetCompatition,
 			Point:            v.Point,
 			ImageProfilePath: v.Teams.ImageProfilePath,
 			ImageCoverPath:   v.Teams.ImageCoverPath,
+			NumberOfMember:   len(v.Teams.TeamsMembers),
 		})
 		goalsScored[v.TeamsID] = 0
 		goalsConceded[v.TeamsID] = 0
@@ -309,9 +297,23 @@ func (c *competitionUsecaseImpl) FinishCompetition(id uint, orgID uint) error {
 	competition := &entities.Competitions{}
 	competition.ID = id
 	competition.OrganizersID = orgID
-	competition, err := c.repository.GetCompetition(competition)
+	competition, err := c.repository.GetCompetitionDetails(competition)
 	if err != nil {
 		return err
+	}
+
+	if competition.Type == util.CompetitionType[1] {
+		competitionsTeams := competition.Teams
+		sort.Slice(competitionsTeams, func(i, j int) bool {
+			return competitionsTeams[i].Point > competitionsTeams[j].Point
+		})
+		for idx, v := range competitionsTeams {
+			v.Rank = fmt.Sprintf("%d", idx+1)
+			v.RankNumber = idx+1
+			if err := c.repository.UpdateCompetitionsTeams(&v); err != nil {
+				return err
+			}
+		}
 	}
 
 	if competition.Status != util.CompetitionStatus[2] {
@@ -493,8 +495,8 @@ func (c *competitionUsecaseImpl) StartCompetition(id uint, orgID uint) error {
 	return nil
 }
 
-// UpdateCompatition implements CompetitionUsecase.
-func (c *competitionUsecaseImpl) UpdateCompatition(id uint, orgID uint, in *model.UpdateCompatition) error {
+// UpdateCompetition implements CompetitionUsecase.
+func (c *competitionUsecaseImpl) UpdateCompetition(id uint, orgID uint, in *model.UpdateCompatition) error {
 
 	query := &entities.Competitions{}
 	query.ID = id
@@ -540,8 +542,8 @@ func (c *competitionUsecaseImpl) UpdateCompatition(id uint, orgID uint, in *mode
 	return nil
 }
 
-// GetCompatitions implements CompetitionUsecase.
-func (c *competitionUsecaseImpl) GetCompatitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error) {
+// GetCompetitions implements CompetitionUsecase.
+func (c *competitionUsecaseImpl) GetCompetitions(in *model.GetCompatitionsReq) ([]model.GetCompatitions, error) {
 
 	competition := &entities.Competitions{
 		OrganizersID: in.OrganizerID,
@@ -635,7 +637,6 @@ func (c *competitionUsecaseImpl) AddJoinCode(compatitionID uint, orgID uint, n i
 
 // JoinCompetition implements CompetitionUsecase.
 func (c *competitionUsecaseImpl) JoinCompetition(in *model.JoinCompetition, userID uint) error {
-	util.PrintObjInJson(in)
 
 	compatitionsEntity := &entities.Competitions{}
 	teamEntity := &entities.Teams{}

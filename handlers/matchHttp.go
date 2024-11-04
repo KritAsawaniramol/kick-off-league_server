@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	model "kickoff-league.com/models"
-	"kickoff-league.com/util"
 )
 
 func (h *httpHandler) GetMatch(c *gin.Context) {
@@ -26,7 +25,6 @@ func (h *httpHandler) GetMatch(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"match": match})
 }
 
-
 func (h *httpHandler) UpdateMatch(c *gin.Context) {
 	matchID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -42,9 +40,7 @@ func (h *httpHandler) UpdateMatch(c *gin.Context) {
 		return
 	}
 
-	util.PrintObjInJson(updateMatch)
-
-	err = h.matchUsecase.UpdateMatch(uint(matchID), c.GetUint("organizer_id"),updateMatch)
+	err = h.matchUsecase.UpdateMatch(uint(matchID), c.GetUint("organizer_id"), updateMatch)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 
@@ -53,7 +49,6 @@ func (h *httpHandler) UpdateMatch(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "update match success"})
 }
-
 
 func (h *httpHandler) GetNextMatch(c *gin.Context) {
 
@@ -71,6 +66,3 @@ func (h *httpHandler) GetNextMatch(c *gin.Context) {
 // ==========================================================================================================
 // ==========================================================================================================
 // ==========================================================================================================
-
-
-

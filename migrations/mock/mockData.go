@@ -22,177 +22,23 @@ import (
 	"kickoff-league.com/util"
 )
 
-var FirstNames = [41]string{
-	"John",
-	"Michael",
-	"David",
-	"James",
-	"Robert",
-	"William",
-	"Joseph",
-	"Charles",
-	"Richard",
-	"Richard",
-	"Thomas",
-	"Daniel",
-	"Matthew",
-	"Christopher",
-	"Anthony",
-	"Brian",
-	"Steven",
-	"Timothy",
-	"Kevin",
-	"Mark",
-	"Paul",
-	"Andrew",
-	"Edward",
-	"Jason",
-	"Scott",
-	"Justin",
-	"Ryan",
-	"Eric",
-	"Gregory",
-	"Joshua",
-	"Kenneth",
-	"Jeffrey",
-	"Stephen",
-	"Brandon",
-	"Jonathan",
-	"Larry",
-	"Dennis",
-	"Jerry",
-	"Tyler",
-	"Frank",
+var FirstNames = [41]string{"John", "Michael", "David", "James", "Robert", "William", "Joseph", "Charles", "Richard", "Richard", "Thomas", "Daniel", "Matthew", "Christopher", "Anthony", "Brian", "Steven",
+	"Timothy", "Kevin", "Mark", "Paul", "Andrew", "Edward", "Jason", "Scott", "Justin", "Ryan", "Eric", "Gregory", "Joshua", "Kenneth", "Jeffrey", "Stephen", "Brandon", "Jonathan", "Larry", "Dennis", "Jerry", "Tyler", "Frank",
 }
 
-var LastNames = [41]string{
-	"Smith",
-	"Johnson",
-	"Williams",
-	"Brown",
-	"Jones",
-	"Garcia",
-	"Miller",
-	"Davis",
-	"Rodriguez",
-	"Martinez",
-	"Hernandez",
-	"Lopez",
-	"Gonzalez",
-	"Wilson",
-	"Anderson",
-	"Anderson",
-	"Thomas",
-	"Taylor",
-	"Moore",
-	"Jackson",
-	"Martin",
-	"Lee",
-	"Perez",
-	"Thompson",
-	"White",
-	"Harris",
-	"Sanchez",
-	"Clark",
-	"Ramirez",
-	"Lewis",
-	"Robinson",
-	"Walker",
-	"Young",
-	"Hall",
-	"Allen",
-	"King",
-	"Wright",
-	"Scott",
-	"Torres",
-	"Nguyen",
-	"Hill",
+var LastNames = [41]string{"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
+	"Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Hall",
+	"Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill",
 }
 
-var ThaiFirstNames = [41]string{
-	"สุรชัย",
-	"วรรณพ",
-	"พรพิมล",
-	"ธนวรรธน์",
-	"วรวัชร",
-	"รัตนาภรณ์",
-	"ชนกานต์",
-	"ศุภวิชญ์",
-	"ประพฤติ",
-	"สมบัติ",
-	"อริศรา",
-	"อริศรา",
-	"ปภัสสร",
-	"วิรัช",
-	"จิราภรณ์",
-	"ศิริวัฒน์",
-	"ณัฐพงศ์",
-	"จันทร์ทอง",
-	"พีระพงษ์",
-	"สรรเสริญ",
-	"พิชญะ",
-	"วสุธา",
-	"วิรัตน์",
-	"ภัทรวิชญ์",
-	"ปิยะพงษ์",
-	"ภูมิพัฒน์",
-	"สมชาย",
-	"ธนกฤต",
-	"ชวิน",
-	"วรวุฒิ",
-	"อนันต์",
-	"ณรงค์",
-	"วิภาวดี",
-	"พัชรพล",
-	"ภาณุวัฒน์",
-	"ปรัชญ์",
-	"สิรวิชญ์",
-	"วีระพล",
-	"จิรวัฒน์",
-	"พงศกร",
+var ThaiFirstNames = [41]string{"สุรชัย", "วรรณพ", "พรพิมล", "ธนวรรธน์", "วรวัชร", "รัตนาภรณ์", "ชนกานต์", "ศุภวิชญ์", "ประพฤติ", "สมบัติ", "อริศรา", "อริศรา", "ปภัสสร", "วิรัช", "จิราภรณ์", "ศิริวัฒน์",
+	"ณัฐพงศ์", "จันทร์ทอง", "พีระพงษ์", "สรรเสริญ", "พิชญะ", "วสุธา", "วิรัตน์", "ภัทรวิชญ์", "ปิยะพงษ์", "ภูมิพัฒน์", "สมชาย", "ธนกฤต", "ชวิน", "วรวุฒิ", "อนันต์", "ณรงค์", "วิภาวดี", "พัชรพล", "ภาณุวัฒน์", "ปรัชญ์", "สิรวิชญ์", "วีระพล", "จิรวัฒน์", "พงศกร",
 }
 
 var ThaiLastNames = [41]string{
-	"สุวรรณ",
-	"วงศ์วาริน",
-	"พิมพ์พรรณ",
-	"ธนาวินท์",
-	"พิชัย",
-	"พิชัย",
-	"นาคนิรมล",
-	"เทพกฤต",
-	"วิชชุดา",
-	"วงศ์ชัย",
-	"ทองดี",
-	"เกษม",
-	"ชัชวาลย์",
-	"ทองแดง",
-	"ชาญชัย",
-	"พันธุ์สุข",
-	"บุญชู",
-	"ประดับ",
-	"ธีระวัฒน์",
-	"จันทร์ดี",
-	"ธีระ",
-	"บุญมี",
-	"สุวรรณ",
-	"จันทร์รักษ์",
-	"วงศ์สวัสดิ์",
-	"สุวรรณภูมิ",
-	"พลอยใส",
-	"รัตนประดิษฐ์",
-	"สุวรรณวิมล",
-	"ปิยะสมบูรณ์",
-	"วิชุดา",
-	"กาญจน์",
-	"พรหมพัฒน์",
-	"สุริยะ",
-	"ชินวัตร",
-	"ประจักษ์",
-	"รัตน์",
-	"ชินวุฒิ",
-	"สุริยะวงศ์",
-	"ภูมิพงษ์",
+	"สุวรรณ", "วงศ์วาริน", "พิมพ์พรรณ", "ธนาวินท์", "พิชัย", "พิชัย", "นาคนิรมล", "เทพกฤต", "วิชชุดา", "วงศ์ชัย", "ทองดี", "เกษม", "ชัชวาลย์", "ทองแดง", "ชาญชัย", "พันธุ์สุข", "บุญชู", "ประดับ",
+	"ธีระวัฒน์", "จันทร์ดี", "ธีระ", "บุญมี", "สุวรรณ", "จันทร์รักษ์", "วงศ์สวัสดิ์", "สุวรรณภูมิ", "พลอยใส", "รัตนประดิษฐ์", "สุวรรณวิมล", "ปิยะสมบูรณ์", "วิชุดา", "กาญจน์", "พรหมพัฒน์", "สุริยะ", "ชินวัตร", "ประจักษ์",
+	"รัตน์", "ชินวุฒิ", "สุริยะวงศ์", "ภูมิพงษ์",
 }
 
 var Position = [41]string{
@@ -210,91 +56,17 @@ var Position = [41]string{
 }
 
 var PlayerDescriptions = [41]string{
-	"Tall and strong defender known for his tough tackles.",
-	"Agile goalkeeper with lightning reflexes.",
-	"Dynamic midfielder with excellent passing skills.",
-	"Pacey forward with a deadly finish.",
-	"Versatile player who can play in multiple positions.",
-	"Experienced captain known for his leadership on the pitch.",
-	"Young talent with potential to become a future star.",
-	"Veteran player with years of experience at the top level.",
-	"Fan-favorite known for his flair and creativity.",
-	"Solid defender who rarely puts a foot wrong.",
-	"Hardworking midfielder who covers every blade of grass.",
-	"Clinical finisher with a knack for scoring goals.",
-	"Intelligent playmaker who dictates the tempo of the game.",
-	"Energetic winger with blistering pace.",
-	"Dependable goalkeeper who rarely makes mistakes.",
-	"Physical midfielder who dominates the midfield battles.",
-	"Skilful dribbler capable of beating multiple defenders.",
-	"Tireless runner who never gives up on the ball.",
-	"Stalwart defender who anchors the backline.",
-	"Technical genius known for his exquisite ball control.",
-	"Tactical mastermind who reads the game brilliantly.",
-	"Speedy full-back who bombards forward with pace.",
-	"Speedy full-back who bombards forward with pace.",
-	"Crafty forward with an eye for goal.",
-	"Commanding presence in defense with aerial dominance.",
-	"Astute tactician who can adapt to different formations.",
-	"Effervescent midfielder who brings energy to the team.",
-	"Strong aerial presence during set pieces.",
-	"Maestro in midfield orchestrating attacks.",
-	"Reliable penalty taker with nerves of steel.",
-	"Tenacious defender who never shies away from challenges.",
-	"Playoff hero with a penchant for scoring crucial goals.",
-	"Fan-favorite known for his work rate and dedication.",
-	"Quick-footed winger capable of producing moments of magic.",
-	"Disciplined player who follows the manager's instructions.",
-	"Natural leader who leads by example on and off the pitch.",
-	"Decisive in front of goal with clinical finishing.",
-	"Versatile utility player capable of filling various roles.",
-	"Promising young talent with a bright future ahead.",
-	"Solid defensive midfielder who shields the backline.",
-	"Unpredictable attacker with dazzling dribbling skills.",
+"Tall and strong defender known for his tough tackles.","Agile goalkeeper with lightning reflexes.","Dynamic midfielder with excellent passing skills.","Pacey forward with a deadly finish.","Versatile player who can play in multiple positions.","Experienced captain known for his leadership on the pitch.","Young talent with potential to become a future star.","Veteran player with years of experience at the top level.","Fan-favorite known for his flair and creativity.","Solid defender who rarely puts a foot wrong.","Hardworking midfielder who covers every blade of grass.","Clinical finisher with a knack for scoring goals.",
+"Intelligent playmaker who dictates the tempo of the game.","Energetic winger with blistering pace.","Dependable goalkeeper who rarely makes mistakes.","Physical midfielder who dominates the midfield battles.",
+"Skilful dribbler capable of beating multiple defenders.","Tireless runner who never gives up on the ball.","Stalwart defender who anchors the backline.","Technical genius known for his exquisite ball control.","Tactical mastermind who reads the game brilliantly.","Speedy full-back who bombards forward with pace.","Speedy full-back who bombards forward with pace.","Crafty forward with an eye for goal.","Commanding presence in defense with aerial dominance.","Astute tactician who can adapt to different formations.","Effervescent midfielder who brings energy to the team.","Strong aerial presence during set pieces.",
+"Maestro in midfield orchestrating attacks.","Reliable penalty taker with nerves of steel.","Tenacious defender who never shies away from challenges.","Playoff hero with a penchant for scoring crucial goals.","Fan-favorite known for his work rate and dedication.","Quick-footed winger capable of producing moments of magic.","Disciplined player who follows the manager's instructions.","Natural leader who leads by example on and off the pitch.",
+"Decisive in front of goal with clinical finishing.","Versatile utility player capable of filling various roles.","Promising young talent with a bright future ahead.","Solid defensive midfielder who shields the backline.","Unpredictable attacker with dazzling dribbling skills.",
 }
 
 var TeamNames = [41]string{
-	"Manchester United",
-	"Real Madrid",
-	"FC Barcelona",
-	"Bayern Munich",
-	"Liverpool",
-	"Juventus",
-	"Paris Saint-Germain",
-	"Chelsea",
-	"Manchester City",
-	"AC Milan",
-	"Inter Milan",
-	"Arsenal",
-	"Borussia Dortmund",
-	"Atletico Madrid",
-	"Tottenham Hotspur",
-	"Roma",
-	"Ajax",
-	"Boca Juniors",
-	"River Plate",
-	"River Plate",
-	"Flamengo",
-	"Santos",
-	"Benfica",
-	"Porto",
-	"Sporting Lisbon",
-	"Galatasaray",
-	"Fenerbahce",
-	"Besiktas",
-	"Olympique de Marseille",
-	"Olympique Lyonnais",
-	"AS Monaco",
-	"Valencia",
-	"Sevilla",
-	"Villarreal",
-	"Napoli",
-	"AS Roma",
-	"Leicester City",
-	"West Ham United",
-	"Everton",
-	"Newcastle United",
-	"Leeds United",
+"Manchester United","Real Madrid","FC Barcelona","Bayern Munich","Liverpool","Juventus","Paris Saint-Germain","Chelsea","Manchester City","AC Milan","Inter Milan","Arsenal","Borussia Dortmund","Atletico Madrid","Tottenham Hotspur","Roma","Ajax",
+"Boca Juniors","River Plate","River Plate","Flamengo","Santos","Benfica","Porto","Sporting Lisbon","Galatasaray","Fenerbahce","Besiktas","Olympique de Marseille","Olympique Lyonnais","AS Monaco",
+"Valencia","Sevilla","Villarreal","Napoli","AS Roma","Leicester City","West Ham United","Everton","Newcastle United","Leeds United",
 }
 
 var TeamDescriptions = [41]string{
@@ -342,71 +114,15 @@ var TeamDescriptions = [41]string{
 }
 
 var CompetitionNames = [41]string{
-	"FIFA World Cup",
-	"UEFA Champions League",
-	"English Premier League",
-	"La Liga",
-	"Bundesliga",
-	"Serie A",
-	"Ligue 1",
-	"UEFA Europa League",
-	"UEFA Europa League",
-	"Copa Libertadores",
-	"Copa America",
-	"UEFA European Championship",
-	"FIFA Club World Cup",
-	"AFC Champions League",
-	"CONCACAF Champions League",
-	"Copa del Rey",
-	"DFB-Pokal",
-	"Coppa Italia",
-	"Copa do Brasil",
-	"FA Cup",
-	"Copa Argentina",
-	"Copa MX",
-	"Scottish Premiership",
-	"Eredivisie",
-	"Campeonato Brasileiro Serie A",
-	"Primeira Liga",
-	"Belgian Pro League",
-	"MLS Cup",
-	"J1 League",
-	"Russian Premier League",
-	"Turkish Super Lig",
-	"Czech First League",
-	"Swiss Super League",
-	"Argentine Primera Division",
-	"A-League",
-	"Bahraini Premier League",
-	"Saudi Professional League",
-	"Qatar Stars League",
-	"Chinese Super League",
-	"Indian Super League",
-	"K-League",
+	"FIFA World Cup","UEFA Champions League","English Premier League","La Liga","Bundesliga","Serie A","Ligue 1","UEFA Europa League","UEFA Europa League",
+	"Copa Libertadores","Copa America","UEFA European Championship","FIFA Club World Cup","AFC Champions League","CONCACAF Champions League","Copa del Rey",
+	"DFB-Pokal","Coppa Italia","Copa do Brasil","FA Cup","Copa Argentina","Copa MX","Scottish Premiership",
+	"Eredivisie","Campeonato Brasileiro Serie A","Primeira Liga","Belgian Pro League","MLS Cup","J1 League","Russian Premier League","Turkish Super Lig",
+	"Czech First League","Swiss Super League","Argentine Primera Division","A-League","Bahraini Premier League","Saudi Professional League","Qatar Stars League",
+	"Chinese Super League","Indian Super League","K-League",
 }
 
-var Clubs = [21]string{
-	"arsenal",
-	"aston-villa",
-	"brentford",
-	"brighton",
-	"burnley",
-	"chelsea",
-	"crystal-palace",
-	"everton",
-	"leeds",
-	"leicester-city",
-	"liverpool",
-	"manchester-city",
-	"manchester-united",
-	"newcastle",
-	"norwich",
-	"norwich",
-	"southampton",
-	"tottenham",
-	"watford",
-	"west-ham",
-	"wolves",
+var Clubs = [21]string{"arsenal","aston-villa","brentford","brighton","burnley","chelsea","crystal-palace","everton","leeds","leicester-city","liverpool","manchester-city","manchester-united","newcastle","norwich","norwich","southampton","tottenham","watford","west-ham","wolves",
 }
 
 func main() {
@@ -414,7 +130,7 @@ func main() {
 
 	db := database.NewPostgresDatabase(&cfg)
 
-	repository := repositories.NewUserPostgresRepository(db.GetDb())
+	repository := repositories.NewPostgresRepository(db.GetDb())
 
 	userUsecase := userUsecase.NewUserUsecaseImpl(
 		repository,
@@ -447,32 +163,6 @@ func main() {
 	matchUsecase := matchUsecase.NewMatchUsecaseImpl(
 		repository,
 	)
-	// c := &entities.Compatitions{}
-	// c.ID = 3
-	// t := &entities.Teams{}
-	// t.ID = 1
-	// userPostgresRepository.AppendTeamtoCompatition(c, t)
-	// userUsercase.StartCompatition(3)
-	// err := userUsercase.JoinCompatition(&model.JoinCompatition{
-	// 	CompatitionID: 3,
-	// 	TeamID:        1,
-	// 	Code:          "",
-	// })
-
-	// util.PrintObjInJson(normalUser)
-
-	// err := userPostgresRepository.DeleteTeamMember(&entities.TeamsMembers{
-	// 	TeamsID:       1,
-	// 	NormalUsersID: 1,
-	// })
-	// if err != nil {
-	// 	fmt.Printf("err: %v\n", err)
-	// 	panic(err)
-	// }
-
-	// userUsercase.CreateJoinCode(1, 3)
-
-	// userPostgresRepository.ClearGoalRecordsOfMatch(1)
 
 	mockupData(
 		userUsecase,
@@ -485,88 +175,6 @@ func main() {
 		matchUsecase,
 	)
 
-	// team := entities.Teams{}
-	// db.GetDb().Preload("TeamsMembers").First(&team, 1)
-
-	// util.PrintObjInJson(team)
-
-	// team, err := userPostgresRepository.GetTeam(1)
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-
-	// normalUser, err := userPostgresRepository.GetNormalUserByUserID(2)
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-	// util.PrintObjInJson(team)
-
-	// normalUser.Teams = append(normalUser.Teams, *team)
-
-	// log.Print("hello world")
-	// if err := userPostgresRepository.UpdateNormalUser(normalUser); err != nil {
-	// 	log.Error(err)
-	// }
-
-	// err := userPostgresRepository.InsertTeamsMembers(&entities.TeamsMembers{
-	// 	TeamsID:       3,
-	// 	NormalUsersID: 1,
-	// 	Role:          "player",
-	// })
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-
-	// teams, err := userUsercase.GetTeamList(&model.GetTeamList{})
-	// if err != nil {
-	// 	log.Error(err)
-	// } else {
-	// 	util.PrintObjInJson(teams)
-	// }
-
-	// teams, err := userUsercase.GetTeamWithMemberAndCompatitionByID(1)
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-
-	// count := userPostgresRepository.GetNumberOfTeamsMember(TestGetTeams(userUsercase, 0, 1))
-	// fmt.Printf("count: %d\n", count)
-
-	// teams, err := userPostgresRepository.GetTeams(TestGetTeams(userUsercase, 0), "name", false, -1, -1)
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-	// util.PrintObjInJson(teams)
-
-	// team, err := userPostgresRepository.GetTeamWithMemberByID(uint(1))
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-
-	// team_byte, err := json.MarshalIndent(team, "", "    ")
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-
-	// log.Print(team_byte)
-
-	// if team, err := userPostgresRepository.GetTeamWithMemberAndRequestSendByID(uint(1)); err != nil {
-	// 	log.Errorf(err.Error())
-	// 	panic(err)
-	// } else {
-	// 	util.PrintObjInJson(team)
-	// }
-
-	// userMigrate(db)
-
-	// CFG = config.GetConfig()
-
-	// db := database.NewPostgresDatabase(&CFG)
-
-	// //migration
-	// migrations.Migration(db)
-
-	// server.NewGinServer(&CFG, db.GetDb()).Start()
 }
 
 func TestGetTeams(normalUserID uint, teamID uint) *entities.Teams {
@@ -589,6 +197,7 @@ func mockupData(
 ) {
 	// Create NormalUser
 	nOfNormalUser := 40
+	userCount := 0
 	for i := 1; i <= nOfNormalUser; i++ {
 		email := fmt.Sprintf("normal%d@gmail.com", i)
 		password := "1234"
@@ -646,9 +255,8 @@ func mockupData(
 		if err != nil {
 			panic(err)
 		}
-
+		userCount += 1
 	}
-
 	// Create team
 	r := 'a'
 	count := 1
@@ -675,7 +283,6 @@ func mockupData(
 	teamID := 1
 	ownerID := 1
 	for i := 1; i <= nOfNormalUser; i++ {
-		fmt.Printf("i: %v\n", i)
 		err := addMemberUsecase.SendAddMemberRequest(&model.AddMemberRequest{
 			TeamID:           uint(teamID),
 			ReceiverUsername: fmt.Sprintf("normal%d", i),
@@ -696,6 +303,8 @@ func mockupData(
 		addMemberUsecase.AcceptAddMemberRequest(uint(i), uint(i))
 	}
 
+	organizerName := []string{"FIFA", "UEFA", "CONMEBOL", "CONCACAF"}
+
 	// // Create Organizer
 	nOfOrg := 2
 	for i := 0; i < nOfOrg; i++ {
@@ -705,12 +314,16 @@ func mockupData(
 				Password: "1234",
 			},
 			Phone:         fmt.Sprintf("%d", i) + "00000000000",
-			OrganizerName: fmt.Sprintf("org%d", i),
+			OrganizerName: organizerName[i],
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
+		userCount += 1
+		userUsercase.UpdateImageProfile(uint(userCount),  fmt.Sprintf("images/profile/%s.png", organizerName[i]))
 	}
+
+
 
 	// Create Compatition
 	err := competitionUsecase.CreateCompetition(&model.CreateCompetition{
@@ -956,7 +569,6 @@ func mockupData(
 	// 	panic(err)
 	// }
 
-	// util.PrintObjInJson(normalUser)
 }
 
 // func userMigrate(db database.Database) {

@@ -30,13 +30,13 @@ type NormalUserProfile struct {
 }
 
 type NormalUserStat struct {
-	WinRate             float64       `json:"win_rate"`
-	TotalMatch          int           `json:"total_match"`
-	Win                 int           `json:"win"`
-	Lose                int           `json:"lose"`
-	Goals               int           `json:"goals"`
-	GoalsPerCompatition float64       `json:"goals_per_compatition"`
-	RecentMatch         []RecentMatch `json:"recent_match"` // Last 20 matches
+	WinRate       float64       `json:"win_rate"`
+	TotalMatch    int           `json:"total_match"`
+	Win           int           `json:"win"`
+	Lose          int           `json:"lose"`
+	Goals         int           `json:"goals"`
+	GoalsPerMatch float64       `json:"goals_per_match"`
+	RecentMatch   []RecentMatch `json:"recent_match"` // Last 20 matches
 }
 
 type NormalUserList struct {

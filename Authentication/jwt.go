@@ -20,9 +20,11 @@ func (j *jwtAuthentication) getToken(c *gin.Context) (*jwt.Token, error) {
 
 		return nil, err
 	}
-	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {
-		return []byte(j.secretKey), nil
-	})
+	token, err := jwt.Parse(
+		cookie,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(j.secretKey), nil
+		})
 	return token, err
 }
 
@@ -45,7 +47,7 @@ func (j *jwtAuthentication) Auth() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
-		
+
 		userID, ok := claims["user_id"]
 		if !ok {
 			log.Print("user_id not found in token", claims)
@@ -129,6 +131,7 @@ func (j *jwtAuthentication) AuthOrganizer() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := j.getToken(c)
 		if err != nil {
+			log.Println("token not found")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
@@ -142,12 +145,13 @@ func (j *jwtAuthentication) AuthOrganizer() gin.HandlerFunc {
 
 		userRole, ok := claims["role"].(string)
 		if !ok {
+			log.Print("role not found in token", claims)
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
 			return
 		}
 
-		if err != nil || !token.Valid || userRole != "organizer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		if !token.Valid || userRole != "organizer" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized (token not valid or role not correct)"})
 			return
 		}
 

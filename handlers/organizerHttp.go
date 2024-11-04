@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/gommon/log"
 
 	model "kickoff-league.com/models"
-	"kickoff-league.com/util"
 )
 
 func (h *httpHandler) GetOrganizers(c *gin.Context) {
@@ -45,8 +44,6 @@ func (h *httpHandler) UpdateOrganizer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
 		return
 	}
-
-	util.PrintObjInJson(updateOrganizer)
 
 	if err := h.organizerUsecase.UpdateOrganizer(c.GetUint("organizer_id"), updateOrganizer); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

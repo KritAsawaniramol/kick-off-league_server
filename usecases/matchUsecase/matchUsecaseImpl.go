@@ -155,9 +155,10 @@ func (m *matchUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 			return nil, err
 		}
 		for _, compatition := range resultTeam.Competitions {
+
 			if compatition.Competitions.Status == util.CompetitionStatus[2] {
 				for _, match := range compatition.Competitions.Matchs {
-					if match.Team1ID == t.ID && match.Team2ID != 0 && match.Result == "" {
+					if match.Team1ID == t.TeamsID && match.Team2ID != 0 && match.Result == "" {
 						queryTeam2 := &entities.Teams{}
 						queryTeam2.ID = match.Team2ID
 						rivalTeam, err := m.repository.GetTeam(queryTeam2)
@@ -169,7 +170,7 @@ func (m *matchUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							RivalTeamName:         rivalTeam.Name,
 							RivalTeamImageProfile: rivalTeam.ImageProfilePath,
 							RivalTeamImageCover:   rivalTeam.ImageCoverPath,
-							CompatitionsID:        compatition.ID,
+							CompatitionsID:        compatition.Competitions.ID,
 							CompatitionsName:      compatition.Competitions.Name,
 							CompatitionsAddress: model.Address{
 								HouseNumber: compatition.Competitions.HouseNumber,
@@ -182,7 +183,7 @@ func (m *matchUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							MatchID:       match.ID,
 							MatchDateTime: match.DateTime,
 						})
-					} else if match.Team2ID == t.ID && match.Team1ID != 0 && match.Result == "" {
+					} else if match.Team2ID == t.TeamsID && match.Team1ID != 0 && match.Result == "" {
 						queryTeam1 := &entities.Teams{}
 						queryTeam1.ID = match.Team1ID
 						rivalTeam, err := m.repository.GetTeam(queryTeam1)
@@ -194,7 +195,7 @@ func (m *matchUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 							RivalTeamName:         rivalTeam.Name,
 							RivalTeamImageProfile: rivalTeam.ImageProfilePath,
 							RivalTeamImageCover:   rivalTeam.ImageCoverPath,
-							CompatitionsID:        compatition.ID,
+							CompatitionsID:        compatition.Competitions.ID,
 							CompatitionsName:      compatition.Competitions.Name,
 							CompatitionsAddress: model.Address{
 								HouseNumber: compatition.Competitions.HouseNumber,
@@ -233,7 +234,6 @@ func (m *matchUsecaseImpl) GetNextMatch(id uint) ([]model.NextMatch, error) {
 
 // UpdateMatch implements MatchUsecase.
 func (m *matchUsecaseImpl) UpdateMatch(id uint, orgID uint, updateMatch *model.UpdateMatch) error {
-	util.PrintObjInJson(updateMatch)
 	goalRecords := []entities.GoalRecords{}
 	getMatch := &entities.Matchs{}
 	getMatch.ID = id
@@ -244,10 +244,11 @@ func (m *matchUsecaseImpl) UpdateMatch(id uint, orgID uint, updateMatch *model.U
 
 	getCompatition := &entities.Competitions{}
 	getCompatition.ID = match.CompetitionsID
-	compatition, err := m.repository.GetCompetitionDetails(getCompatition)
+	compatition, err := m.repository.GetCompetition(getCompatition)
 	if err != nil {
 		return err
 	}
+	
 
 	if compatition.OrganizersID != orgID {
 		return errors.New("error: you can't update this match")
@@ -282,6 +283,13 @@ func (m *matchUsecaseImpl) UpdateMatch(id uint, orgID uint, updateMatch *model.U
 	if err != nil {
 		return err
 	}
+
+
+	compatition, err = m.repository.GetCompetitionDetails(getCompatition)
+	if err != nil {
+		return err
+	}
+
 	if match.Competitions.Type == util.CompetitionType[0] {
 		round, err := strconv.Atoi(strings.Split(match.Round, " ")[1])
 		if err != nil {
@@ -367,28 +375,27 @@ func (m *matchUsecaseImpl) UpdateMatch(id uint, orgID uint, updateMatch *model.U
 			}
 		}
 	} else if match.Competitions.Type == util.CompetitionType[1] {
+
 		team1Point := 0
 		team2Point := 0
 
 		for _, m := range compatition.Matchs {
-
 			if match.Team1ID == m.Team1ID && m.Result == util.MatchsResult[0] {
+				team1Point += 3
+			} else if match.Team1ID == m.Team2ID && m.Result == util.MatchsResult[1] {
 				team1Point += 3
 			} else if match.Team1ID == m.Team1ID && m.Result == util.MatchsResult[2] {
 				team1Point += 1
-			} else if match.Team1ID == m.Team2ID && m.Result == util.MatchsResult[1] {
-				team1Point += 3
 			}
 
 			if match.Team2ID == m.Team1ID && m.Result == util.MatchsResult[0] {
 				team2Point += 3
-			} else if match.Team2ID == m.Team1ID && m.Result == util.MatchsResult[2] {
-				team2Point += 1
 			} else if match.Team2ID == m.Team2ID && m.Result == util.MatchsResult[1] {
 				team2Point += 3
+			} else if match.Team2ID == m.Team1ID && m.Result == util.MatchsResult[2] {
+				team2Point += 1
 			}
 		}
-
 		err = m.repository.UpdateCompetitionsTeams(&entities.CompetitionsTeams{
 			TeamsID:        match.Team1ID,
 			CompetitionsID: match.CompetitionsID,
@@ -408,7 +415,6 @@ func (m *matchUsecaseImpl) UpdateMatch(id uint, orgID uint, updateMatch *model.U
 	}
 
 	// assign team to next match (if there are)
-	fmt.Printf("match.NextMatchIndex: %v\n", match.NextMatchIndex)
 	if match.NextMatchIndex != 0 {
 		nextMatch, err := m.repository.GetMatchDetail(&entities.Matchs{
 			CompetitionsID: match.CompetitionsID,

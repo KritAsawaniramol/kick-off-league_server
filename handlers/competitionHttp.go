@@ -31,7 +31,7 @@ func (h *httpHandler) DeleteImageBanner(c *gin.Context) {
 func (h *httpHandler) UpdateImageBanner(c *gin.Context) {
 	compatitionID, err := strconv.ParseUint(c.Param("compatitionID"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h *httpHandler) CreateCompetition(c *gin.Context) {
 	reqBody := new(model.CreateCompetition)
 	if err := c.BindJSON(reqBody); err != nil {
 		log.Printf("error: CreateCompetition: %s\n", err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"message": "BadRequest"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
 		return
 	}
 
@@ -89,9 +89,9 @@ func (h *httpHandler) GetCompetition(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
 		return
 	}
-	result, err := h.competitionUsecase.GetCompatition(uint(teamID))
+	result, err := h.competitionUsecase.GetCompetition(uint(teamID))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"compatition": result})
@@ -181,7 +181,7 @@ func (h *httpHandler) GetCompetitions(c *gin.Context) {
 	// 	return
 	// }
 
-	compatitions, err := h.competitionUsecase.GetCompatitions(&model.GetCompatitionsReq{
+	compatitions, err := h.competitionUsecase.GetCompetitions(&model.GetCompatitionsReq{
 		// NormalUserID: uint(normalUserID),
 		// TeamID:       uint(teamID),
 		OrganizerID: uint(organizerID),
@@ -208,7 +208,7 @@ func (h *httpHandler) UpdateCompetition(c *gin.Context) {
 		return
 	}
 
-	err = h.competitionUsecase.UpdateCompatition(uint(compatitionID), c.GetUint("organizer_id"), updateCompatition)
+	err = h.competitionUsecase.UpdateCompetition(uint(compatitionID), c.GetUint("organizer_id"), updateCompatition)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -255,13 +255,6 @@ func (h *httpHandler) JoinCompetition(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
-		// if strings.HasPrefix(err.Error(), "unable") {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		// } else {
-		// 	fmt.Printf("err: %v\n", err)
-		// 	c.JSON(http.StatusInternalServerError, gin.H{"message": "InternalServerError"})
-		// }
-		// return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "join compatition success"})
 }
@@ -271,4 +264,3 @@ func (h *httpHandler) JoinCompetition(c *gin.Context) {
 // ==========================================================================================================
 // ==========================================================================================================
 // ==========================================================================================================
-

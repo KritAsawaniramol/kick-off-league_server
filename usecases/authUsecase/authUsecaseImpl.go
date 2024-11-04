@@ -19,10 +19,10 @@ type authUsecaseImpl struct {
 }
 
 func NewAuthUsecaseImpl(
-	userrepository repositories.Repository,
+	repository repositories.Repository,
 ) AuthUsecase {
 	return &authUsecaseImpl{
-		repository: userrepository,
+		repository: repository,
 	}
 }
 

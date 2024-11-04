@@ -54,7 +54,7 @@ func (t *teamUsecaseImpl) GetTeamWithMemberAndCompatitionByID(id uint) (*model.T
 
 	for _, v := range selectedTeams.Competitions {
 		compatition_model = append(compatition_model, model.CompatitionBasicInfo{
-			ID:           v.ID,
+			ID:           v.CompetitionsID,
 			Name:         v.Competitions.Name,
 			Format:       v.Competitions.Format,
 			OrganizerID:  v.Competitions.OrganizersID,
@@ -295,14 +295,13 @@ func (t *teamUsecaseImpl) UpdateTeamImageCover(teamID uint, newImagePath string,
 		}
 	}
 
-	if err := t.repository.UpdateSelectedFields(team, 
-		"ImageCoverPath", 
+	if err := t.repository.UpdateSelectedFields(team,
+		"ImageCoverPath",
 		&entities.Teams{ImageCoverPath: newImagePath}); err != nil {
 		return err
 	}
 	return nil
 }
-
 
 // UpdateTeamImageProfile implements TeamUsecase.
 func (t *teamUsecaseImpl) UpdateTeamImageProfile(teamID uint, newImagePath string, userID uint) error {
@@ -362,5 +361,3 @@ func (t *teamUsecaseImpl) GetTeamsByOwnerID(in uint) ([]model.TeamList, error) {
 // ========================================================================
 // ========================================================================
 // ========================================================================
-
-

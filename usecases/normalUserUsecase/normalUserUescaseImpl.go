@@ -20,8 +20,6 @@ func NewNormalUserUsecaseImpl(
 	}
 }
 
-
-
 type normalUserUsecaseImpl struct {
 	repository repositories.Repository
 }
@@ -77,9 +75,11 @@ func (n *normalUserUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile
 	lose := 0
 	recentMatch := []model.RecentMatch{}
 	for _, compatition := range resultNormalUser.Competitions {
+
 		teamID := compatition.TeamsID
 		for _, match := range compatition.Competitions.Matchs {
 			result := ""
+
 			if match.Team1ID == teamID && teamID != 0 && match.Result != "" {
 				totalMatch += 1
 				if match.Result == util.MatchsResult[0] {
@@ -107,6 +107,7 @@ func (n *normalUserUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile
 					VsTeamName:     vsTeam.Name,
 					Result:         result,
 					Score:          fmt.Sprintf("%d - %d", match.Team1Goals, match.Team2Goals),
+					CompatitionsID: match.CompetitionsID,
 					TournamentName: compatition.Competitions.Name,
 				})
 			} else if match.Team2ID == teamID && teamID != 0 && match.Result != "" {
@@ -135,14 +136,15 @@ func (n *normalUserUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile
 					DateTime:       match.DateTime,
 					VsTeamName:     vsTeam.Name,
 					Result:         result,
-					Score:          fmt.Sprintf("%d - %d", match.Team2ID, match.Team1ID),
+					Score:          fmt.Sprintf("%d - %d", match.Team2Goals, match.Team1Goals),
 					TournamentName: compatition.Competitions.Name,
+					CompatitionsID: match.CompetitionsID,
 				})
 			}
 		}
 	}
 	winRate := (float64(win) / float64(totalMatch)) * 100
-	goalPerCompatition := float64(len(resultNormalUser.GoalRecords)) / float64(len(resultNormalUser.Competitions))
+	goalPerCompatition := float64(len(resultNormalUser.GoalRecords)) / float64(totalMatch)
 
 	// Handling NaN value
 	if math.IsNaN(float64(goalPerCompatition)) {
@@ -165,10 +167,11 @@ func (n *normalUserUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile
 	teamJoined := []model.Team{}
 	for _, team := range resultNormalUser.Teams {
 		teamJoined = append(teamJoined, model.Team{
-			ID:               team.Teams.ID,
-			Name:             team.Teams.Name,
-			OwnerID:          team.Teams.OwnerID,
-			Description:      team.Teams.Description,
+			ID:             team.Teams.ID,
+			Name:           team.Teams.Name,
+			OwnerID:        team.Teams.OwnerID,
+			Description:    team.Teams.Description,
+			NumberOfMember: len(team.Teams.TeamsMembers),
 			// Members:          members,
 			ImageProfilePath: team.Teams.ImageProfilePath,
 			ImageCoverPath:   team.Teams.ImageCoverPath,
@@ -206,13 +209,13 @@ func (n *normalUserUsecaseImpl) GetNormalUser(id uint) (*model.NormalUserProfile
 		ImageProfilePath: resultUser.ImageProfilePath,
 		ImageCoverPath:   resultUser.ImageCoverPath,
 		NormalUserStat: model.NormalUserStat{
-			WinRate:             winRate,
-			TotalMatch:          totalMatch,
-			Win:                 win,
-			Lose:                lose,
-			Goals:               len(resultNormalUser.GoalRecords),
-			GoalsPerCompatition: goalPerCompatition,
-			RecentMatch:         recentMatch,
+			WinRate:       winRate,
+			TotalMatch:    totalMatch,
+			Win:           win,
+			Lose:          lose,
+			Goals:         len(resultNormalUser.GoalRecords),
+			GoalsPerMatch: goalPerCompatition,
+			RecentMatch:   recentMatch,
 		},
 		TeamJoined: teamJoined,
 	}
@@ -262,7 +265,6 @@ func (n *normalUserUsecaseImpl) UpdateNormalUser(inUpdateModel *model.UpdateNorm
 // ==========================================================================================================
 // ==========================================================================================================
 // ==========================================================================================================
-
 
 func isUsernameAlreadyInUser(username string, u repositories.Repository) bool {
 	if _, err := u.GetNormalUserByUsername(username); err != nil {

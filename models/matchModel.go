@@ -27,6 +27,7 @@ type RecentMatch struct {
 	VsTeamName     string    `json:"vs_team_name"`
 	Result         string    `json:"result"`
 	Score          string    `json:"score"` // 1 - 1, 3 - 1
+	CompatitionsID uint      `json:"compatition_id"`
 	TournamentName string    `json:"tournament_name"`
 }
 
