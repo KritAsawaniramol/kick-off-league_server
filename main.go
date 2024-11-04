@@ -5,7 +5,6 @@ import (
 	"kickoff-league.com/database"
 	"kickoff-league.com/migrations"
 	"kickoff-league.com/server"
-	"kickoff-league.com/util"
 )
 
 var CFG config.Config
