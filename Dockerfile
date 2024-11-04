@@ -7,10 +7,8 @@ COPY . ./
 # install all package
 RUN go mod download
 
-
 # build and put on path /bin/app (app.exe)
 RUN CGO_ENABLED=0 go build -o /bin/app
-
 
 # next stage: install linux(defian)
 FROM debian:bullseye-slim

@@ -1,13 +1,15 @@
 version: '3.8'
 
+name: cs_project
+
 services:
   postgres:
     image: postgres:latest
     container_name: postgres
     environment:
       POSTGRES_DB: mydatabase
-      POSTGRES_USER: 
-      POSTGRES_PASSWORD: 
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -16,22 +18,22 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: pgadminKickOff
     environment:
-      PGADMIN_DEFAULT_EMAIL:
-      PGADMIN_DEFAULT_PASSWORD: 
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
     depends_on:
       - postgres
     restart: unless-stopped
 
-  kickoffbackend:
-    image: kickoffbackend:latest
-    container_name: kickoffbackend
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
+  # kickoffbackend:
+  #   image: kickoffbackend:latest
+  #   container_name: kickoffbackend
+  #   ports:
+  #     - "8080:8080"
+  #   restart: unless-stopped
 
 
 volumes:
