@@ -101,8 +101,6 @@ The Kickoff League platform is designed to facilitate and enhance the experience
 - **PATCH** `/user/acceptAddMemberRequest`
 - **PATCH** `/user/ignoreAddMemberRequest`
 - **GET** `/user/requests`
-
-
 - **POST** `/user/competition/join` 
 - **GET** `/user/nextMatch` 
 - **PATCH** `/user/normalUser` 
