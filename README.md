@@ -103,17 +103,16 @@ The Kickoff League platform is designed to facilitate and enhance the experience
 - **GET** `/user/requests`
 
 
-- **POST** `/user/competition/join` - Join a competition
-- **GET** `/user/nextMatch` - Get the user's next match
-- **PATCH** `/user/normalUser` - Update normal user information
-- **GET** `/user/teams` - Get all teams owned by the user
-- **POST** `/user/team` - Create a new team
-- **DELETE** `/user/team/:teamID` - Remove a team member
-- **POST** `/user/sendAddMemberRequest` - Send a request to add a team member
-- **PATCH** `/user/acceptAddMemberRequest` - Accept an add-member request
-- **PATCH** `/user/ignoreAddMemberRequest` - Ignore an add-member request
-- **GET** `/user/requests` - Get all pending add-member requests
-
+- **POST** `/user/competition/join` 
+- **GET** `/user/nextMatch` 
+- **PATCH** `/user/normalUser` 
+- **GET** `/user/teams` 
+- **POST** `/user/team` 
+- **DELETE** `/user/team/:teamID` 
+- **POST** `/user/sendAddMemberRequest` 
+- **PATCH** `/user/acceptAddMemberRequest` 
+- **PATCH** `/user/ignoreAddMemberRequest` 
+- **GET** `/user/requests` 
 
 ## Installation
 
